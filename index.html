@@ -176,7 +176,7 @@ async function sha256(str){return crypto.subtle.digest(‘SHA-256’,new TextEnc
 function randomStr(len){const arr=new Uint8Array(len);crypto.getRandomValues(arr);return base64url(arr)}
 
 const CLIENT_ID=‘1155afdf-d585-48cc-af89-b973843ce21a’;
-const REDIRECT=‘https://ghaziomairi93.github.io/dashboard/’;
+const REDIRECT=‘https://ghaziomairi93.github.io/MyDashboard/’;
 const SCOPES=‘openid profile User.Read Mail.Read offline_access’;
 const AUTH_EP=‘https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize’;
 const TOKEN_EP=‘https://login.microsoftonline.com/consumers/oauth2/v2.0/token’;
