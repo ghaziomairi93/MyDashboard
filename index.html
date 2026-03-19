@@ -1,19 +1,14 @@
 <!-- 
-  DASHBOARD VERSION: v1.0
+  DASHBOARD VERSION: v1.1
   LAST UPDATED: 2026-03-19
   
   CHANGELOG:
-  - Replaced Implicit Auth with PKCE for stable Outlook Login.
-  - Added Smart Time Parsing for Google Calendar (e.g., "Dinner at 7pm").
-  - Fixed Reminders to be date-specific (Today vs Tomorrow vs Saturday).
-  - Added Delete buttons (X) to all items.
-  - Added 3-second green checkmark confirmation on Refresh.
-  - Restricted Google Calendar to "primary" to hide holidays/birthdays.
-  
-  SETUP:
-  1. Replace MS_CLIENT_ID with your Azure Client ID.
-  2. Replace GOOGLE_CLIENT_ID with your Google Cloud ID.
-  3. Ensure REDIRECT matches your GitHub Pages URL exactly.
+  - Added 7-day horizontal selector for both Calendar and Reminders.
+  - "Tomorrow" now shows actual day name (e.g., Friday).
+  - Outlook unread count now strictly checks the "Inbox" folder only.
+  - Filtered out Google "Birthdays" and "Holidays" from the schedule.
+  - Added "Reset All Sessions" button to force re-authentication (Password prompt).
+  - Synchronized Reminder logic to support a full 7-day rolling window.
 -->
 
 <!DOCTYPE html>
@@ -21,13 +16,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi's Dashboard v1.0</title>
+<title>Ghazi's Dashboard v1.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
 :root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--blue2:#1A56CC;--green:#34D399;--amber:#FBBF24;--red:#F87171;--purple:#A78BFA}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:50px;scroll-behavior: smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;scroll-behavior: smooth;}
 
 header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Playfair Display',serif;font-size:20px}.logo span{color:var(--blue)}
@@ -59,16 +54,19 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 .cal-input-container{padding:12px;display:flex;gap:8px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border)}
 .cal-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:white;font-size:13px;outline:none}
 
-.filter-bar{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
-.chip{font-size:11px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);white-space:nowrap}
+.filter-bar{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
+.chip{font-size:11px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);white-space:nowrap;cursor:pointer}
 .chip.active{background:var(--blue2);color:white;border-color:var(--blue2)}
 .empty{padding:32px;text-align:center;color:var(--muted);font-size:13px}
+
+footer{padding:40px 20px;text-align:center}
+.btn-reset{background:transparent; border:1px solid var(--red); color:var(--red); padding:10px 20px; border-radius:12px; font-size:12px; font-weight:600; cursor:pointer}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">G<span>.</span>Dashboard <span class="version-tag">v1.0</span></div>
+  <div class="logo">G<span>.</span>Dashboard <span class="version-tag">v1.1</span></div>
 </header>
 
 <div class="greeting">
@@ -76,6 +74,7 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <p id="greeting-sub"></p>
 </div>
 
+<!-- Stats -->
 <div class="stats">
   <div class="stat-card" onclick="document.getElementById('cal-sec').scrollIntoView({behavior:'smooth'})">
     <div class="stat-header">
@@ -96,17 +95,18 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
         <div class="stat-icon-wrap" style="background:rgba(251,191,36,0.15);color:var(--amber)">🔔</div>
         <div class="stat-val" id="stat-reminders">0</div>
     </div>
-    <div class="stat-label">Active Tasks</div>
+    <div class="stat-label">Tasks Due</div>
   </div>
   <div class="stat-card" onclick="document.getElementById('rem-sec').scrollIntoView({behavior:'smooth'})">
     <div class="stat-header">
         <div class="stat-icon-wrap" style="background:rgba(52,211,153,0.15);color:var(--green)">✅</div>
         <div class="stat-val" id="stat-done">0</div>
     </div>
-    <div class="stat-label">Completed</div>
+    <div class="stat-label">Finished</div>
   </div>
 </div>
 
+<!-- Outlook -->
 <div class="section" id="mail-sec">
   <div class="section-title">Outlook Inbox</div>
   <div class="card">
@@ -115,24 +115,24 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
       <div style="display:flex;gap:8px; align-items:center;">
           <button class="card-action btn-login" id="ms-login-btn" onclick="startMSLogin()">Sign In</button>
           <button class="card-action" id="ms-refresh-btn" style="display:none" onclick="loadMail(true)">Refresh <span id="ms-check" class="feedback-check">✓</span></button>
-          <button class="card-action btn-logout" id="ms-logout-btn" style="display:none" onclick="logoutMS()" style="color:var(--red)">Sign Out</button>
       </div>
     </div>
     <div id="mail-body"><div class="empty">Messages will appear here</div></div>
   </div>
 </div>
 
+<!-- Google Calendar -->
 <div class="section" id="cal-sec">
   <div class="section-title">Google Calendar</div>
   <div class="card">
     <div class="card-head">
-      <div class="card-name">My Schedule</div>
+      <div class="card-name">Schedule</div>
       <div style="display:flex;gap:8px; align-items:center;">
           <button class="card-action btn-login" id="google-login-btn" onclick="initGoogle()">Connect</button>
           <button class="card-action" id="google-refresh-btn" style="display:none" onclick="loadGoogleCalendar(true)">Refresh <span id="google-check" class="feedback-check">✓</span></button>
-          <button class="card-action btn-logout" id="google-logout-btn" style="display:none" onclick="logoutGoogle()" style="color:var(--red)">Sign Out</button>
       </div>
     </div>
+    <div class="filter-bar" id="cal-chips"></div>
     <div class="cal-input-container" id="cal-input-ui" style="display:none">
         <input type="text" class="cal-input" id="cal-title" placeholder="Gym @ 6pm">
         <button class="card-action btn-login" onclick="addGoogleEvent()">Add</button>
@@ -141,60 +141,61 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   </div>
 </div>
 
+<!-- Reminders -->
 <div class="section" id="rem-sec">
   <div class="section-title">Reminders</div>
   <div class="card">
     <div class="card-head">
       <div class="card-name">Tasks</div>
-      <button class="card-action btn-login" onclick="addNewReminder()">+ Add Task</button>
+      <button class="card-action btn-login" onclick="addNewReminder()">+ Add</button>
     </div>
     <div class="filter-bar" id="reminder-chips"></div>
     <div id="reminders-list"></div>
   </div>
 </div>
 
+<footer>
+    <button class="btn-reset" onclick="fullNukeSession()">Reset All Sessions & Logout</button>
+</footer>
+
 <script>
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const GOOGLE_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 const REDIRECT = 'https://ghaziomairi93.github.io/MyDashboard/';
 
-// PKCE Logic
+let msToken = sessionStorage.getItem('ms_token');
+let googleToken = sessionStorage.getItem('google_token');
+let currentRemIdx = 0;
+let currentCalIdx = 0;
+let allReminders = JSON.parse(localStorage.getItem('ghazi_rems')) || [];
+
+// PKCE Helpers
 function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
 async function sha256(str){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))}
 function randomStr(len){const arr=new Uint8Array(len);crypto.getRandomValues(arr);return base64url(arr)}
 
-let msToken = sessionStorage.getItem('ms_token');
-let googleToken = sessionStorage.getItem('google_token');
-let currentDayIdx = 0;
-
 window.onload = async () => {
     updateDate();
-    initReminderChips();
+    initDayBars();
     renderReminders();
     
-    // Handle MS Redirect
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     if(code){
         const verifier = sessionStorage.getItem('pkce_verifier');
-        const body = new URLSearchParams({client_id:MS_CLIENT_ID, code:code, redirect_uri:REDIRECT, grant_type:'authorization_code', code_verifier:verifier, scope:'openid profile User.Read Mail.Read'});
+        const body = new URLSearchParams({client_id:MS_CLIENT_ID, code:code, redirect_uri:REDIRECT, grant_type:'authorization_code', code_verifier:verifier});
         const r = await fetch('https://login.microsoftonline.com/consumers/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
         const data = await r.json();
-        if(data.access_token){
-            sessionStorage.setItem('ms_token', data.access_token);
-            window.location.href = REDIRECT;
-        }
+        if(data.access_token){ sessionStorage.setItem('ms_token', data.access_token); window.location.href = REDIRECT; }
     }
 
     if(msToken) {
         document.getElementById('ms-login-btn').style.display='none';
-        document.getElementById('ms-logout-btn').style.display='block';
         document.getElementById('ms-refresh-btn').style.display='block';
         loadMail();
     }
     if(googleToken) {
         document.getElementById('google-login-btn').style.display='none';
-        document.getElementById('google-logout-btn').style.display='block';
         document.getElementById('google-refresh-btn').style.display='block';
         document.getElementById('cal-input-ui').style.display='flex';
         loadGoogleCalendar();
@@ -208,53 +209,95 @@ function updateDate() {
     document.getElementById('greeting-sub').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 }
 
-// Outlook Fetch
+function initDayBars() {
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    let html = '';
+    for(let i=0; i<7; i++) {
+        let d = new Date(); d.setDate(d.getDate() + i);
+        let label = i === 0 ? 'Today' : (i === 1 ? days[d.getDay()] : days[d.getDay()]); 
+        // Force day names for tomorrow onwards
+        html += `<button class="chip ${i===0?'active':''}" data-idx="${i}">${label}</button>`;
+    }
+    document.getElementById('cal-chips').innerHTML = html;
+    document.getElementById('reminder-chips').innerHTML = html;
+
+    document.querySelectorAll('#cal-chips .chip').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('#cal-chips .chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            currentCalIdx = parseInt(btn.dataset.idx);
+            loadGoogleCalendar();
+        };
+    });
+    document.querySelectorAll('#reminder-chips .chip').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('#reminder-chips .chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            currentRemIdx = parseInt(btn.dataset.idx);
+            renderReminders();
+        };
+    });
+}
+
+// Outlook - Strict Inbox Filter
 async function startMSLogin(){
   const verifier = randomStr(64);
   const challenge = base64url(await sha256(verifier));
   sessionStorage.setItem('pkce_verifier', verifier);
-  window.location.href = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${MS_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=openid profile User.Read Mail.Read&code_challenge=${challenge}&code_challenge_method=S256&response_mode=query`;
+  // Added prompt=select_account to force account selection
+  window.location.href = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${MS_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=openid profile User.Read Mail.Read&code_challenge=${challenge}&code_challenge_method=S256&prompt=select_account`;
 }
 
 async function loadMail(isRefresh = false) {
     if(isRefresh) { document.getElementById('ms-check').style.display='inline'; setTimeout(()=>document.getElementById('ms-check').style.display='none',3000); }
     try {
-        const r = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$count=true", {
+        // Fetch only from 'inbox' specifically
+        const r = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$count=true&$filter=isRead eq false", {
             headers:{Authorization:'Bearer '+msToken, 'ConsistencyLevel': 'eventual'}
         });
         const data = await r.json();
         const unread = data['@odata.count'] || 0;
         document.getElementById('stat-mail').textContent = unread;
-        document.getElementById('mail-subtitle').textContent = unread + " Unread Emails";
-        document.getElementById('mail-body').innerHTML = data.value.map(m => `
+        document.getElementById('mail-subtitle').textContent = unread + " New Emails";
+        document.getElementById('mail-body').innerHTML = data.value.length ? data.value.map(m => `
             <div class="list-item" onclick="window.location.href='ms-outlook://emails/${m.id}'">
                 <div style="flex:1">
                     <div style="font-size:13px; font-weight:600;">${m.from.emailAddress.name}</div>
                     <div style="font-size:12px; color:var(--muted);">${m.subject}</div>
                 </div>
             </div>
-        `).join('');
-    } catch(e) { logoutMS(); }
+        `).join('') : '<div class="empty">Inbox is clean!</div>';
+    } catch(e) { }
 }
-function logoutMS(){ sessionStorage.removeItem('ms_token'); window.location.href = REDIRECT; }
 
-// Google Calendar Fetch
+// Google Calendar - No Birthdays Filter
 function initGoogle(){
   google.accounts.oauth2.initTokenClient({
     client_id:GOOGLE_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
+    prompt: 'select_account',
     callback:(res)=>{ if(res.access_token){ sessionStorage.setItem('google_token',res.access_token); location.reload();}}
   }).requestAccessToken();
 }
 
 async function loadGoogleCalendar(isRefresh = false) {
     if(isRefresh) { document.getElementById('google-check').style.display='inline'; setTimeout(()=>document.getElementById('google-check').style.display='none',3000); }
+    if(!googleToken) return;
+    
+    let start = new Date(); start.setDate(start.getDate() + currentCalIdx); start.setHours(0,0,0,0);
+    let end = new Date(start); end.setHours(23,59,59,999);
+
     try {
-        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`, {
-            headers: { Authorization: `Bearer ${sessionStorage.getItem('google_token')}` }
+        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime`, {
+            headers: { Authorization: `Bearer ${googleToken}` }
         });
         const data = await res.json();
-        document.getElementById('stat-events').textContent = data.items.length;
-        document.getElementById('events-list').innerHTML = data.items.map(ev => `
+        
+        // FILTER: Remove IDs starting with _ (Holidays) and eventType "birthday"
+        const filtered = data.items.filter(ev => !ev.id.startsWith('_') && ev.eventType !== 'birthday');
+        
+        if(currentCalIdx === 0) document.getElementById('stat-events').textContent = filtered.length;
+        
+        document.getElementById('events-list').innerHTML = filtered.length ? filtered.map(ev => `
             <div class="list-item">
                 <div style="flex:1" onclick="window.location.href='com.google.calendar://'">
                     <div style="font-size:13px; font-weight:600">${ev.summary}</div>
@@ -262,7 +305,7 @@ async function loadGoogleCalendar(isRefresh = false) {
                 </div>
                 <button class="del-btn" onclick="deleteGoogleEvent('${ev.id}')">✕</button>
             </div>
-        `).join('');
+        `).join('') : '<div class="empty">Nothing scheduled</div>';
     } catch(e) {}
 }
 
@@ -270,7 +313,7 @@ async function addGoogleEvent() {
     const input = document.getElementById('cal-title').value;
     if(!input) return;
     let summary = input;
-    let startTime = new Date();
+    let baseDate = new Date(); baseDate.setDate(baseDate.getDate() + currentCalIdx);
     const timeMatch = input.match(/(at|@)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)?)/i);
     if(timeMatch) {
         summary = input.replace(timeMatch[0], "").trim();
@@ -278,12 +321,12 @@ async function addGoogleEvent() {
         const [h, m] = timeStr.split(':');
         let hours = parseInt(h);
         if(timeStr.toLowerCase().includes('pm') && hours < 12) hours += 12;
-        startTime.setHours(hours, m ? parseInt(m) : 0, 0);
+        baseDate.setHours(hours, m ? parseInt(m) : 0, 0);
     }
     await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('google_token')}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ summary, start: { dateTime: startTime.toISOString() }, end: { dateTime: new Date(startTime.getTime()+3600000).toISOString() } })
+        headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ summary, start: { dateTime: baseDate.toISOString() }, end: { dateTime: new Date(baseDate.getTime()+3600000).toISOString() } })
     });
     document.getElementById('cal-title').value = ''; loadGoogleCalendar();
 }
@@ -291,32 +334,15 @@ async function addGoogleEvent() {
 async function deleteGoogleEvent(id) {
     if(!confirm("Delete event?")) return;
     await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${id}`, {
-        method: 'DELETE', headers: { Authorization: `Bearer ${sessionStorage.getItem('google_token')}` }
+        method: 'DELETE', headers: { Authorization: `Bearer ${googleToken}` }
     });
     loadGoogleCalendar();
 }
-function logoutGoogle(){ sessionStorage.removeItem('google_token'); location.reload(); }
 
-// Reminders
-let allReminders = JSON.parse(localStorage.getItem('ghazi_rems')) || [];
-
-function initReminderChips() {
-    const days = ['Today', 'Tomorrow', 'Saturday', 'Sunday', 'Monday'];
-    document.getElementById('reminder-chips').innerHTML = days.map((d, i) => `
-        <button class="chip ${i===0?'active':''}" onclick="setRemDay(${i}, this)">${d}</button>
-    `).join('');
-}
-
-function setRemDay(idx, el) {
-    currentDayIdx = idx;
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-    renderReminders();
-}
-
+// Reminders - Rolling 7 Day window
 function renderReminders() {
     const list = document.getElementById('reminders-list');
-    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + currentDayIdx);
+    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + currentRemIdx);
     const dateKey = targetDate.toDateString();
     const dailyList = allReminders.filter(r => r.dateKey === dateKey);
     
@@ -337,13 +363,21 @@ function renderReminders() {
 function addNewReminder() {
     const t = prompt("Task:");
     if(!t) return;
-    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + currentDayIdx);
+    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + currentRemIdx);
     allReminders.push({ id: Date.now(), title: t, done: false, dateKey: targetDate.toDateString() });
     saveRem();
 }
 function toggleRem(id){ const r = allReminders.find(x => x.id === id); if(r) r.done = !r.done; saveRem(); }
 function deleteRem(id){ allReminders = allReminders.filter(x => x.id !== id); saveRem(); }
 function saveRem(){ localStorage.setItem('ghazi_rems', JSON.stringify(allReminders)); renderReminders(); }
+
+// Reset/Nuke Session
+function fullNukeSession() {
+    if(!confirm("This will clear all logins and force you to re-enter passwords. Continue?")) return;
+    sessionStorage.clear();
+    // Redirect to MS logout endpoint to kill their server-side cookie too
+    window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(REDIRECT)}`;
+}
 </script>
 </body>
 </html>
