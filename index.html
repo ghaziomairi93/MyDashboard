@@ -10,13 +10,12 @@
 *{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
 :root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--blue2:#1A56CC;--green:#34D399;--amber:#FBBF24;--red:#F87171;--purple:#A78BFA}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:50px;scroll-behavior: smooth;}
+
+/* Header & Navigation */
 header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Playfair Display',serif;font-size:20px}.logo span{color:var(--blue)}
-.greeting{padding:24px 20px 0}
-.greeting h1{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:4px}
-.greeting p{font-size:13px;color:var(--muted)}
 
-/* Stats Section */
+/* Top Stat Cards */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px 0}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:8px}
 .stat-header{display:flex;justify-content:space-between;align-items:center}
@@ -24,23 +23,27 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 .stat-val{font-size:24px;font-weight:700}
 .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
 
-/* Cards & Actions */
+/* Action Buttons & Feedback */
+.card-action{font-size:12px;color:var(--text);background:var(--card2);border:1px solid var(--border);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:4px;transition: 0.2s;}
+.feedback-check{color: var(--green); font-weight: bold; display: none; margin-left: 5px;}
+.btn-login{background:var(--blue2);border:none;color:white}
+.btn-logout{color:var(--red)}
+
+/* Section Layout */
 .section{padding:20px 20px 0}
 .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px}
 .card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-action{font-size:12px;color:var(--text);background:var(--card2);border:1px solid var(--border);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:4px}
-.btn-login{background:var(--blue2);border:none;color:white}
-.btn-logout{color:var(--red)}
 
-/* Content Items */
-.list-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit}
-.list-item:hover{background:rgba(255,255,255,0.02)}
+/* List Items */
+.list-item{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit}
 .del-btn{color:var(--red);background:none;border:none;padding:8px;cursor:pointer;font-size:14px;opacity:0.6}
-.del-btn:hover{opacity:1}
 
+/* Input Areas */
 .cal-input-container{padding:12px;display:flex;gap:8px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border)}
 .cal-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:white;font-size:13px;outline:none}
+
+/* Reminder Day Chips */
 .filter-bar{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
 .chip{font-size:11px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);white-space:nowrap}
 .chip.active{background:var(--blue2);color:white;border-color:var(--blue2)}
@@ -59,28 +62,28 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 </div>
 
 <div class="stats">
-  <div class="stat-card" onclick="document.getElementById('cal-sec').scrollIntoView()">
+  <div class="stat-card" onclick="document.getElementById('cal-sec').scrollIntoView({behavior:'smooth'})">
     <div class="stat-header">
         <div class="stat-icon-wrap" style="background:rgba(167,139,250,0.15);color:var(--purple)">📅</div>
         <div class="stat-val" id="stat-events">0</div>
     </div>
     <div class="stat-label">Events Today</div>
   </div>
-  <div class="stat-card" onclick="document.getElementById('mail-sec').scrollIntoView()">
+  <div class="stat-card" onclick="document.getElementById('mail-sec').scrollIntoView({behavior:'smooth'})">
     <div class="stat-header">
         <div class="stat-icon-wrap" style="background:rgba(79,142,247,0.15);color:var(--blue)">✉️</div>
         <div class="stat-val" id="stat-mail">0</div>
     </div>
     <div class="stat-label">Unread Emails</div>
   </div>
-  <div class="stat-card" onclick="document.getElementById('rem-sec').scrollIntoView()">
+  <div class="stat-card" onclick="document.getElementById('rem-sec').scrollIntoView({behavior:'smooth'})">
     <div class="stat-header">
         <div class="stat-icon-wrap" style="background:rgba(251,191,36,0.15);color:var(--amber)">🔔</div>
         <div class="stat-val" id="stat-reminders">0</div>
     </div>
     <div class="stat-label">Active Tasks</div>
   </div>
-  <div class="stat-card" onclick="document.getElementById('rem-sec').scrollIntoView()">
+  <div class="stat-card" onclick="document.getElementById('rem-sec').scrollIntoView({behavior:'smooth'})">
     <div class="stat-header">
         <div class="stat-icon-wrap" style="background:rgba(52,211,153,0.15);color:var(--green)">✅</div>
         <div class="stat-val" id="stat-done">0</div>
@@ -94,9 +97,9 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <div class="card">
     <div class="card-head">
       <div class="card-name">Top 10 Emails</div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px; align-items:center;">
           <button class="card-action btn-login" id="ms-login-btn" onclick="loginMS()">Sign In</button>
-          <button class="card-action" id="ms-refresh-btn" style="display:none" onclick="loadMail()">Refresh</button>
+          <button class="card-action" id="ms-refresh-btn" style="display:none" onclick="loadMail(true)">Refresh <span id="ms-check" class="feedback-check">✓</span></button>
           <button class="card-action btn-logout" id="ms-logout-btn" style="display:none" onclick="logoutMS()">Sign Out</button>
       </div>
     </div>
@@ -108,15 +111,15 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <div class="section-title">Google Calendar</div>
   <div class="card">
     <div class="card-head">
-      <div class="card-name">Schedule</div>
-      <div style="display:flex;gap:8px">
+      <div class="card-name">My Personal Schedule</div>
+      <div style="display:flex;gap:8px; align-items:center;">
           <button class="card-action btn-login" id="google-login-btn" onclick="initGoogle()">Connect</button>
-          <button class="card-action" id="google-refresh-btn" style="display:none" onclick="loadGoogleCalendar()">Refresh</button>
+          <button class="card-action" id="google-refresh-btn" style="display:none" onclick="loadGoogleCalendar(true)">Refresh <span id="google-check" class="feedback-check">✓</span></button>
           <button class="card-action btn-logout" id="google-logout-btn" style="display:none" onclick="logoutGoogle()">Sign Out</button>
       </div>
     </div>
     <div class="cal-input-container" id="cal-input-ui" style="display:none">
-        <input type="text" class="cal-input" id="cal-title" placeholder="Event at 05:00 PM...">
+        <input type="text" class="cal-input" id="cal-title" placeholder="Dinner at 08:00 PM">
         <button class="card-action btn-login" onclick="addGoogleEvent()">Add</button>
     </div>
     <div id="events-list"></div>
@@ -136,21 +139,24 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 </div>
 
 <script>
-/** 
- *  =======================================================================
- *  SETUP INSTRUCTIONS FOR NEW USERS:
- *  1. MS_CLIENT_ID: Register an app in Azure Portal (App Registrations).
- *  2. GOOGLE_CLIENT_ID: Get from Google Cloud Console (Credentials).
- *  3. REDIRECT_URI: Must match exactly what is in your Azure/Google settings.
- *  =======================================================================
+/** * =======================================================================
+ * REPLACE THESE FOR OTHER USERS:
+ * =======================================================================
  */
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const GOOGLE_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
+// Device ID Logic (Unique per phone)
+let deviceID = localStorage.getItem('device_id');
+if(!deviceID) {
+    deviceID = 'dev-' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('device_id', deviceID);
+}
+
 let msToken = localStorage.getItem('ms_token');
 let googleToken = localStorage.getItem('google_token');
-let currentReminderFilter = 0;
+let currentDayIdx = 0; // 0=Today, 1=Tomorrow, etc.
 
 window.onload = () => {
     updateDate();
@@ -180,6 +186,13 @@ function updateDate() {
     document.getElementById('greeting-sub').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 }
 
+// --- VISUAL FEEDBACK ---
+function showConfirmation(id) {
+    const check = document.getElementById(id);
+    check.style.display = 'inline';
+    setTimeout(() => { check.style.display = 'none'; }, 3000);
+}
+
 // --- OUTLOOK AUTH & MAIL ---
 function loginMS() {
     const url = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${MS_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=Mail.Read&response_mode=fragment`;
@@ -198,22 +211,20 @@ function handleAuthRedirect() {
     }
 }
 
-async function loadMail() {
+async function loadMail(isRefresh = false) {
+    if(isRefresh) showConfirmation('ms-check');
     try {
         const res = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$count=true", {
-            headers: { Authorization: `Bearer ${msToken}` }
+            headers: { Authorization: `Bearer ${msToken}`, 'ConsistencyLevel': 'eventual' }
         });
         const data = await res.json();
-        if(data.error) throw data.error;
-        
         document.getElementById('stat-mail').textContent = data['@odata.count'] || 0;
         document.getElementById('mail-body').innerHTML = data.value.map(m => `
             <a href="ms-outlook://emails/${m.id}" class="list-item">
                 <div style="flex:1">
-                    <div style="font-size:13px; font-weight:600; margin-bottom:2px">${m.from.emailAddress.name}</div>
-                    <div style="font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px">${m.subject}</div>
+                    <div style="font-size:13px; font-weight:600;">${m.from.emailAddress.name}</div>
+                    <div style="font-size:12px; color:var(--muted);">${m.subject}</div>
                 </div>
-                <div style="font-size:11px; color:var(--muted)">${new Date(m.receivedDateTime).getHours()}:${new Date(m.receivedDateTime).getMinutes().toString().padStart(2,'0')}</div>
             </a>
         `).join('');
     } catch(e) { logoutMS(); }
@@ -233,18 +244,20 @@ function initGoogle() {
     }).requestAccessToken();
 }
 
-async function loadGoogleCalendar() {
+async function loadGoogleCalendar(isRefresh = false) {
+    if(isRefresh) showConfirmation('google-check');
     try {
-        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`, {
+        const start = new Date().toISOString();
+        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start}&singleEvents=true&orderBy=startTime`, {
             headers: { Authorization: `Bearer ${googleToken}` }
         });
         const data = await res.json();
         document.getElementById('stat-events').textContent = data.items.length;
         document.getElementById('events-list').innerHTML = data.items.map(ev => `
             <div class="list-item">
-                <div onclick="window.location.href='com.google.calendar://'" style="flex:1; cursor:pointer">
+                <div style="flex:1" onclick="window.location.href='com.google.calendar://'">
                     <div style="font-size:13px; font-weight:600">${ev.summary}</div>
-                    <div style="font-size:11px; color:var(--purple)">${ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'All Day'}</div>
+                    <div style="font-size:11px; color:var(--purple)">${ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleTimeString([],{hour:'2-digit', minute:'2-digit'}) : 'All Day'}</div>
                 </div>
                 <button class="del-btn" onclick="deleteGoogleEvent('${ev.id}')">✕</button>
             </div>
@@ -253,12 +266,29 @@ async function loadGoogleCalendar() {
 }
 
 async function addGoogleEvent() {
-    const title = document.getElementById('cal-title').value;
-    if(!title) return;
+    const input = document.getElementById('cal-title').value;
+    if(!input) return;
+
+    // SMART PARSING: "Meeting at 5pm" or "Gym @ 6:30 PM"
+    let summary = input;
+    let startTime = new Date();
+    const timeMatch = input.match(/(at|@)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)?)/i);
+
+    if(timeMatch) {
+        summary = input.replace(timeMatch[0], "").trim();
+        const timeStr = timeMatch[2];
+        const [h, m] = timeStr.split(':');
+        let hours = parseInt(h);
+        if(timeStr.toLowerCase().includes('pm') && hours < 12) hours += 12;
+        startTime.setHours(hours, m ? parseInt(m) : 0, 0);
+    }
+
+    const endTime = new Date(startTime.getTime() + 3600000); // +1 hour
+
     await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ summary: title, start: { dateTime: new Date().toISOString() }, end: { dateTime: new Date(Date.now()+3600000).toISOString() } })
+        body: JSON.stringify({ summary, start: { dateTime: startTime.toISOString() }, end: { dateTime: endTime.toISOString() } })
     });
     document.getElementById('cal-title').value = '';
     loadGoogleCalendar();
@@ -275,18 +305,18 @@ async function deleteGoogleEvent(id) {
 
 function logoutGoogle() { localStorage.removeItem('google_token'); location.reload(); }
 
-// --- REMINDERS ---
-let reminders = JSON.parse(localStorage.getItem('ghazi_rems')) || [];
+// --- REMINDERS (DATE & DEVICE PERSISTENT) ---
+let allReminders = JSON.parse(localStorage.getItem(`rems_${deviceID}`)) || [];
 
 function initReminderChips() {
     const days = ['Today', 'Tomorrow', 'Saturday', 'Sunday', 'Monday'];
     document.getElementById('reminder-chips').innerHTML = days.map((d, i) => `
-        <button class="chip ${i===0?'active':''}" onclick="filterRem(${i}, this)">${d}</button>
+        <button class="chip ${i===0?'active':''}" onclick="setRemDay(${i}, this)">${d}</button>
     `).join('');
 }
 
-function filterRem(idx, el) {
-    currentReminderFilter = idx;
+function setRemDay(idx, el) {
+    currentDayIdx = idx;
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     renderReminders();
@@ -294,11 +324,16 @@ function filterRem(idx, el) {
 
 function renderReminders() {
     const list = document.getElementById('reminders-list');
-    document.getElementById('stat-reminders').textContent = reminders.filter(r => !r.done).length;
-    document.getElementById('stat-done').textContent = reminders.filter(r => r.done).length;
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + currentDayIdx);
+    const dateKey = targetDate.toDateString();
+
+    const dailyList = allReminders.filter(r => r.dateKey === dateKey);
     
-    // Simulating daily filtering by index for demo
-    list.innerHTML = reminders.length ? reminders.map(r => `
+    document.getElementById('stat-reminders').textContent = allReminders.filter(r => !r.done).length;
+    document.getElementById('stat-done').textContent = allReminders.filter(r => r.done).length;
+    
+    list.innerHTML = dailyList.length ? dailyList.map(r => `
         <div class="list-item">
             <div style="display:flex; align-items:center; gap:10px; flex:1">
                 <input type="checkbox" ${r.done?'checked':''} onclick="toggleRem(${r.id})">
@@ -306,30 +341,32 @@ function renderReminders() {
             </div>
             <button class="del-btn" onclick="deleteRem(${r.id})">✕</button>
         </div>
-    `).join('') : '<div class="empty">No tasks yet</div>';
+    `).join('') : '<div class="empty">No tasks for this day</div>';
 }
 
 function addNewReminder() {
-    const t = prompt("What needs to be done?");
-    if(t) {
-        reminders.push({id: Date.now(), title: t, done: false});
-        saveReminders();
-    }
+    const t = prompt("Task for this day:");
+    if(!t) return;
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + currentDayIdx);
+    
+    allReminders.push({ id: Date.now(), title: t, done: false, dateKey: targetDate.toDateString() });
+    saveReminders();
 }
 
 function toggleRem(id) {
-    const r = reminders.find(x => x.id === id);
+    const r = allReminders.find(x => x.id === id);
     if(r) r.done = !r.done;
     saveReminders();
 }
 
 function deleteRem(id) {
-    reminders = reminders.filter(x => x.id !== id);
+    allReminders = allReminders.filter(x => x.id !== id);
     saveReminders();
 }
 
 function saveReminders() {
-    localStorage.setItem('ghazi_rems', JSON.stringify(reminders));
+    localStorage.setItem(`rems_${deviceID}`, JSON.stringify(allReminders));
     renderReminders();
 }
 </script>
