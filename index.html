@@ -96,8 +96,8 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 <div class="stats anim anim-1">
   <div class="stat"><div class="stat-icon">📅</div><div class="stat-val" id="stat-events">—</div><div class="stat-label">Events Today</div></div>
   <div class="stat"><div class="stat-icon">✉️</div><div class="stat-val" id="stat-mail">—</div><div class="stat-label">Unread Emails</div></div>
-  <div class="stat"><div class="stat-icon">🔔</div><div class="stat-val">5</div><div class="stat-label">Reminders</div></div>
-  <div class="stat"><div class="stat-icon">✅</div><div class="stat-val">3</div><div class="stat-label">Completed</div></div>
+  <div class="stat"><div class="stat-icon">🔔</div><div class="stat-val" id="stat-reminders-count">0</div><div class="stat-label">Reminders</div></div>
+  <div class="stat"><div class="stat-icon">✅</div><div class="stat-val" id="stat-done-count">0</div><div class="stat-label">Completed</div></div>
 </div>
 
 <div class="section anim anim-2">
@@ -144,14 +144,13 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
     <div class="card-head">
       <div class="card-title-wrap">
         <div class="card-icon" style="background:rgba(251,191,36,0.15)">🔔</div>
-        <div><div class="card-name">Reminders</div><div class="card-sub">Tasks & to-dos</div></div>
+        <div><div class="card-name">Reminders</div><div class="card-sub">Local tasks</div></div>
       </div>
-      <button class="card-action">+ Add</button>
+      <button class="card-action" onclick="addNewReminder()">+ Add</button>
     </div>
     <div class="filter-bar">
       <button class="chip active" onclick="filterR('all',this)">All</button>
       <button class="chip" onclick="filterR('today',this)">Today</button>
-      <button class="chip" onclick="filterR('upcoming',this)">Upcoming</button>
       <button class="chip" onclick="filterR('done',this)">Done</button>
     </div>
     <div id="reminders-list"></div>
@@ -197,7 +196,7 @@ function showFatal(title,msg){
   document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:white;text-align:center;padding:20px;background:#0F0F13"><div style="font-size:40px">⚠️</div><h2 style="margin:16px 0">'+title+'</h2><p style="opacity:.7;font-size:13px;word-break:break-all">'+msg+'</p><button onclick="sessionStorage.clear();window.location.href=\''+REDIRECT+'\'" style="margin-top:20px;padding:12px 24px;background:#1A56CC;color:white;border:none;border-radius:12px;font-size:14px;cursor:pointer">Try Again</button></div>';
 }
 
-// ── HANDLE MICROSOFT REDIRECT ─────────────────────────────────────
+// ── HANDLE REDIRECTS & BOOT ─────────────────────────────────────
 window.addEventListener('load', async function(){
   const params=new URLSearchParams(window.location.search);
   const code=params.get('code');
@@ -210,25 +209,19 @@ window.addEventListener('load', async function(){
       const data=await r.json();
       if(data.access_token){
         sessionStorage.setItem('ms_token',data.access_token);
-        if(data.refresh_token)sessionStorage.setItem('ms_refresh',data.refresh_token);
         window.location.href=REDIRECT;
-      }else{
-        showFatal('Login failed',data.error_description||data.error||JSON.stringify(data));
       }
-    }catch(e){showFatal('Network error',e.message);}
+    }catch(e){}
     return;
   }
   
-  // Check MS Token
   const storedMs=sessionStorage.getItem('ms_token');
   if(storedMs) onSignedIn(storedMs);
 
-  // Check Google Token
   const storedGoogle = sessionStorage.getItem('google_token');
-  if(storedGoogle) {
-    googleToken = storedGoogle;
-    loadGoogleCalendar();
-  }
+  if(storedGoogle) { googleToken = storedGoogle; loadGoogleCalendar(); }
+  
+  renderReminders();
 });
 
 // ── MICROSOFT SIGNED IN ───────────────────────────────────────────
@@ -239,138 +232,134 @@ async function onSignedIn(token){
     const r=await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+token}});
     if(r.status===401){signOut();return;}
     const u=await r.json();
-    const name=u.displayName||'Ghazi';
-    document.getElementById('greeting-text').textContent=greet+', '+name.split(' ')[0]+' 👋';
-    document.getElementById('avatar').textContent=name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('greeting-text').textContent=greet+', '+(u.displayName||'Ghazi').split(' ')[0]+' 👋';
+    document.getElementById('avatar').textContent=(u.displayName||'G').split(' ').map(p=>p[0]).join('').toUpperCase();
     document.getElementById('status-bar').style.display='flex';
-    document.getElementById('status-text').textContent='✅ '+(u.userPrincipalName||name);
+    document.getElementById('status-text').textContent='✅ '+(u.userPrincipalName);
   }catch(e){}
   loadMail(token);
 }
 
-// ── LOAD MAIL ─────────────────────────────────────────────────────
+// ── LOAD MAIL (TOP 10 + TOTAL UNREAD COUNT) ───────────────────────
 async function loadMail(tk){
   const token=tk||sessionStorage.getItem('ms_token');
   if(!token)return;
   const el=document.getElementById('mail-body');
   el.innerHTML='<div class="empty"><div class="empty-icon">⏳</div>Loading inbox...</div>';
   try{
-    const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$select=subject,from,receivedDateTime,isRead,bodyPreview&$orderby=receivedDateTime desc',{headers:{Authorization:'Bearer '+token}});
+    // Fetch top 10 messages + Request total count of unread items
+    const r=await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$select=subject,from,receivedDateTime,isRead,bodyPreview&$orderby=receivedDateTime desc&$count=true", {
+      headers:{Authorization:'Bearer '+token, 'ConsistencyLevel': 'eventual'}
+    });
     const data=await r.json();
-    if(data.error)throw new Error(data.error.message);
-    const unread=data.value.filter(m=>!m.isRead).length;
-    document.getElementById('stat-mail').textContent=unread;
-    document.getElementById('mail-subtitle').textContent=unread+' unread messages';
-    if(!data.value.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎉</div>Inbox empty!</div>';return;}
-    const colors=['#4F8EF7','#A78BFA','#34D399','#FBBF24','#F87171','#60A5FA','#F472B6'];
+    
+    // Use the @odata.count for the true total unread in the whole inbox
+    // We fall back to filtering the local array if count is unavailable
+    const totalUnread = data['@odata.count'] !== undefined ? data['@odata.count'] : data.value.filter(m=>!m.isRead).length;
+    
+    document.getElementById('stat-mail').textContent=totalUnread;
+    document.getElementById('mail-subtitle').textContent=totalUnread+' unread messages total';
+
+    if(!data.value.length){el.innerHTML='<div class="empty">Inbox empty!</div>';return;}
+    
+    const colors=['#4F8EF7','#A78BFA','#34D399','#FBBF24','#F87171'];
     el.innerHTML='';
     data.value.forEach((m,i)=>{
-      const sender=m.from?.emailAddress?.name||m.from?.emailAddress?.address||'Unknown';
-      const init=sender.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
-      const color=colors[i%colors.length];
+      const sender=m.from?.emailAddress?.name||'Unknown';
       const d=new Date(m.receivedDateTime);
-      const isToday=d.toDateString()===now.toDateString();
-      const isYest=d.toDateString()===new Date(now-86400000).toDateString();
-      const t=isToday?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):isYest?'Yesterday':d.toLocaleDateString([],{month:'short',day:'numeric'});
-      el.innerHTML+=`<div class="mail-item"><div class="mail-top"><div class="mail-sender"><div style="width:26px;height:26px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">${init}</div>${!m.isRead?'<div class="unread-dot"></div>':''}<span style="${!m.isRead?'color:var(--text)':'color:var(--muted)'}">${sender}</span></div><div class="mail-time">${t}</div></div><div class="mail-subject" style="${!m.isRead?'color:var(--text);font-weight:500':''}">${m.subject||'(No subject)'}</div><div class="mail-preview">${(m.bodyPreview||'').slice(0,70)}</div></div>`;
+      const t=d.toDateString()===now.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'});
+      el.innerHTML+=`<div class="mail-item"><div class="mail-top"><div class="mail-sender"><div style="width:26px;height:26px;border-radius:50%;background:${colors[i%5]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${sender[0]}</div>${!m.isRead?'<div class="unread-dot"></div>':''}<span>${sender}</span></div><div class="mail-time">${t}</div></div><div class="mail-subject" style="${!m.isRead?'color:var(--text);font-weight:500':''}">${m.subject||'(No subject)'}</div><div class="mail-preview">${(m.bodyPreview||'').slice(0,60)}...</div></div>`;
     });
-  }catch(e){el.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+e.message+'</div>';}
+  }catch(e){el.innerHTML='<div class="empty">⚠️ Connection error</div>';}
 }
 
 // ── GOOGLE CALENDAR ───────────────────────────────────────────────
 function initGoogle(){
-  const stored = sessionStorage.getItem('google_token');
-  if(stored) {
-    googleToken = stored;
-    loadGoogleCalendar();
-    return;
-  }
-  
+  if(sessionStorage.getItem('google_token')){ googleToken=sessionStorage.getItem('google_token'); loadGoogleCalendar(); return; }
   google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID,
-    scope:'https://www.googleapis.com/auth/calendar.readonly',
-    callback:(response)=>{
-      if(response.access_token){
-        googleToken=response.access_token;
-        sessionStorage.setItem('google_token', googleToken);
-        loadGoogleCalendar();
-      }
-    }
+    client_id:GOOGLE_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.readonly',
+    callback:(res)=>{ if(res.access_token){ googleToken=res.access_token; sessionStorage.setItem('google_token',googleToken); loadGoogleCalendar();}}
   }).requestAccessToken();
-}
-
-function signOutGoogle() {
-  sessionStorage.removeItem('google_token');
-  googleToken = null;
-  location.reload();
 }
 
 async function loadGoogleCalendar(){
   if(!googleToken)return;
   const el=document.getElementById('events-list');
-  const gBtn = document.getElementById('google-btn');
-  
-  el.innerHTML='<div class="empty"><div class="empty-icon">⏳</div>Loading events...</div>';
-  try {
-    const startOfDay=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString();
-    const endOfDay=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59).toISOString();
-    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&orderBy=startTime&singleEvents=true&timeMin=${startOfDay}&timeMax=${endOfDay}`,{headers:{Authorization:'Bearer '+googleToken}});
-    
-    if(res.status === 401) {
-       sessionStorage.removeItem('google_token');
-       location.reload();
-       return;
-    }
-    
+  const btn=document.getElementById('google-btn');
+  try{
+    const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString();
+    const end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59).toISOString();
+    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&timeMin=${start}&timeMax=${end}`,{headers:{Authorization:'Bearer '+googleToken}});
+    if(res.status===401){sessionStorage.removeItem('google_token'); location.reload(); return;}
     const data=await res.json();
-    
-    // Update Button to Sign Out
-    gBtn.textContent = 'Logout';
-    gBtn.onclick = signOutGoogle;
-    gBtn.classList.add('signout');
-    gBtn.classList.remove('google');
-
-    if(!data.items||!data.items.length){
-      el.innerHTML='<div class="empty"><div class="empty-icon">🎉</div>No events today!</div>';
-      document.getElementById('stat-events').textContent = '0';
-      document.getElementById('cal-subtitle').textContent = 'No events today';
-      return;
-    }
-    
+    btn.textContent='Logout'; btn.onclick=()=>{sessionStorage.removeItem('google_token'); location.reload();}; btn.classList.add('signout');
+    if(!data.items?.length){ el.innerHTML='<div class="empty">No events today!</div>'; document.getElementById('stat-events').textContent='0'; return;}
     document.getElementById('stat-events').textContent=data.items.length;
     document.getElementById('cal-subtitle').textContent=data.items.length+' events today';
-    
     el.innerHTML='';
     data.items.forEach(ev=>{
-      const start=ev.start.dateTime||ev.start.date;
-      const date=new Date(start);
-      const time=ev.start.dateTime?date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'All Day';
-      el.innerHTML+=`<div class="event-item"><div class="event-time">${time}</div><div class="event-dot" style="background:var(--purple)"></div><div style="flex:1"><div class="event-name">${ev.summary||'(No title)'}</div><div class="event-loc">${ev.location||''}</div></div><div class="event-tag" style="background:rgba(167,139,250,0.2);color:var(--purple)">Google</div></div>`;
+      const time=ev.start.dateTime?new Date(ev.start.dateTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'All Day';
+      el.innerHTML+=`<div class="event-item"><div class="event-time">${time}</div><div class="event-dot" style="background:var(--purple)"></div><div style="flex:1"><div class="event-name">${ev.summary}</div></div></div>`;
     });
-  }catch(e){el.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>Failed to load events</div>';}
+  }catch(e){}
 }
 
-// ── REMINDERS ─────────────────────────────────────────────────────
-const reminders=[
-  {title:'Submit expense report',due:'Overdue · Mar 17',cls:'overdue',icon:'⚠',p:'🔴',done:false,cat:'today'},
-  {title:'Review legal contract',due:'Today · 12:00 PM',cls:'today',icon:'⏰',p:'🟠',done:false,cat:'today'},
-  {title:'Call dentist',due:'Today · 3:00 PM',cls:'today',icon:'⏰',p:'🟡',done:false,cat:'today'},
-  {title:'Prepare all-hands slides',due:'Mar 21',cls:'upcoming',icon:'📅',p:'🔴',done:false,cat:'upcoming'},
-  {title:'Send newsletter draft',due:'Mar 22',cls:'upcoming',icon:'📅',p:'🟡',done:false,cat:'upcoming'},
-  {title:'Book flight to Chicago',due:'Completed',cls:'upcoming',icon:'📅',p:'🟢',done:true,cat:'done'},
-  {title:'Performance reviews',due:'Completed',cls:'upcoming',icon:'📅',p:'🟢',done:true,cat:'done'},
+// ── FUNCTIONAL REMINDERS ──────────────────────────────────────────
+let reminders = JSON.parse(localStorage.getItem('ghazi_reminders')) || [
+  {id:1, title:'Welcome to your dashboard', done:false, cat:'today'}
 ];
-let rFilter='all';
-function renderReminders(f){
-  const el=document.getElementById('reminders-list');el.innerHTML='';
-  (f==='all'?reminders:reminders.filter(r=>r.cat===f||(f==='done'&&r.done))).forEach(r=>{
-    const idx=reminders.indexOf(r);
-    el.innerHTML+=`<div class="reminder-item" onclick="toggleR(${idx})"><div class="check ${r.done?'done':''}">${r.done?'✓':''}</div><div style="flex:1"><div class="reminder-title ${r.done?'done':''}">${r.title}</div><div class="reminder-due ${r.cls==='overdue'?'due-overdue':r.cls==='today'?'due-today':'due-upcoming'}">${r.icon} ${r.due}</div></div><div>${r.p}</div></div>`;
+
+function addNewReminder() {
+  const title = prompt("What needs to be done?");
+  if(!title) return;
+  reminders.push({ id: Date.now(), title: title, done: false, cat: 'today' });
+  saveAndRender();
+}
+
+function toggleR(id) {
+  const r = reminders.find(item => item.id === id);
+  if(r) r.done = !r.done;
+  saveAndRender();
+}
+
+function saveAndRender() {
+  localStorage.setItem('ghazi_reminders', JSON.stringify(reminders));
+  renderReminders();
+}
+
+let currentFilter = 'all';
+function filterR(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReminders();
+}
+
+function renderReminders() {
+  const el = document.getElementById('reminders-list');
+  const list = reminders.filter(r => currentFilter==='all' || (currentFilter==='done' && r.done) || (currentFilter==='today' && !r.done));
+  
+  document.getElementById('stat-reminders-count').textContent = reminders.filter(r=>!r.done).length;
+  document.getElementById('stat-done-count').textContent = reminders.filter(r=>r.done).length;
+
+  if(!list.length) { el.innerHTML='<div class="empty">No tasks found</div>'; return; }
+  
+  el.innerHTML = '';
+  list.forEach(r => {
+    el.innerHTML += `
+      <div class="reminder-item" onclick="toggleR(${r.id})">
+        <div class="check ${r.done?'done':''}">${r.done?'✓':''}</div>
+        <div class="reminder-title ${r.done?'done':''}">${r.title}</div>
+        <button onclick="deleteR(event, ${r.id})" style="background:none;border:none;color:var(--red);font-size:10px;opacity:0.5">Delete</button>
+      </div>`;
   });
 }
-function toggleR(i){reminders[i].done=!reminders[i].done;reminders[i].cat=reminders[i].done?'done':'today';reminders[i].due=reminders[i].done?'Completed':'Today';reminders[i].cls=reminders[i].done?'upcoming':'today';renderReminders(rFilter);}
-function filterR(f,btn){rFilter=f;document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderReminders(f);}
-renderReminders('all');
+
+function deleteR(e, id) {
+  e.stopPropagation();
+  reminders = reminders.filter(r => r.id !== id);
+  saveAndRender();
+}
 </script>
 </body>
 </html>
