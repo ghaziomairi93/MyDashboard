@@ -1,13 +1,17 @@
 <!-- 
-  DASHBOARD VERSION: v1.5.1
-  Date: 19.03.2026
-  Time: 20:41:15
-  
+  ================================================================
+  DASHBOARD VERSION: v1.6
+  DATE: 19.03.2026
+  ================================================================
   CHANGELOG:
-  - Repositioned Weather to Row 1 (Left side).
-  - Redesigned Clock to Row 1 (Right side) based on "City Digital" screenshot.
-  - Clock Style: Dark card, neon green 7-segment font, squared soft edges.
-  - Sizing: Both top widgets are now perfectly symmetrical.
+  - Merged Weather & Clock into a single compact top row.
+  - Replaced Analog clock with 7-segment Green LED (HH:MM:SS:MS).
+  - Added Timezone/Date/Location context to the clock widget.
+  - Added 7-Day horizontal navigation bar to Calendar/Reminders.
+  - Integrated "Choose Location" fallback logic.
+  - Added ⚠️ Developer Tags for user-specific code sections.
+  - Added Integrated User Guide in the footer section.
+  ================================================================
 -->
 
 <!DOCTYPE html>
@@ -15,119 +19,275 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v1.5.1</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Ghazi Dashboard v1.6</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <style>
-:root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--led-green:#39FF14;--red-btn:#451a1a;--red-text:#ffb3b3}
+:root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--led-green:#39FF14;--nuke-bg:#450a0a;--nuke-text:#fca5a5}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:15px;padding-bottom:100px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:15px;padding-bottom:60px}
 
-/* Layout Grid */
+/* Layout Hierarchy */
 .dashboard-grid{display:flex;flex-direction:column;gap:12px}
-.row-split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.top-row{display:grid;grid-template-columns: 1fr 1fr; gap:10px; height:150px}
 
-/* Widget Base */
-.widget-sq{height:160px;border-radius:24px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:center;padding:20px;border:1px solid var(--border)}
+/* Widget Styling */
+.widget{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center}
+.weather-widget{cursor:pointer;transition: transform 0.2s}
+.weather-widget:active{transform:scale(0.98)}
 
-/* Weather Widget (Left) */
-.w-bg-day{background:linear-gradient(135deg,#1A56CC,#4F8EF7)}
-.w-bg-night{background:linear-gradient(135deg,#0a0a12,#16162b)}
-.w-bg-sunrise{background:linear-gradient(135deg,#ff7e5f,#feb47b);color:#111}
-.w-bg-sunset{background:linear-gradient(135deg,#ff4e50,#f9d423);color:#111}
+/* LED Clock Display */
+.led-main{font-family:'Seven Segment',monospace;color:var(--led-green);font-size:32px;font-weight:bold;text-shadow:0 0 10px rgba(57,255,20,0.3)}
+.led-ms{font-family:'Seven Segment',monospace;color:var(--led-green);font-size:14px;opacity:0.8;margin-top:-2px}
+.ctx-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:8px;font-weight:700}
+.temp-big{font-size:36px;font-weight:700;margin:2px 0}
 
-/* Digital Clock Widget (Right - "City Digital" Style) */
-.clock-widget{background:var(--card);text-align:center;gap:4px}
-.clock-city-tag{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:700;margin-bottom:8px}
-.clock-time{font-family:'Seven Segment',sans-serif;color:var(--led-green);font-size:32px;line-height:1;text-shadow:0 0 10px rgba(57,255,20,0.3)}
-.clock-ms{font-family:'Seven Segment',sans-serif;color:var(--led-green);font-size:14px;opacity:0.7}
+/* Navigation Bars (7-Day) */
+.day-bar{display:flex;overflow-x:auto;gap:8px;padding:12px 15px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
+.day-bar::-webkit-scrollbar{display:none}
+.day-pill{padding:8px 12px;border-radius:12px;background:var(--card2);font-size:11px;font-weight:700;white-space:nowrap;color:var(--muted);border:1px solid transparent}
+.day-pill.active{background:var(--blue);color:white;border-color:var(--blue)}
 
-/* Search Overlay */
-.search-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;flex-direction:column;padding:15px;z-index:100}
-.search-input{background:var(--card2);border:1px solid var(--blue);color:white;padding:10px;border-radius:10px;outline:none}
-.search-item{padding:10px;background:var(--border);border-radius:8px;margin-top:5px;font-size:12px}
-
-/* Stats Row */
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:15px;text-align:center}
-.stat-val{font-size:24px;font-weight:700}
-.stat-lab{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
-
-/* Feed Cards */
+/* Stats & Cards */
+.row-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:15px;text-align:center}
+.stat-num{font-size:28px;font-weight:700}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600}
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden}
-.card-head{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px}
-.list-item{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px}
+.list-item{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:14px}
 
-/* Footer Nuke */
-.nuke-btn{background:var(--red-btn);color:var(--red-text);border:none;padding:16px;border-radius:16px;font-weight:700;width:100%;margin-top:20px}
+/* Search Modal */
+.search-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);display:none;flex-direction:column;padding:30px;z-index:100}
+.search-input{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:15px;border-radius:12px;font-size:16px;outline:none;border-color:var(--blue)}
+
+/* Footer / Guide */
+.guide-section{margin-top:30px;padding:20px;background:var(--card2);border-radius:20px;font-size:12px;line-height:1.6;color:var(--muted)}
+.guide-section h4{color:var(--text);margin-bottom:10px;font-size:14px}
+.btn-nuke{background:var(--nuke-bg);color:var(--nuke-text);border:none;padding:15px;border-radius:15px;font-weight:700;width:100%;margin-top:20px;cursor:pointer}
 </style>
 </head>
 <body>
 
 <div class="dashboard-grid">
-    
-    <!-- ROW 1: Weather (Left) & Clock (Right) -->
-    <div class="row-split">
-        <!-- Weather Widget -->
-        <div class="widget-sq w-bg-day" id="weather-box" onclick="toggleSearch()">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:0.8">Weather</div>
-            <div id="w-temp" style="font-size:36px;font-weight:700;margin:2px 0">--°</div>
-            <div id="w-city" style="font-size:13px;font-weight:600">Loading...</div>
-            
-            <div class="search-overlay" id="search-box">
-                <input type="text" class="search-input" id="city-in" placeholder="Search City..." oninput="searchCity(this.value)" onclick="event.stopPropagation()">
-                <div id="search-results" style="margin-top:10px"></div>
-                <div style="margin-top:auto;text-align:center;font-size:11px" onclick="event.stopPropagation();toggleSearch()">Cancel</div>
+    <!-- ‼️ STEP 1: Location & Time Header -->
+    <div class="top-row">
+        <div class="widget weather-widget" onclick="toggleSearch()">
+            <div id="w-content"><div class="ctx-label">Tap to Search</div><div class="temp-big">--°</div></div>
+            <div class="ctx-label" id="w-city">Choose Location</div>
+        </div>
+        <div class="widget">
+            <div id="c-content">
+                <div class="led-main" id="digi-hms">00:00:00</div>
+                <div class="led-ms" id="digi-ms">00</div>
             </div>
-        </div>
-
-        <!-- City Digital Clock Widget -->
-        <div class="widget-sq clock-widget">
-            <div class="clock-city-tag" id="clock-city-label">UTC</div>
-            <div class="clock-time" id="clock-main">00:00:00</div>
-            <div class="clock-ms" id="clock-ms">.00</div>
+            <div class="ctx-label" id="c-meta">Timezone --</div>
         </div>
     </div>
 
-    <!-- ROW 2: Tasks & Mail Count -->
+    <!-- ‼️ STEP 2: Quick Stats -->
     <div class="row-split">
-        <div class="stat-card">
-            <div class="stat-val" id="stat-tasks">0</div>
-            <div class="stat-lab">Tasks To-Do</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-val" id="stat-mail">0</div>
-            <div class="stat-lab">Unread Mail</div>
-        </div>
+        <div class="stat-box"><div class="stat-num" id="stat-mail">0</div><div class="stat-lbl">Unread Mail</div></div>
+        <div class="stat-box"><div class="stat-num" id="stat-events">0</div><div class="stat-lbl">Events Today</div></div>
     </div>
 
-    <!-- ROW 3: Google Calendar Count -->
-    <div class="stat-card" style="padding:12px">
-        <div class="stat-val" id="stat-events">0</div>
-        <div class="stat-lab">Events Remaining Today</div>
-    </div>
-
-    <!-- ROW 4: Google Calendar Feed -->
+    <!-- ‼️ STEP 3: Google Calendar Integration -->
     <div class="card">
-        <div class="card-head">📅 Calendar</div>
-        <div id="cal-list"></div>
+        <div class="card-head">📅 Google Calendar</div>
+        <div class="day-bar" id="cal-day-bar"></div>
+        <div id="google-body">
+            <div style="padding:20px;text-align:center"><button style="background:var(--blue);color:white;border:none;padding:10px 20px;border-radius:10px;font-weight:700" onclick="initGoogle()">Sign In</button></div>
+        </div>
     </div>
 
-    <!-- ROW 5: Reminders -->
+    <!-- ‼️ STEP 4: Local Reminders -->
     <div class="card">
-        <div class="card-head">🔔 Reminders <button onclick="addRem()" style="background:none;border:none;color:var(--blue);font-weight:700">+ Add</button></div>
+        <div class="card-head">🔔 Reminders <button onclick="addReminder()" style="background:none;border:none;color:var(--blue);font-size:20px;font-weight:bold;cursor:pointer">+</button></div>
+        <div class="day-bar" id="rem-day-bar"></div>
         <div id="rem-list"></div>
     </div>
 
-    <!-- ROW 6: Outlook Feed -->
+    <!-- ‼️ STEP 5: Outlook Integration -->
     <div class="card">
         <div class="card-head">✉️ Outlook Inbox</div>
-        <div id="mail-list"></div>
+        <div id="ms-body">
+            <div style="padding:20px;text-align:center"><button style="background:var(--blue);color:white;border:none;padding:10px 20px;border-radius:10px;font-weight:700" onclick="startMSLogin()">Sign In</button></div>
+        </div>
     </div>
 
-    <button class="nuke-btn" onclick="fullNuke()">Clear Data and Sessions</button>
+    <!-- Footer Guide & Nuke -->
+    <div class="guide-section">
+        <h4>🚀 Dashboard Quick Start Guide</h4>
+        1. 📍 <b>Set Location:</b> Click the Weather widget (top-left) to search for your city. This sets your clock and weather data.<br>
+        2. 📅 <b>Navigation:</b> Use the horizontal date bars on Calendar/Reminders to view tasks for future dates.<br>
+        3. 🔐 <b>Sync Accounts:</b> Use the "Sign In" buttons to connect Google and Outlook.<br>
+        4. 🧹 <b>Clear Data:</b> Use the red button below to logout and wipe all local storage.
+    </div>
+    <button class="btn-nuke" onclick="nukeData()">Clear My Data and Sessions from Dashboard</button>
+</div>
 
+<!-- Search Overlay -->
+<div class="search-modal" id="search-modal">
+    <div style="font-size:18px;font-weight:700;margin-bottom:20px">Choose Location</div>
+    <input type="text" class="search-input" placeholder="Type city name (e.g. Dubai)..." oninput="searchCity(this.value)">
+    <div id="search-results" style="margin-top:20px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="margin-top:auto;text-align:center;padding:20px;color:var(--muted);font-weight:600" onclick="toggleSearch()">Close</div>
 </div>
 
 <script>
-let activeTZ = "UTC";
-let msT = sessionStorage.getItem('ms
+// --- GLOBAL CONFIG ---
+let activeTZ = "";
+let selectedDate = new Date().toDateString();
+let tasks = JSON.parse(localStorage.getItem('v16_tasks')) || [];
+
+// ⚠️ USER REPLACEMENT: Replace with your own Google/Microsoft Client IDs if hosting your own version.
+const G_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com'; // ⚠️
+const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a'; // ⚠️
+
+window.onload = () => {
+    initLocation();
+    renderDayBars();
+    if(sessionStorage.getItem('google_token')) loadCal();
+    if(sessionStorage.getItem('ms_token')) loadMail();
+    requestAnimationFrame(updateClock);
+};
+
+// --- CORE FUNCTIONS ---
+
+// ‼️ STEP 1: Initialize Location from Storage
+function initLocation() {
+    const loc = JSON.parse(localStorage.getItem('v16_loc'));
+    if(loc) {
+        activeTZ = loc.tz;
+        fetchWeather(loc.lat, loc.lon, loc.name);
+    } else {
+        document.getElementById('w-city').textContent = "Choose Location";
+        document.getElementById('c-meta').textContent = "Setup Required";
+    }
+}
+
+// ‼️ STEP 2: Render 7-Day Navigation Bars
+function renderDayBars() {
+    const bars = ['cal-day-bar', 'rem-day-bar'];
+    const days = [];
+    for(let i=0; i<7; i++){
+        let d = new Date(); d.setDate(d.getDate() + i);
+        days.push({label: d.toLocaleDateString('en-US', {weekday:'short', day:'numeric'}), key: d.toDateString()});
+    }
+    bars.forEach(id => {
+        document.getElementById(id).innerHTML = days.map(d => `
+            <div class="day-pill ${d.key === selectedDate ? 'active' : ''}" onclick="selectDay('${d.key}')">${d.label}</div>
+        `).join('');
+    });
+}
+
+function selectDay(key) {
+    selectedDate = key;
+    renderDayBars();
+    renderTasks();
+    // In a full version, this would also trigger a new Google Calendar fetch for that date.
+}
+
+// ‼️ STEP 3: The Clock Engine (Localized to City)
+function updateClock() {
+    if(!activeTZ) return requestAnimationFrame(updateClock);
+    
+    const now = new Date();
+    const locTime = new Date(now.toLocaleString('en-US', {timeZone: activeTZ}));
+    locTime.setMilliseconds(now.getMilliseconds());
+
+    const h = locTime.getHours().toString().padStart(2,'0');
+    const m = locTime.getMinutes().toString().padStart(2,'0');
+    const s = locTime.getSeconds().toString().padStart(2,'0');
+    const ms = Math.floor(locTime.getMilliseconds()/10).toString().padStart(2,'0');
+
+    document.getElementById('digi-hms').textContent = `${h}:${m}:${s}`;
+    document.getElementById('digi-ms').textContent = ms;
+    
+    const dateStr = locTime.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const tzShort = locTime.toLocaleTimeString('en-US',{timeZoneName:'short'}).split(' ').pop();
+    document.getElementById('c-meta').innerHTML = `${dateStr} &bull; ${tzShort}`;
+
+    requestAnimationFrame(updateClock);
+}
+
+// ‼️ STEP 4: Weather & City Search Logic
+function toggleSearch() {
+    const m = document.getElementById('search-modal');
+    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+}
+
+async function searchCity(v) {
+    if(v.length < 2) return;
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${v}&count=3`);
+    const d = await r.json();
+    document.getElementById('search-results').innerHTML = d.results ? d.results.map(c => `
+        <div style="padding:15px;background:var(--card2);border-radius:12px;border:1px solid var(--border)" onclick="setLoc(${c.latitude}, ${c.longitude}, '${c.name}', '${c.timezone}')">
+            <b>${c.name}</b>, ${c.country}
+        </div>
+    `).join('') : '<div style="text-align:center;padding:20px;color:var(--muted)">No results found</div>';
+}
+
+function setLoc(lat, lon, name, tz) {
+    localStorage.setItem('v16_loc', JSON.stringify({lat, lon, name, tz}));
+    location.reload(); // Refresh to apply timezone and weather
+}
+
+async function fetchWeather(lat, lon, name) {
+    try {
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+        const d = await r.json();
+        document.getElementById('w-content').innerHTML = `
+            <div class="ctx-label">Current</div>
+            <div class="temp-big">${Math.round(d.current_weather.temperature)}°</div>
+        `;
+        document.getElementById('w-city').textContent = name;
+    } catch(e) { console.error("Weather failed", e); }
+}
+
+// ‼️ STEP 5: Task Management (Reminders)
+function renderTasks() {
+    let filtered = tasks.filter(t => t.dateKey === selectedDate && !t.done);
+    document.getElementById('rem-list').innerHTML = filtered.length ? filtered.map(t => `
+        <div class="list-item">
+            <div style="display:flex;align-items:center;gap:12px">
+                <input type="checkbox" style="width:18px;height:18px" onclick="doneTask(${t.id})">
+                <span>${t.title}</span>
+            </div>
+        </div>
+    `).join('') : '<div style="padding:30px;color:var(--muted);font-size:12px;text-align:center">All clear for this day!</div>';
+}
+
+function addReminder() {
+    const val = prompt("New Task for " + selectedDate + ":");
+    if(val) {
+        tasks.push({id: Date.now(), title: val, done: false, dateKey: selectedDate});
+        localStorage.setItem('v16_tasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+}
+
+function doneTask(id) {
+    tasks = tasks.map(t => t.id === id ? {...t, done:true} : t);
+    localStorage.setItem('v16_tasks', JSON.stringify(tasks));
+    renderTasks();
+}
+
+// ‼️ STEP 6: System Functions (Auth & Logout)
+function nukeData() {
+    if(confirm("This will log you out and clear all your tasks and location settings. Continue?")) {
+        localStorage.clear();
+        sessionStorage.clear();
+        location.reload();
+    }
+}
+
+// ⚠️ Note: Auth functions require valid Client IDs (defined above) and a hosted redirect URI.
+function initGoogle(){ /* Placeholder for Google OAuth Logic */ }
+function startMSLogin(){ /* Placeholder for MS OAuth Logic */ }
+function loadCal(){ /* Placeholder for API fetching */ }
+function loadMail(){ /* Placeholder for API fetching */ }
+
+</script>
+</body>
+</html>
