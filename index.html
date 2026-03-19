@@ -255,7 +255,7 @@ async function loadMail(tk){
   const el=document.getElementById('mail-body');
   el.innerHTML='<div class="empty"><div class="empty-icon">⏳</div>Loading inbox...</div>';
   try{
-    const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=15&$select=subject,from,receivedDateTime,isRead,bodyPreview&$orderby=receivedDateTime desc',{headers:{Authorization:'Bearer '+token}});
+    const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$select=subject,from,receivedDateTime,isRead,bodyPreview&$orderby=receivedDateTime desc',{headers:{Authorization:'Bearer '+token}});
     const data=await r.json();
     if(data.error)throw new Error(data.error.message);
     const unread=data.value.filter(m=>!m.isRead).length;
