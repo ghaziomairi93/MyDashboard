@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -36,6 +35,7 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 .card-sub{font-size:11px;color:var(--muted)}
 .card-action{font-size:12px;color:var(--blue);background:rgba(79,142,247,0.1);border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
 .card-action.google{color:var(--purple);background:rgba(167,139,250,0.1)}
+.card-action.signout{color:var(--red);background:rgba(248,113,113,0.1)}
 .mail-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s}
 .mail-item:last-child{border-bottom:none}
 .mail-item:hover{background:var(--card2)}
@@ -100,8 +100,6 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <div class="stat"><div class="stat-icon">✅</div><div class="stat-val">3</div><div class="stat-label">Completed</div></div>
 </div>
 
-<!-- OUTLOOK -->
-
 <div class="section anim anim-2">
   <div class="section-title">Outlook Inbox</div>
   <div class="card">
@@ -121,8 +119,6 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   </div>
 </div>
 
-<!-- GOOGLE CALENDAR -->
-
 <div class="section anim anim-3">
   <div class="section-title">Google Calendar</div>
   <div class="card">
@@ -141,8 +137,6 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
     </div>
   </div>
 </div>
-
-<!-- REMINDERS -->
 
 <div class="section anim anim-4">
   <div class="section-title">Reminders</div>
@@ -186,7 +180,6 @@ const AUTH_EP='https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize
 const TOKEN_EP='https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
 
 // ── GOOGLE CONFIG ─────────────────────────────────────────────────
-// ⚠️ Replace with your real Google Client ID from console.cloud.google.com
 const GOOGLE_CLIENT_ID='623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 let googleToken=null;
 
@@ -205,7 +198,7 @@ function showFatal(title,msg){
 }
 
 // ── HANDLE MICROSOFT REDIRECT ─────────────────────────────────────
-window.onload=async function(){
+window.addEventListener('load', async function(){
   const params=new URLSearchParams(window.location.search);
   const code=params.get('code');
   if(code){
@@ -225,9 +218,18 @@ window.onload=async function(){
     }catch(e){showFatal('Network error',e.message);}
     return;
   }
-  const stored=sessionStorage.getItem('ms_token');
-  if(stored)onSignedIn(stored);
-};
+  
+  // Check MS Token
+  const storedMs=sessionStorage.getItem('ms_token');
+  if(storedMs) onSignedIn(storedMs);
+
+  // Check Google Token
+  const storedGoogle = sessionStorage.getItem('google_token');
+  if(storedGoogle) {
+    googleToken = storedGoogle;
+    loadGoogleCalendar();
+  }
+});
 
 // ── MICROSOFT SIGNED IN ───────────────────────────────────────────
 async function onSignedIn(token){
@@ -277,35 +279,67 @@ async function loadMail(tk){
 
 // ── GOOGLE CALENDAR ───────────────────────────────────────────────
 function initGoogle(){
-  if(GOOGLE_CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID_HERE'){
-    document.getElementById('events-list').innerHTML='<div class="empty"><div class="empty-icon">⚙️</div>Add your Google Client ID to enable Calendar</div>';
+  const stored = sessionStorage.getItem('google_token');
+  if(stored) {
+    googleToken = stored;
+    loadGoogleCalendar();
     return;
   }
+  
   google.accounts.oauth2.initTokenClient({
     client_id:GOOGLE_CLIENT_ID,
     scope:'https://www.googleapis.com/auth/calendar.readonly',
     callback:(response)=>{
       if(response.access_token){
         googleToken=response.access_token;
+        sessionStorage.setItem('google_token', googleToken);
         loadGoogleCalendar();
       }
     }
   }).requestAccessToken();
 }
 
+function signOutGoogle() {
+  sessionStorage.removeItem('google_token');
+  googleToken = null;
+  location.reload();
+}
+
 async function loadGoogleCalendar(){
   if(!googleToken)return;
   const el=document.getElementById('events-list');
+  const gBtn = document.getElementById('google-btn');
+  
   el.innerHTML='<div class="empty"><div class="empty-icon">⏳</div>Loading events...</div>';
-  try{
+  try {
     const startOfDay=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString();
     const endOfDay=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59).toISOString();
     const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&orderBy=startTime&singleEvents=true&timeMin=${startOfDay}&timeMax=${endOfDay}`,{headers:{Authorization:'Bearer '+googleToken}});
+    
+    if(res.status === 401) {
+       sessionStorage.removeItem('google_token');
+       location.reload();
+       return;
+    }
+    
     const data=await res.json();
-    if(!data.items||!data.items.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎉</div>No events today!</div>';return;}
+    
+    // Update Button to Sign Out
+    gBtn.textContent = 'Logout';
+    gBtn.onclick = signOutGoogle;
+    gBtn.classList.add('signout');
+    gBtn.classList.remove('google');
+
+    if(!data.items||!data.items.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">🎉</div>No events today!</div>';
+      document.getElementById('stat-events').textContent = '0';
+      document.getElementById('cal-subtitle').textContent = 'No events today';
+      return;
+    }
+    
     document.getElementById('stat-events').textContent=data.items.length;
     document.getElementById('cal-subtitle').textContent=data.items.length+' events today';
-    document.getElementById('google-btn').textContent='↻ Refresh';
+    
     el.innerHTML='';
     data.items.forEach(ev=>{
       const start=ev.start.dateTime||ev.start.date;
@@ -338,6 +372,5 @@ function toggleR(i){reminders[i].done=!reminders[i].done;reminders[i].cat=remind
 function filterR(f,btn){rFilter=f;document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderReminders(f);}
 renderReminders('all');
 </script>
-
 </body>
 </html>
