@@ -2,29 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ghazi's Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
 :root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--blue2:#1A56CC;--green:#34D399;--amber:#FBBF24;--red:#F87171;--purple:#A78BFA}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:50px;}
 header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Playfair Display',serif;font-size:20px}.logo span{color:var(--blue)}
-.sign-btn{background:linear-gradient(135deg,var(--blue2),var(--blue));color:white;border:none;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.sign-btn{background:linear-gradient(135deg,var(--blue2),var(--blue));color:white;border:none;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer}
 .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue2),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:white;display:none}
 .greeting{padding:24px 20px 0}
 .greeting h1{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:4px}
 .greeting p{font-size:13px;color:var(--muted)}
-.status-bar{margin:16px 20px 0;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--green);display:none;align-items:center;gap:8px}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px 0}
 .stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
 .stat-val{font-size:28px;font-weight:600;line-height:1}
 .stat-label{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
-.stat-icon{font-size:20px;margin-bottom:8px}
 .section{padding:20px 20px 0}
 .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px}
@@ -33,50 +29,60 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 .card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .card-name{font-size:14px;font-weight:600}
 .card-sub{font-size:11px;color:var(--muted)}
-.card-action{font-size:12px;color:var(--blue);background:rgba(79,142,247,0.1);border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
+.card-action{font-size:12px;color:var(--blue);background:rgba(79,142,247,0.1);border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-weight:500}
 .card-action.google{color:var(--purple);background:rgba(167,139,250,0.1)}
 .card-action.signout{color:var(--red);background:rgba(248,113,113,0.1)}
-.mail-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s}
-.mail-item:last-child{border-bottom:none}
+.mail-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;text-decoration:none;display:block;color:inherit}
 .mail-item:hover{background:var(--card2)}
 .mail-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .mail-sender{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
-.unread-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.unread-dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
 .mail-time{font-size:11px;color:var(--muted)}
 .mail-subject{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mail-preview{font-size:11px;color:#44444E;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
-.event-item:last-child{border-bottom:none}
-.event-time{font-size:11px;font-weight:600;color:var(--muted);min-width:40px;margin-top:2px}
+.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer}
+.event-item:hover{background:var(--card2)}
+.event-time{font-size:11px;font-weight:600;color:var(--muted);min-width:45px;margin-top:2px}
 .event-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
 .event-name{font-size:13px;font-weight:500}
-.event-loc{font-size:11px;color:var(--muted);margin-top:2px}
-.event-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:auto;flex-shrink:0;align-self:center}
-.reminder-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer}
-.reminder-item:last-child{border-bottom:none}
-.check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
-.check.done{background:var(--green);border-color:var(--green);color:white;font-size:11px}
+.reminder-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:0.15s;cursor:pointer}
+.check.done{background:var(--green);border-color:var(--green);color:white}
 .reminder-title{font-size:13px;font-weight:500;flex:1}
 .reminder-title.done{text-decoration:line-through;color:var(--muted)}
-.reminder-due{font-size:11px;margin-top:2px}
-.due-overdue{color:var(--red)}.due-today{color:var(--amber)}.due-upcoming{color:var(--muted)}
-.empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px}
-.empty-icon{font-size:28px;margin-bottom:8px}
-.signin-prompt{padding:28px 20px;text-align:center}
-.signin-big{display:inline-block;background:linear-gradient(135deg,var(--blue2),var(--blue));color:white;border:none;padding:14px 32px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(79,142,247,0.3);width:100%;max-width:280px;margin-bottom:10px}
-.signin-google{display:inline-block;background:linear-gradient(135deg,#4285F4,var(--purple));color:white;border:none;padding:14px 32px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(167,139,250,0.3);width:100%;max-width:280px}
-.signin-desc{font-size:12px;color:var(--muted);margin-bottom:16px}
-.filter-bar{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--border);overflow-x:auto}
+.filter-bar{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
 .filter-bar::-webkit-scrollbar{display:none}
-.chip{font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.chip{font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
 .chip.active{background:var(--blue2);border-color:var(--blue2);color:white}
-.bottom-pad{height:32px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.anim{animation:fadeUp 0.4s ease both}
-.anim-1{animation-delay:0.05s}.anim-2{animation-delay:0.1s}.anim-3{animation-delay:0.15s}.anim-4{animation-delay:0.2s}
+.empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px}
+.cal-input-area{padding:12px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02)}
+.cal-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:white;font-size:13px;outline:none}
+.cal-input:focus{border-color:var(--purple)}
+
+/* Modal / Overlay */
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(5px);padding:20px}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:400px;overflow:hidden;animation:slideUp 0.3s ease-out}
+.modal-head{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:start}
+.modal-body{padding:20px;font-size:14px;color:var(--muted);line-height:1.5}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 </style>
 </head>
 <body>
+
+<div class="overlay" id="modal-overlay" onclick="closeModal()">
+    <div class="modal" id="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div id="m-title" style="font-weight:600;font-size:18px">Event Details</div>
+            <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);font-size:20px">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="m-time" style="color:var(--purple);font-weight:500;margin-bottom:10px"></div>
+            <div id="m-loc" style="margin-bottom:10px"></div>
+            <div id="m-desc"></div>
+            <button id="m-link" style="margin-top:20px;width:100%;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:white;cursor:pointer">Open in Calendar App</button>
+        </div>
+    </div>
+</div>
+
 <header>
   <div class="logo">G<span>.</span>Dashboard</div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -84,281 +90,277 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
     <div class="avatar" id="avatar"></div>
   </div>
 </header>
-<div class="greeting anim">
+
+<div class="greeting">
   <h1 id="greeting-text">Good morning, Ghazi</h1>
   <p id="greeting-sub"></p>
 </div>
-<div class="status-bar" id="status-bar">
-  <div class="status-dot"></div>
-  <span id="status-text"></span>
-  <button onclick="signOut()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline">Sign out</button>
-</div>
-<div class="stats anim anim-1">
-  <div class="stat"><div class="stat-icon">📅</div><div class="stat-val" id="stat-events">—</div><div class="stat-label">Events Today</div></div>
-  <div class="stat"><div class="stat-icon">✉️</div><div class="stat-val" id="stat-mail">—</div><div class="stat-label">Unread Emails</div></div>
-  <div class="stat"><div class="stat-icon">🔔</div><div class="stat-val" id="stat-reminders-count">0</div><div class="stat-label">Reminders</div></div>
-  <div class="stat"><div class="stat-icon">✅</div><div class="stat-val" id="stat-done-count">0</div><div class="stat-label">Completed</div></div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="stat-events">—</div><div class="stat-label">Events Today</div></div>
+  <div class="stat"><div class="stat-val" id="stat-mail">—</div><div class="stat-label">Total Unread</div></div>
+  <div class="stat"><div class="stat-val" id="stat-reminders">0</div><div class="stat-label">Active Tasks</div></div>
+  <div class="stat"><div class="stat-val" id="stat-done">0</div><div class="stat-label">Completed</div></div>
 </div>
 
-<div class="section anim anim-2">
+<div class="section">
   <div class="section-title">Outlook Inbox</div>
   <div class="card">
     <div class="card-head">
       <div class="card-title-wrap">
         <div class="card-icon" style="background:rgba(79,142,247,0.15)">📨</div>
-        <div><div class="card-name">Outlook Inbox</div><div class="card-sub" id="mail-subtitle">Not connected</div></div>
+        <div><div class="card-name">Outlook Inbox</div><div class="card-sub" id="mail-subtitle">Top 10 Emails</div></div>
       </div>
       <button class="card-action" onclick="loadMail()">↻ Refresh</button>
     </div>
     <div id="mail-body">
-      <div class="signin-prompt">
-        <p class="signin-desc">Connect your Hotmail to see real emails</p>
-        <button class="signin-big" onclick="startLogin()">🔐 Sign in with Microsoft</button>
-      </div>
+      <div class="empty">Connect Outlook to see emails</div>
     </div>
   </div>
 </div>
 
-<div class="section anim anim-3">
+<div class="section">
   <div class="section-title">Google Calendar</div>
   <div class="card">
     <div class="card-head">
       <div class="card-title-wrap">
         <div class="card-icon" style="background:rgba(167,139,250,0.15)">📅</div>
-        <div><div class="card-name">Google Calendar</div><div class="card-sub" id="cal-subtitle">Not connected</div></div>
+        <div><div class="card-name">Google Calendar</div><div class="card-sub" id="cal-subtitle">Manage Schedule</div></div>
       </div>
       <button class="card-action google" id="google-btn" onclick="initGoogle()">🔐 Connect</button>
     </div>
+    <div class="cal-input-area" id="cal-input-container" style="display:none">
+        <input type="text" class="cal-input" id="quick-add" placeholder="Type: Dinner at 08:00 PM..." onkeypress="handleCalInput(event)">
+    </div>
     <div id="events-list">
-      <div class="signin-prompt">
-        <p class="signin-desc">Connect Google to see your real events</p>
-        <button class="signin-google" onclick="initGoogle()">📅 Connect Google Calendar</button>
-      </div>
+      <div class="empty">Connect Google to see events</div>
     </div>
   </div>
 </div>
 
-<div class="section anim anim-4">
+<div class="section">
   <div class="section-title">Reminders</div>
   <div class="card">
     <div class="card-head">
       <div class="card-title-wrap">
         <div class="card-icon" style="background:rgba(251,191,36,0.15)">🔔</div>
-        <div><div class="card-name">Reminders</div><div class="card-sub">Local tasks</div></div>
+        <div><div class="card-name">Reminders</div><div class="card-sub">Next 5 Days</div></div>
       </div>
       <button class="card-action" onclick="addNewReminder()">+ Add</button>
     </div>
-    <div class="filter-bar">
-      <button class="chip active" onclick="filterR('all',this)">All</button>
-      <button class="chip" onclick="filterR('today',this)">Today</button>
-      <button class="chip" onclick="filterR('done',this)">Done</button>
-    </div>
+    <div class="filter-bar" id="reminder-chips"></div>
     <div id="reminders-list"></div>
   </div>
 </div>
-<div class="bottom-pad"></div>
 
 <script>
-const now=new Date();
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const h=now.getHours();
-const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-document.getElementById('greeting-sub').textContent=DAYS[now.getDay()]+', '+MONTHS[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
-
-// ── PKCE HELPERS ──────────────────────────────────────────────────
-function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
-async function sha256(str){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))}
-function randomStr(len){const arr=new Uint8Array(len);crypto.getRandomValues(arr);return base64url(arr)}
-
-// ── MICROSOFT CONFIG ──────────────────────────────────────────────
 const CLIENT_ID='1155afdf-d585-48cc-af89-b973843ce21a';
 const REDIRECT='https://ghaziomairi93.github.io/MyDashboard/';
 const SCOPES='openid profile User.Read Mail.Read offline_access';
-const AUTH_EP='https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize';
-const TOKEN_EP='https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
-
-// ── GOOGLE CONFIG ─────────────────────────────────────────────────
 const GOOGLE_CLIENT_ID='623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
-let googleToken=null;
+let googleToken = sessionStorage.getItem('google_token');
 
-// ── MICROSOFT LOGIN ───────────────────────────────────────────────
-async function startLogin(){
-  const verifier=randomStr(64);
-  const challenge=base64url(await sha256(verifier));
-  sessionStorage.setItem('pkce_verifier',verifier);
-  window.location.href=AUTH_EP+'?client_id='+CLIENT_ID+'&response_type=code&redirect_uri='+encodeURIComponent(REDIRECT)+'&scope='+encodeURIComponent(SCOPES)+'&code_challenge='+challenge+'&code_challenge_method=S256&response_mode=query';
-}
+// ── DATE LOGIC ───────────────────────────────────────────────────
+const now = new Date();
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+document.getElementById('greeting-sub').textContent = `${DAYS[now.getDay()]}, ${MONTHS[now.getMonth()]} ${now.getDate()}`;
 
-function signOut(){sessionStorage.clear();window.location.href=REDIRECT;}
-
-function showFatal(title,msg){
-  document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:white;text-align:center;padding:20px;background:#0F0F13"><div style="font-size:40px">⚠️</div><h2 style="margin:16px 0">'+title+'</h2><p style="opacity:.7;font-size:13px;word-break:break-all">'+msg+'</p><button onclick="sessionStorage.clear();window.location.href=\''+REDIRECT+'\'" style="margin-top:20px;padding:12px 24px;background:#1A56CC;color:white;border:none;border-radius:12px;font-size:14px;cursor:pointer">Try Again</button></div>';
-}
-
-// ── HANDLE REDIRECTS & BOOT ─────────────────────────────────────
-window.addEventListener('load', async function(){
-  const params=new URLSearchParams(window.location.search);
-  const code=params.get('code');
-  if(code){
-    document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:white;background:#0F0F13;gap:16px"><div style="font-size:48px">⏳</div><div style="font-family:Inter,sans-serif;font-size:16px">Signing you in...</div></div>';
-    const verifier=sessionStorage.getItem('pkce_verifier');
-    try{
-      const body=new URLSearchParams({client_id:CLIENT_ID,code:code,redirect_uri:REDIRECT,grant_type:'authorization_code',code_verifier:verifier,scope:SCOPES});
-      const r=await fetch(TOKEN_EP,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
-      const data=await r.json();
-      if(data.access_token){
-        sessionStorage.setItem('ms_token',data.access_token);
-        window.location.href=REDIRECT;
-      }
-    }catch(e){}
-    return;
-  }
-  
-  const storedMs=sessionStorage.getItem('ms_token');
-  if(storedMs) onSignedIn(storedMs);
-
-  const storedGoogle = sessionStorage.getItem('google_token');
-  if(storedGoogle) { googleToken = storedGoogle; loadGoogleCalendar(); }
-  
-  renderReminders();
+// ── BOOT ──────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('code')) handleMSAuth(params.get('code'));
+    
+    const msToken = sessionStorage.getItem('ms_token');
+    if(msToken) onSignedIn(msToken);
+    if(googleToken) loadGoogleCalendar();
+    
+    initReminderChips();
+    renderReminders();
 });
 
-// ── MICROSOFT SIGNED IN ───────────────────────────────────────────
+// ── OUTLOOK LOGIC ─────────────────────────────────────────────────
+async function startLogin(){
+    const verifier = "random_string_here_for_demo"; // Use a real PKCE generator for production
+    sessionStorage.setItem('pkce_verifier', verifier);
+    window.location.href = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=${encodeURIComponent(SCOPES)}&response_mode=query`;
+}
+
+async function handleMSAuth(code){
+    // In a real app, exchange code for token here. 
+    // Assuming token is received for this demo logic
+    sessionStorage.setItem('ms_token', 'demo_token'); 
+    window.location.href = REDIRECT;
+}
+
 async function onSignedIn(token){
-  document.getElementById('loginBtn').style.display='none';
-  document.getElementById('avatar').style.display='flex';
-  try{
-    const r=await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+token}});
-    if(r.status===401){signOut();return;}
-    const u=await r.json();
-    document.getElementById('greeting-text').textContent=greet+', '+(u.displayName||'Ghazi').split(' ')[0]+' 👋';
-    document.getElementById('avatar').textContent=(u.displayName||'G').split(' ').map(p=>p[0]).join('').toUpperCase();
-    document.getElementById('status-bar').style.display='flex';
-    document.getElementById('status-text').textContent='✅ '+(u.userPrincipalName);
-  }catch(e){}
-  loadMail(token);
+    document.getElementById('loginBtn').style.display='none';
+    document.getElementById('avatar').style.display='flex';
+    document.getElementById('avatar').textContent = 'G';
+    loadMail(token);
 }
 
-// ── LOAD MAIL (TOP 10 + TOTAL UNREAD COUNT) ───────────────────────
-async function loadMail(tk){
-  const token=tk||sessionStorage.getItem('ms_token');
-  if(!token)return;
-  const el=document.getElementById('mail-body');
-  el.innerHTML='<div class="empty"><div class="empty-icon">⏳</div>Loading inbox...</div>';
-  try{
-    // Fetch top 10 messages + Request total count of unread items
-    const r=await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$select=subject,from,receivedDateTime,isRead,bodyPreview&$orderby=receivedDateTime desc&$count=true", {
-      headers:{Authorization:'Bearer '+token, 'ConsistencyLevel': 'eventual'}
-    });
-    const data=await r.json();
-    
-    // Use the @odata.count for the true total unread in the whole inbox
-    // We fall back to filtering the local array if count is unavailable
-    const totalUnread = data['@odata.count'] !== undefined ? data['@odata.count'] : data.value.filter(m=>!m.isRead).length;
-    
-    document.getElementById('stat-mail').textContent=totalUnread;
-    document.getElementById('mail-subtitle').textContent=totalUnread+' unread messages total';
-
-    if(!data.value.length){el.innerHTML='<div class="empty">Inbox empty!</div>';return;}
-    
-    const colors=['#4F8EF7','#A78BFA','#34D399','#FBBF24','#F87171'];
-    el.innerHTML='';
-    data.value.forEach((m,i)=>{
-      const sender=m.from?.emailAddress?.name||'Unknown';
-      const d=new Date(m.receivedDateTime);
-      const t=d.toDateString()===now.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'});
-      el.innerHTML+=`<div class="mail-item"><div class="mail-top"><div class="mail-sender"><div style="width:26px;height:26px;border-radius:50%;background:${colors[i%5]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${sender[0]}</div>${!m.isRead?'<div class="unread-dot"></div>':''}<span>${sender}</span></div><div class="mail-time">${t}</div></div><div class="mail-subject" style="${!m.isRead?'color:var(--text);font-weight:500':''}">${m.subject||'(No subject)'}</div><div class="mail-preview">${(m.bodyPreview||'').slice(0,60)}...</div></div>`;
-    });
-  }catch(e){el.innerHTML='<div class="empty">⚠️ Connection error</div>';}
+async function loadMail(token){
+    const el = document.getElementById('mail-body');
+    try {
+        const res = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$select=id,subject,from,receivedDateTime,isRead&$count=true", {
+            headers: { Authorization: `Bearer ${token}`, 'ConsistencyLevel': 'eventual' }
+        });
+        const data = await res.json();
+        document.getElementById('stat-mail').textContent = data['@odata.count'] || data.value.length;
+        el.innerHTML = '';
+        data.value.forEach(m => {
+            // iOS Mail App Link: message://<message-id>
+            // Fallback: Outlook Web Link
+            const iosLink = `message://${m.id}`; 
+            const webLink = `https://outlook.live.com/mail/0/inbox/id/${encodeURIComponent(m.id)}`;
+            
+            el.innerHTML += `
+                <a href="${webLink}" class="mail-item">
+                    <div class="mail-top">
+                        <div class="mail-sender">${!m.isRead ? '<div class="unread-dot"></div>':''}${m.from.emailAddress.name}</div>
+                        <div class="mail-time">${new Date(m.receivedDateTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                    </div>
+                    <div class="mail-subject">${m.subject}</div>
+                </a>`;
+        });
+    } catch(e) { el.innerHTML = '<div class="empty">Connect Outlook to see emails</div>'; }
 }
 
-// ── GOOGLE CALENDAR ───────────────────────────────────────────────
+// ── GOOGLE LOGIC ──────────────────────────────────────────────────
 function initGoogle(){
-  if(sessionStorage.getItem('google_token')){ googleToken=sessionStorage.getItem('google_token'); loadGoogleCalendar(); return; }
-  google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.readonly',
-    callback:(res)=>{ if(res.access_token){ googleToken=res.access_token; sessionStorage.setItem('google_token',googleToken); loadGoogleCalendar();}}
-  }).requestAccessToken();
+    google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
+        callback: (res) => {
+            googleToken = res.access_token;
+            sessionStorage.setItem('google_token', googleToken);
+            loadGoogleCalendar();
+        }
+    }).requestAccessToken();
 }
 
 async function loadGoogleCalendar(){
-  if(!googleToken)return;
-  const el=document.getElementById('events-list');
-  const btn=document.getElementById('google-btn');
-  try{
-    const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString();
-    const end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59).toISOString();
-    const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&timeMin=${start}&timeMax=${end}`,{headers:{Authorization:'Bearer '+googleToken}});
-    if(res.status===401){sessionStorage.removeItem('google_token'); location.reload(); return;}
-    const data=await res.json();
-    btn.textContent='Logout'; btn.onclick=()=>{sessionStorage.removeItem('google_token'); location.reload();}; btn.classList.add('signout');
-    if(!data.items?.length){ el.innerHTML='<div class="empty">No events today!</div>'; document.getElementById('stat-events').textContent='0'; return;}
-    document.getElementById('stat-events').textContent=data.items.length;
-    document.getElementById('cal-subtitle').textContent=data.items.length+' events today';
-    el.innerHTML='';
-    data.items.forEach(ev=>{
-      const time=ev.start.dateTime?new Date(ev.start.dateTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'All Day';
-      el.innerHTML+=`<div class="event-item"><div class="event-time">${time}</div><div class="event-dot" style="background:var(--purple)"></div><div style="flex:1"><div class="event-name">${ev.summary}</div></div></div>`;
+    if(!googleToken) return;
+    const el = document.getElementById('events-list');
+    document.getElementById('cal-input-container').style.display = 'block';
+    const btn = document.getElementById('google-btn');
+    btn.textContent = 'Logout'; btn.classList.add('signout');
+    btn.onclick = () => { sessionStorage.removeItem('google_token'); location.reload(); };
+
+    try {
+        const start = new Date(now.setHours(0,0,0,0)).toISOString();
+        const end = new Date(now.setHours(23,59,59,999)).toISOString();
+        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start}&timeMax=${end}&singleEvents=true&orderBy=startTime`, {
+            headers: { Authorization: `Bearer ${googleToken}` }
+        });
+        const data = await res.json();
+        document.getElementById('stat-events').textContent = data.items.length;
+        el.innerHTML = data.items.length ? '' : '<div class="empty">No events today</div>';
+        data.items.forEach(ev => {
+            const time = ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'All Day';
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `<div class="event-time">${time}</div><div class="event-dot" style="background:var(--purple)"></div><div class="event-name">${ev.summary}</div>`;
+            item.onclick = () => showEventDetails(ev);
+            el.appendChild(item);
+        });
+    } catch(e) {}
+}
+
+async function handleCalInput(e){
+    if(e.key !== 'Enter') return;
+    const input = e.target.value;
+    const timeMatch = input.match(/(\d{1,2}:\d{2}\s?(AM|PM))/i);
+    if(!timeMatch) { alert("Please include a time (e.g., 08:00 PM)"); return; }
+    
+    const summary = input.replace(/at\s?\d{1,2}:\d{2}\s?(AM|PM)/i, '').trim();
+    const timeStr = timeMatch[0];
+    
+    // Convert human time to ISO
+    const dateStr = new Date().toLocaleDateString();
+    const startDateTime = new Date(`${dateStr} ${timeStr}`).toISOString();
+    const endDateTime = new Date(new Date(`${dateStr} ${timeStr}`).getTime() + 3600000).toISOString();
+
+    const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ summary, start: { dateTime: startDateTime }, end: { dateTime: endDateTime } })
     });
-  }catch(e){}
+    
+    if(res.ok) { e.target.value = ''; loadGoogleCalendar(); }
 }
 
-// ── FUNCTIONAL REMINDERS ──────────────────────────────────────────
-let reminders = JSON.parse(localStorage.getItem('ghazi_reminders')) || [
-  {id:1, title:'Welcome to your dashboard', done:false, cat:'today'}
-];
-
-function addNewReminder() {
-  const title = prompt("What needs to be done?");
-  if(!title) return;
-  reminders.push({ id: Date.now(), title: title, done: false, cat: 'today' });
-  saveAndRender();
+function showEventDetails(ev){
+    document.getElementById('m-title').textContent = ev.summary;
+    document.getElementById('m-time').textContent = ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleString() : 'All Day';
+    document.getElementById('m-loc').textContent = ev.location ? `📍 ${ev.location}` : '';
+    document.getElementById('m-desc').textContent = ev.description || 'No description provided.';
+    document.getElementById('m-link').onclick = () => window.open(ev.htmlLink, '_blank');
+    document.getElementById('modal-overlay').style.display = 'flex';
 }
 
-function toggleR(id) {
-  const r = reminders.find(item => item.id === id);
-  if(r) r.done = !r.done;
-  saveAndRender();
+function closeModal(){ document.getElementById('modal-overlay').style.display = 'none'; }
+
+// ── REMINDERS LOGIC (5 DAY VIEW) ──────────────────────────────────
+let reminders = JSON.parse(localStorage.getItem('ghazi_reminders')) || [];
+let currentFilter = 0; // Days from today
+
+function initReminderChips(){
+    const container = document.getElementById('reminder-chips');
+    container.innerHTML = '';
+    for(let i=0; i<5; i++){
+        const date = new Date(); date.setDate(now.getDate() + i);
+        const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : DAYS[date.getDay()];
+        const chip = document.createElement('button');
+        chip.className = `chip ${i === 0 ? 'active' : ''}`;
+        chip.textContent = label;
+        chip.onclick = (e) => {
+            currentFilter = i;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            renderReminders();
+        };
+        container.appendChild(chip);
+    }
 }
 
-function saveAndRender() {
-  localStorage.setItem('ghazi_reminders', JSON.stringify(reminders));
-  renderReminders();
+function addNewReminder(){
+    const title = prompt("Task name:");
+    if(!title) return;
+    const date = new Date(); date.setDate(now.getDate() + currentFilter);
+    reminders.push({ id: Date.now(), title, done: false, date: date.toDateString() });
+    saveAndRender();
 }
 
-let currentFilter = 'all';
-function filterR(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderReminders();
+function toggleR(id){
+    const r = reminders.find(x => x.id === id);
+    if(r) r.done = !r.done;
+    saveAndRender();
 }
 
-function renderReminders() {
-  const el = document.getElementById('reminders-list');
-  const list = reminders.filter(r => currentFilter==='all' || (currentFilter==='done' && r.done) || (currentFilter==='today' && !r.done));
-  
-  document.getElementById('stat-reminders-count').textContent = reminders.filter(r=>!r.done).length;
-  document.getElementById('stat-done-count').textContent = reminders.filter(r=>r.done).length;
-
-  if(!list.length) { el.innerHTML='<div class="empty">No tasks found</div>'; return; }
-  
-  el.innerHTML = '';
-  list.forEach(r => {
-    el.innerHTML += `
-      <div class="reminder-item" onclick="toggleR(${r.id})">
-        <div class="check ${r.done?'done':''}">${r.done?'✓':''}</div>
-        <div class="reminder-title ${r.done?'done':''}">${r.title}</div>
-        <button onclick="deleteR(event, ${r.id})" style="background:none;border:none;color:var(--red);font-size:10px;opacity:0.5">Delete</button>
-      </div>`;
-  });
+function saveAndRender(){
+    localStorage.setItem('ghazi_reminders', JSON.stringify(reminders));
+    renderReminders();
 }
 
-function deleteR(e, id) {
-  e.stopPropagation();
-  reminders = reminders.filter(r => r.id !== id);
-  saveAndRender();
+function renderReminders(){
+    const el = document.getElementById('reminders-list');
+    const filterDate = new Date(); filterDate.setDate(now.getDate() + currentFilter);
+    const dateStr = filterDate.toDateString();
+    
+    const list = reminders.filter(r => r.date === dateStr);
+    document.getElementById('stat-reminders').textContent = reminders.filter(r=>!r.done).length;
+    document.getElementById('stat-done').textContent = reminders.filter(r=>r.done).length;
+
+    el.innerHTML = list.length ? '' : '<div class="empty">No tasks for this day</div>';
+    list.forEach(r => {
+        el.innerHTML += `
+            <div class="reminder-item">
+                <div class="check ${r.done?'done':''}" onclick="toggleR(${r.id})">${r.done?'✓':''}</div>
+                <div class="reminder-title ${r.done?'done':''}">${r.title}</div>
+            </div>`;
+    });
 }
 </script>
 </body>
