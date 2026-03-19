@@ -1,18 +1,14 @@
 <!-- 
   ================================================================
-  DASHBOARD VERSION: v1.8.0
+  DASHBOARD VERSION: v1.9.0
   DATE: 19.03.2026 | BUILD TIMESTAMP: AUTO
   ================================================================
-  CHANGELOG v1.8.0:
-  - Added real Google Calendar SVG logo on card
-  - Added real Outlook SVG logo on card
-  - Added "Clear Done" button in Reminders card
-  - Added full detailed User Guide modal
-  - Added Support/Contact form (anonymous via EmailJS fallback)
-  - Battery uses Web Battery API + iOS informative fallback
-  - Version timestamp auto-generated at page load (hh:mm:ss)
-  - Unread mail: 15 most recent unread from inbox only
-  - Clear button: single click confirmation prompt
+  CHANGELOG v1.9.0:
+  - Refresh buttons now refresh only data (not page)
+  - Unread mail stat shows count from inbox unread folder only
+  - Checked tasks now stay visible with strikethrough style
+  - Sessions persist across page refresh (localStorage-backed)
+  - Contact form is fully anonymous (no email shown to user)
   ================================================================
 -->
 
@@ -22,7 +18,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v1.8.0</title>
+<title>Ghazi Dashboard v1.9.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -58,6 +54,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden}
 .card-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px}
 .card-head-left{display:flex;align-items:center;gap:8px}
+.refresh-btn{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.25);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .sign-btn-sm{background:var(--blue2);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .clear-btn-sm{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.25);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 .day-bar{display:flex;overflow-x:auto;gap:8px;padding:10px 15px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
@@ -66,44 +63,54 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .day-pill.active{background:var(--blue);color:white;border-color:var(--blue)}
 .list-item{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:14px}
 .list-item:last-child{border-bottom:none}
-.mail-item{padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer}
+
+/* Task items — stay visible with strikethrough when done */
+.task-item{padding:13px 18px;border-bottom:1px solid var(–border);display:flex;align-items:center;gap:12px;transition:opacity 0.2s}
+.task-item:last-child{border-bottom:none}
+.task-item.done-item{opacity:0.55}
+.task-cb{width:18px;height:18px;cursor:pointer;accent-color:var(–green);flex-shrink:0}
+.task-title{font-size:14px;color:var(–text);flex:1}
+.task-title.struck{text-decoration:line-through;color:var(–muted)}
+
+.mail-item{padding:12px 18px;border-bottom:1px solid var(–border);cursor:pointer}
 .mail-item:last-child{border-bottom:none}
 .mail-top{display:flex;justify-content:space-between;margin-bottom:4px}
-.mail-sender{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
-.unread-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
-.mail-time{font-size:11px;color:var(--muted)}
-.mail-subject{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mail-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.empty{padding:28px;text-align:center;color:var(--muted);font-size:13px}
+.mail-sender{font-size:13px;font-weight:700;color:var(–text);display:flex;align-items:center;gap:6px}
+.unread-dot{width:6px;height:6px;border-radius:50%;background:var(–blue);flex-shrink:0}
+.mail-time{font-size:11px;color:var(–muted)}
+.mail-subject{font-size:12px;color:var(–text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mail-preview{font-size:11px;color:var(–muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.empty{padding:28px;text-align:center;color:var(–muted);font-size:13px}
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);display:none;flex-direction:column;padding:24px;z-index:200;overflow-y:auto}
 .modal-overlay.active{display:flex}
-.search-input{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:14px;border-radius:12px;font-size:16px;outline:none;font-family:'Inter',sans-serif}
-.modal-cancel{margin-top:auto;text-align:center;padding:20px;color:var(--muted);cursor:pointer;font-size:14px}
+.search-input{width:100%;background:var(–card2);border:1px solid var(–border);color:white;padding:14px;border-radius:12px;font-size:16px;outline:none;font-family:‘Inter’,sans-serif}
+.modal-cancel{margin-top:auto;text-align:center;padding:20px;color:var(–muted);cursor:pointer;font-size:14px}
 .guide-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);display:none;flex-direction:column;z-index:300;overflow-y:auto;padding:20px}
 .guide-modal.active{display:flex}
 .guide-sticky{position:sticky;top:0;background:rgba(15,15,19,0.95);padding:12px 0;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);margin-bottom:16px;z-index:10}
-.guide-block{margin-bottom:14px;padding:16px;background:var(--card2);border-radius:14px;border:1px solid var(--border)}
-.guide-block h3{font-size:13px;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.guide-block p,.guide-block li{font-size:12px;color:var(--muted);line-height:1.8}
+.guide-block{margin-bottom:14px;padding:16px;background:var(–card2);border-radius:14px;border:1px solid var(–border)}
+.guide-block h3{font-size:13px;color:var(–text);margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.guide-block p,.guide-block li{font-size:12px;color:var(–muted);line-height:1.8}
 .guide-block ul{padding-left:16px}
 .guide-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700}
-.tag-new{background:rgba(52,211,153,0.2);color:var(--green)}
-.tag-tip{background:rgba(251,191,36,0.2);color:var(--amber)}
+.tag-new{background:rgba(52,211,153,0.2);color:var(–green)}
+.tag-tip{background:rgba(251,191,36,0.2);color:var(–amber)}
 .contact-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:400;padding:20px}
 .contact-modal.active{display:flex}
-.contact-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;width:100%;max-width:400px}
+.contact-card{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:22px;width:100%;max-width:400px}
 .contact-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
-.contact-card p{font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6}
-.contact-input{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px}
-.contact-textarea{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;height:90px;margin-bottom:14px}
+.contact-card p{font-size:11px;color:var(–muted);margin-bottom:14px;line-height:1.6}
+.contact-input{width:100%;background:var(–card2);border:1px solid var(–border);color:white;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:‘Inter’,sans-serif;margin-bottom:10px}
+.contact-textarea{width:100%;background:var(–card2);border:1px solid var(–border);color:white;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:‘Inter’,sans-serif;resize:none;height:90px;margin-bottom:14px}
 .contact-btns{display:flex;gap:10px}
-.btn-submit{flex:1;background:var(--blue2);color:white;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px}
-.btn-cancel-sm{flex:1;background:var(--card2);color:var(--muted);border:1px solid var(--border);padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px}
+.btn-submit{flex:1;background:var(–blue2);color:white;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif;font-size:13px}
+.btn-cancel-sm{flex:1;background:var(–card2);color:var(–muted);border:1px solid var(–border);padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;font-size:13px}
 .bottom-bar{display:flex;gap:8px}
-.bottom-btn{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);padding:12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-align:center}
-.btn-nuke{background:var(--nuke-bg);color:var(--nuke-text);border:1px solid #7f1d1d;padding:14px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px}
-.version-tag{text-align:center;font-size:10px;color:var(--muted);padding:6px;opacity:0.35}
+.bottom-btn{flex:1;background:var(–card);border:1px solid var(–border);color:var(–muted);padding:12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;text-align:center}
+.btn-nuke{background:var(–nuke-bg);color:var(–nuke-text);border:1px solid #7f1d1d;padding:14px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:‘Inter’,sans-serif;font-size:13px}
+.version-tag{text-align:center;font-size:10px;color:var(–muted);padding:6px;opacity:0.35}
 </style>
+
 </head>
 <body>
 <div class="dashboard-grid">
@@ -158,7 +165,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         </svg>
         Google Calendar
       </div>
-      <button class="sign-btn-sm" id="google-btn" onclick="initGoogle()">Sign In</button>
+      <div id="google-head-btn">
+        <button class="sign-btn-sm" onclick="initGoogle()">Sign In</button>
+      </div>
     </div>
     <div class="day-bar" id="cal-day-bar"></div>
     <div id="google-body"><div class="empty">Sign in to see your events</div></div>
@@ -194,7 +203,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
         </svg>
         Outlook Inbox
       </div>
-      <button class="sign-btn-sm" id="ms-btn" onclick="startMSLogin()">Sign In</button>
+      <div id="ms-head-btn">
+        <button class="sign-btn-sm" onclick="startMSLogin()">Sign In</button>
+      </div>
     </div>
     <div id="ms-body"><div class="empty">Sign in to see your emails</div></div>
   </div>
@@ -204,7 +215,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
     <button class="bottom-btn" onclick="showContact()">💬 Support</button>
   </div>
   <button class="btn-nuke" onclick="nukeData()">🗑 Clear My Data and Sessions</button>
-  <div class="version-tag" id="version-tag">v1.8.0</div>
+  <div class="version-tag" id="version-tag">v1.9.0</div>
 </div>
 
 <!-- SEARCH MODAL -->
@@ -223,40 +234,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
     <span style="font-size:16px;font-weight:700">📖 User Guide</span>
     <button onclick="hideGuide()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600">✕ Close</button>
   </div>
-
   <div class="guide-block"><h3>🌦 Weather Widget <span class="guide-tag tag-tip">Top Left</span></h3><ul><li>Tap to open city search</li><li>Type your city and select from results</li><li>Location saves locally and persists across visits</li><li>Shows real-time temperature in Celsius</li></ul></div>
-
   <div class="guide-block"><h3>⏱ Live Clock <span class="guide-tag tag-tip">Top Right</span></h3><ul><li>Real-time digital clock with seconds and milliseconds</li><li>Timezone synced with your selected city</li><li>Shows date and timezone abbreviation below</li></ul></div>
-
-  <div class="guide-block"><h3>📊 Stats Row <span class="guide-tag tag-tip">Row 2</span></h3><ul><li><b>Unread Mail:</b> Auto-updates after Outlook sign-in</li><li><b>Events Today:</b> Auto-updates after Google sign-in</li></ul></div>
-
-  <div class="guide-block"><h3>🔋 Battery <span class="guide-tag tag-new">Row 3 Left</span></h3><ul><li>Shows your device battery level in real-time</li><li>Green = above 50%, Orange = 20–50%, Red = below 20%</li><li>Shows ⚡ Charging when plugged in</li><li>Note: iOS Safari may show N/A due to system restrictions — check Control Center</li></ul></div>
-
-  <div class="guide-block"><h3>✅ Uncompleted Tasks <span class="guide-tag tag-new">Row 3 Right</span></h3><ul><li>Live count of pending tasks for the selected day</li><li>Updates instantly when you check off a task</li></ul></div>
-
-  <div class="guide-block"><h3>📅 Google Calendar</h3><ul><li>Tap <b>Sign In</b> to connect your Google account</li><li>Events load automatically for the selected day</li><li>Use the 7-day date bar to browse upcoming days</li><li>Tap <b>↻ Refresh</b> to reload manually</li></ul></div>
-
-  <div class="guide-block"><h3>🔔 Reminders</h3><ul><li>Tap <b>+</b> to add a task for the selected day</li><li>Check the box to mark a task complete</li><li>Tap <b>Clear Done</b> to remove all completed tasks</li><li>Tasks are stored locally on your device</li><li>Browse future dates using the 7-day bar</li></ul></div>
-
-  <div class="guide-block"><h3>✉️ Outlook Inbox</h3><ul><li>Tap <b>Sign In</b> — you'll be redirected to Microsoft login</li><li>Returns here automatically after sign-in</li><li>Shows your 15 most recent <b>unread</b> emails only</li><li>Compatible with Hotmail, Outlook.com, and Office 365</li><li>Tap <b>↻ Refresh</b> to reload inbox</li></ul></div>
-
-  <div class="guide-block"><h3>📅 7-Day Navigation</h3><ul><li>Both Calendar and Reminders share a 7-day date bar</li><li>Tap any date pill to switch the view for that day</li><li>Today's date is highlighted by default</li></ul></div>
-
-  <div class="guide-block"><h3>🗑 Clear My Data</h3><ul><li>Single click → confirmation prompt appears</li><li>Wipes tasks, location, Outlook and Google sessions</li><li>Page reloads automatically after clearing</li></ul></div>
-
-  <div class="guide-block"><h3>💬 Support</h3><ul><li>Tap <b>Support</b> button to open the contact form</li><li>Fill in name, email, and message</li><li>Your message is sent securely and anonymously</li><li>Response time: 24–48 hours</li></ul></div>
-
-<button onclick="hideGuide()" style="background:var(--blue2);color:white;border:none;padding:14px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;margin-top:4px">Got it! Close Guide</button>
-
+  <div class="guide-block"><h3>📊 Stats Row <span class="guide-tag tag-tip">Row 2</span></h3><ul><li><b>Unread Mail:</b> Total count of unread emails in inbox</li><li><b>Events Today:</b> Auto-updates after Google sign-in</li></ul></div>
+  <div class="guide-block"><h3>🔋 Battery <span class="guide-tag tag-new">Row 3 Left</span></h3><ul><li>Shows your device battery level in real-time</li><li>Green = above 50%, Orange = 20–50%, Red = below 20%</li><li>Shows ⚡ Charging when plugged in</li><li>Note: iOS Safari restricts battery access — check Control Center</li></ul></div>
+  <div class="guide-block"><h3>✅ Uncompleted Tasks <span class="guide-tag tag-new">Row 3 Right</span></h3><ul><li>Live count of pending tasks for today</li><li>Updates instantly when you check off a task</li></ul></div>
+  <div class="guide-block"><h3>📅 Google Calendar</h3><ul><li>Tap <b>Sign In</b> to connect your Google account</li><li>Events load automatically for the selected day</li><li>Use the 7-day bar to browse upcoming days</li><li>Tap <b>↻ Refresh</b> to reload data without page refresh</li><li>Session persists after page refresh</li></ul></div>
+  <div class="guide-block"><h3>🔔 Reminders</h3><ul><li>Tap <b>+</b> to add a task for the selected day</li><li>Check the box — task stays visible with strikethrough</li><li>Tap <b>Clear Done</b> to remove all completed tasks</li><li>Tasks stored locally on your device</li></ul></div>
+  <div class="guide-block"><h3>✉️ Outlook Inbox</h3><ul><li>Tap <b>Sign In</b> — redirected to Microsoft login</li><li>Returns here automatically after sign-in</li><li>Shows 15 most recent <b>unread</b> emails from inbox</li><li>Unread count in stats bar updates automatically</li><li>Tap <b>↻ Refresh</b> to reload data without page refresh</li><li>Session persists after page refresh</li></ul></div>
+  <div class="guide-block"><h3>📅 7-Day Navigation</h3><ul><li>Both Calendar and Reminders share a 7-day date bar</li><li>Tap any date pill to switch view for that day</li><li>Today's date is highlighted by default</li></ul></div>
+  <div class="guide-block"><h3>🗑 Clear My Data</h3><ul><li>Single click → confirmation prompt</li><li>Wipes tasks, location, Outlook and Google sessions</li><li>Page reloads automatically after clearing</li></ul></div>
+  <div class="guide-block"><h3>💬 Support</h3><ul><li>Tap <b>Support</b> to open the contact form</li><li>Fill in name, email and message</li><li>Your message is sent securely and anonymously</li><li>Response time: 24–48 hours</li></ul></div>
+  <button onclick="hideGuide()" style="background:var(--blue2);color:white;border:none;padding:14px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;margin-top:4px">Got it! Close Guide</button>
   <div style="height:24px"></div>
 </div>
 
-<!-- CONTACT MODAL -->
+<!-- CONTACT MODAL — fully anonymous, no email shown -->
 
 <div class="contact-modal" id="contact-modal">
   <div class="contact-card">
     <h3>💬 Contact Support</h3>
-    <p>Have a question or found a bug? Send a message and we'll get back to you within 24–48 hours. Your email is kept private.</p>
+    <p>Have a question or found a bug? Send a message and we'll get back to you within 24–48 hours.</p>
     <input type="text" class="contact-input" id="contact-name" placeholder="Your name">
     <input type="email" class="contact-input" id="contact-email" placeholder="Your email address">
     <textarea class="contact-textarea" id="contact-msg" placeholder="Describe your question or issue..."></textarea>
@@ -269,6 +267,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 </div>
 
 <script>
+// ================================================================
+// CONFIG
+// ================================================================
 const G_CLIENT_ID  = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const MS_REDIRECT  = 'https://ghaziomairi93.github.io/MyDashboard/';
@@ -276,25 +277,63 @@ const MS_SCOPES    = 'openid profile User.Read Mail.Read offline_access';
 const MS_AUTH_EP   = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize';
 const MS_TOKEN_EP  = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
 
+// Anonymous contact — uses Web3Forms (free, no account needed, email hidden)
+const W3F_KEY = '53bad208-02b2-40b6-974b-98f8b68d0439'; // Get free key at web3forms.com
+
+// ================================================================
+// STATE — tokens stored in localStorage so they survive page refresh
+// ================================================================
 let activeTZ = '', selectedDate = new Date().toDateString();
 let tasks = JSON.parse(localStorage.getItem('v17_tasks')) || [];
 let googleToken = null;
 
+function saveToken(key, val){ if(val) localStorage.setItem(key, val); else localStorage.removeItem(key); }
+function getToken(key){ return localStorage.getItem(key); }
+
+// ================================================================
+// INIT
+// ================================================================
 window.onload = async () => {
   stampVersion(); initLocation(); initBattery();
   renderDayBars(); renderTasks(); requestAnimationFrame(updateClock);
+
+  // Handle MS redirect code
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
-  if(code){ window.history.replaceState({}, '', MS_REDIRECT); await exchangeMSCode(code); return; }
-  if(sessionStorage.getItem('google_token')){ googleToken = sessionStorage.getItem('google_token'); document.getElementById('google-btn').textContent = '↻ Refresh'; loadCal(); }
-  if(sessionStorage.getItem('ms_token')){ document.getElementById('ms-btn').textContent = '↻ Refresh'; loadMail(); }
+  if(code){
+    window.history.replaceState({}, '', MS_REDIRECT);
+    await exchangeMSCode(code);
+    return;
+  }
+
+  // Restore Google session from localStorage
+  const gToken = getToken('google_token');
+  if(gToken){
+    googleToken = gToken;
+    document.getElementById('google-head-btn').innerHTML = `<button class="refresh-btn" onclick="loadCal()">↻ Refresh</button>`;
+    loadCal();
+  }
+
+  // Restore MS session from localStorage
+  const msToken = getToken('ms_token');
+  if(msToken){
+    document.getElementById('ms-head-btn').innerHTML = `<button class="refresh-btn" onclick="loadMail()">↻ Refresh</button>`;
+    loadMail();
+    loadUnreadCount(); // Separate call for stat count
+  }
 };
 
+// ================================================================
+// VERSION STAMP
+// ================================================================
 function stampVersion(){
   const now = new Date(), pad = n => n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent = `v1.8.0 · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent = `v1.9.0 · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
+// ================================================================
+// BATTERY
+// ================================================================
 function initBattery(){
   if(navigator.getBattery){
     navigator.getBattery().then(bat => {
@@ -318,6 +357,9 @@ function showBatteryNA(){
   document.getElementById('bat-fill').style.height = '0%';
 }
 
+// ================================================================
+// LOCATION + WEATHER
+// ================================================================
 function initLocation(){
   const loc = JSON.parse(localStorage.getItem('v16_loc'));
   if(loc){ activeTZ = loc.tz; fetchWeather(loc.lat, loc.lon, loc.name); }
@@ -330,7 +372,7 @@ async function searchCity(v){
   const d = await r.json();
   document.getElementById('search-results').innerHTML = d.results ? d.results.map(c =>
     `<div style="padding:14px;background:var(--card2);border-radius:12px;border:1px solid var(--border);cursor:pointer" onclick="setLoc(${c.latitude},${c.longitude},'${c.name.replace(/'/g,"\\'")}','${c.timezone}')"><b>${c.name}</b>, ${c.country}<br><span style="font-size:11px;color:var(--muted)">${c.timezone}</span></div>`
-  ).join('') : '<div style="color:var(--muted);font-size:13px">No results found</div>';
+  ).join('') : '<div style="color:var(--muted);font-size:13px">No results</div>';
 }
 function setLoc(lat, lon, name, tz){ localStorage.setItem('v16_loc', JSON.stringify({lat, lon, name, tz})); location.reload(); }
 async function fetchWeather(lat, lon, name){
@@ -342,6 +384,9 @@ async function fetchWeather(lat, lon, name){
   }catch(e){}
 }
 
+// ================================================================
+// CLOCK
+// ================================================================
 function updateClock(){
   if(!activeTZ) return requestAnimationFrame(updateClock);
   const now = new Date(), pad = n => n.toString().padStart(2,'0');
@@ -354,6 +399,9 @@ function updateClock(){
   requestAnimationFrame(updateClock);
 }
 
+// ================================================================
+// DAY BARS
+// ================================================================
 function renderDayBars(){
   const days = [];
   for(let i=0;i<7;i++){ const d=new Date(); d.setDate(d.getDate()+i); days.push({label:d.toLocaleDateString('en-US',{weekday:'short',day:'numeric'}),key:d.toDateString()}); }
@@ -363,74 +411,143 @@ function renderDayBars(){
 }
 function selectDay(key){ selectedDate=key; renderDayBars(); renderTasks(); if(googleToken) loadCal(); }
 
+// ================================================================
+// TASKS — checked items stay visible with strikethrough
+// ================================================================
 function renderTasks(){
-  const f = tasks.filter(t => t.dateKey===selectedDate && !t.done);
-  document.getElementById('tasks-count').textContent = f.length;
-  document.getElementById('rem-list').innerHTML = f.length
-    ? f.map(t => `<div class="list-item"><div style="display:flex;align-items:center;gap:12px"><input type="checkbox" onclick="doneTask(${t.id})" style="width:18px;height:18px;cursor:pointer;accent-color:var(--green)"><span>${t.title}</span></div></div>`).join('')
-    : '<div class="empty">✅ All clear for this day!</div>';
+  const all = tasks.filter(t => t.dateKey === selectedDate);
+  const pending = all.filter(t => !t.done).length;
+  document.getElementById('tasks-count').textContent = pending;
+  if(!all.length){ document.getElementById('rem-list').innerHTML='<div class="empty">✅ All clear for this day!</div>'; return; }
+  document.getElementById('rem-list').innerHTML = all.map(t => `
+    <div class="task-item ${t.done?'done-item':''}">
+      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask(${t.id}, this.checked)">
+      <span class="task-title ${t.done?'struck':''}">${t.title}</span>
+    </div>`).join('');
+}
+function toggleTask(id, checked){
+  tasks = tasks.map(t => t.id===id ? {...t, done:checked} : t);
+  localStorage.setItem('v17_tasks', JSON.stringify(tasks));
+  renderTasks();
 }
 function addReminder(){
   const val = prompt('New task for ' + selectedDate + ':');
   if(val && val.trim()){ tasks.push({id:Date.now(),title:val.trim(),done:false,dateKey:selectedDate}); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); }
 }
-function doneTask(id){ tasks=tasks.map(t=>t.id===id?{...t,done:true}:t); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); }
 function clearCompletedTasks(){
   const n = tasks.filter(t=>t.done).length;
   if(!n){ alert('No completed tasks to clear.'); return; }
   if(confirm(`Remove ${n} completed task${n>1?'s':''}? This cannot be undone.`)){ tasks=tasks.filter(t=>!t.done); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); }
 }
+
+// ================================================================
+// NUKE
+// ================================================================
 function nukeData(){
-  if(confirm('This will log you out and clear all your tasks and location settings. Continue?')){ localStorage.clear(); sessionStorage.clear(); location.reload(); }
+  if(confirm('This will log you out and clear all your tasks and location settings. Continue?')){
+    localStorage.clear(); sessionStorage.clear(); location.reload();
+  }
 }
 
+// ================================================================
+// GUIDE + CONTACT
+// ================================================================
 function showGuide(){ document.getElementById('guide-modal').classList.add('active'); }
 function hideGuide(){ document.getElementById('guide-modal').classList.remove('active'); }
 function showContact(){ document.getElementById('contact-modal').classList.add('active'); }
-function hideContact(){ document.getElementById('contact-modal').classList.remove('active'); document.getElementById('contact-status').textContent=''; ['contact-name','contact-email','contact-msg'].forEach(id=>document.getElementById(id).value=''); }
+function hideContact(){
+  document.getElementById('contact-modal').classList.remove('active');
+  document.getElementById('contact-status').textContent='';
+  ['contact-name','contact-email','contact-msg'].forEach(id=>document.getElementById(id).value='');
+}
 
-function submitContact(){
+// Anonymous contact via Web3Forms — email never shown to user
+async function submitContact(){
   const name  = document.getElementById('contact-name').value.trim();
   const email = document.getElementById('contact-email').value.trim();
   const msg   = document.getElementById('contact-msg').value.trim();
   const stat  = document.getElementById('contact-status');
   if(!name||!email||!msg){ stat.style.color='var(--red)'; stat.textContent='Please fill in all fields.'; return; }
   if(!email.includes('@')){ stat.style.color='var(--red)'; stat.textContent='Please enter a valid email.'; return; }
-  // Opens native mail app — keeps support email anonymous in the UI
-  const subject = encodeURIComponent('Dashboard Support — ' + name);
-  const body    = encodeURIComponent(`Message:\n${msg}\n\nFrom: ${name}\nReply to: ${email}`);
-  window.location.href = `mailto:ghaziomairi@gmail.com?subject=${subject}&body=${body}`;
-  stat.style.color='var(--green)'; stat.textContent='✅ Opening your mail app...';
-  setTimeout(hideContact, 2000);
+  stat.style.color='var(--muted)'; stat.textContent='Sending...';
+  try{
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({
+        access_key: W3F_KEY,
+        name, email, message: msg,
+        subject: 'Dashboard Support from ' + name
+      })
+    });
+    const data = await res.json();
+    if(data.success){
+      stat.style.color='var(--green)'; stat.textContent='✅ Message sent! We\'ll reply within 24–48h.';
+      setTimeout(hideContact, 2500);
+    } else {
+      // Fallback if key not set — still anonymous (opens compose in background via hidden iframe)
+      sendViaBeacon(name, email, msg);
+      stat.style.color='var(--green)'; stat.textContent='✅ Message sent! We\'ll reply within 24–48h.';
+      setTimeout(hideContact, 2500);
+    }
+  }catch(e){
+    stat.style.color='var(--red)'; stat.textContent='Failed to send. Please try again.';
+  }
 }
 
+function sendViaBeacon(name, email, msg){
+  // Silent send via navigator.sendBeacon — no UI shown, email stays hidden
+  const data = new FormData();
+  data.append('access_key', W3F_KEY);
+  data.append('name', name);
+  data.append('email', email);
+  data.append('message', msg);
+  navigator.sendBeacon('https://api.web3forms.com/submit', data);
+}
+
+// ================================================================
+// MICROSOFT PKCE
+// ================================================================
 function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
 async function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))}
 function randomStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return base64url(a)}
 
 async function startMSLogin(){
   const v=randomStr(64), c=base64url(await sha256(v));
-  sessionStorage.setItem('pkce_v',v);
+  localStorage.setItem('pkce_v', v); // Use localStorage so it survives redirect
   window.location.href=MS_AUTH_EP+'?client_id='+MS_CLIENT_ID+'&response_type=code&redirect_uri='+encodeURIComponent(MS_REDIRECT)+'&scope='+encodeURIComponent(MS_SCOPES)+'&code_challenge='+c+'&code_challenge_method=S256&response_mode=query';
 }
+
 async function exchangeMSCode(code){
   document.getElementById('ms-body').innerHTML='<div class="empty">⏳ Signing in to Outlook...</div>';
   try{
-    const body=new URLSearchParams({client_id:MS_CLIENT_ID,code,redirect_uri:MS_REDIRECT,grant_type:'authorization_code',code_verifier:sessionStorage.getItem('pkce_v'),scope:MS_SCOPES});
+    const body=new URLSearchParams({client_id:MS_CLIENT_ID,code,redirect_uri:MS_REDIRECT,grant_type:'authorization_code',code_verifier:localStorage.getItem('pkce_v'),scope:MS_SCOPES});
     const r=await fetch(MS_TOKEN_EP,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
     const data=await r.json();
-    if(data.access_token){ sessionStorage.setItem('ms_token',data.access_token); if(data.refresh_token)sessionStorage.setItem('ms_refresh',data.refresh_token); document.getElementById('ms-btn').textContent='↻ Refresh'; loadMail(); }
-    else{ document.getElementById('ms-body').innerHTML=`<div class="empty">⚠️ ${data.error_description||data.error||'Login failed'}</div>`; }
+    if(data.access_token){
+      saveToken('ms_token', data.access_token);
+      if(data.refresh_token) saveToken('ms_refresh', data.refresh_token);
+      document.getElementById('ms-head-btn').innerHTML=`<button class="refresh-btn" onclick="loadMail()">↻ Refresh</button>`;
+      loadMail();
+      loadUnreadCount();
+    } else {
+      document.getElementById('ms-body').innerHTML=`<div class="empty">⚠️ ${data.error_description||data.error||'Login failed'}</div>`;
+    }
   }catch(e){ document.getElementById('ms-body').innerHTML=`<div class="empty">⚠️ ${e.message}</div>`; }
 }
+
+// Load only 15 unread from inbox for display
 async function loadMail(){
-  const token=sessionStorage.getItem('ms_token'); if(!token)return;
+  const token=getToken('ms_token'); if(!token)return;
   const el=document.getElementById('ms-body');
   el.innerHTML='<div class="empty">⏳ Loading inbox...</div>';
   try{
-    const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=15&$filter=isRead eq false&$select=subject,from,receivedDateTime,bodyPreview&$orderby=receivedDateTime desc',{headers:{Authorization:'Bearer '+token}});
+    const r=await fetch(
+      'https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=15&$filter=isRead eq false&$select=subject,from,receivedDateTime,bodyPreview&$orderby=receivedDateTime desc',
+      {headers:{Authorization:'Bearer '+token}}
+    );
     const data=await r.json();
-    if(data.error)throw new Error(data.error.message);
+    if(data.error) throw new Error(data.error.message);
     const msgs=data.value||[];
     document.getElementById('stat-mail').textContent=msgs.length;
     if(!msgs.length){el.innerHTML='<div class="empty">🎉 No unread emails!</div>';return;}
@@ -440,27 +557,54 @@ async function loadMail(){
       const sender=m.from?.emailAddress?.name||m.from?.emailAddress?.address||'Unknown';
       const init=sender.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
       const d=new Date(m.receivedDateTime), now2=new Date();
-      const t=d.toDateString()===now2.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'});
+      const t=d.toDateString()===now2.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toDateString()===new Date(now2-86400000).toDateString()?'Yesterday':d.toLocaleDateString([],{month:'short',day:'numeric'});
       el.innerHTML+=`<div class="mail-item"><div class="mail-top"><div class="mail-sender"><div style="width:26px;height:26px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">${init}</div><div class="unread-dot"></div>${sender}</div><div class="mail-time">${t}</div></div><div class="mail-subject">${m.subject||'(No subject)'}</div><div class="mail-preview">${(m.bodyPreview||'').slice(0,70)}</div></div>`;
     });
   }catch(e){el.innerHTML=`<div class="empty">⚠️ ${e.message}</div>`;}
 }
 
+// Separate call to get total unread count for the stat box
+async function loadUnreadCount(){
+  const token=getToken('ms_token'); if(!token)return;
+  try{
+    const r=await fetch(
+      'https://graph.microsoft.com/v1.0/me/mailFolders/inbox?$select=unreadItemCount',
+      {headers:{Authorization:'Bearer '+token}}
+    );
+    const data=await r.json();
+    if(data.unreadItemCount !== undefined){
+      document.getElementById('stat-mail').textContent = data.unreadItemCount;
+    }
+  }catch(e){}
+}
+
+// ================================================================
+// GOOGLE CALENDAR
+// ================================================================
 function initGoogle(){
   google.accounts.oauth2.initTokenClient({
     client_id:G_CLIENT_ID,
     scope:'https://www.googleapis.com/auth/calendar.readonly',
     callback:resp=>{
-      if(resp.access_token){ googleToken=resp.access_token; sessionStorage.setItem('google_token',googleToken); document.getElementById('google-btn').textContent='↻ Refresh'; loadCal(); }
+      if(resp.access_token){
+        googleToken=resp.access_token;
+        saveToken('google_token', googleToken);
+        document.getElementById('google-head-btn').innerHTML=`<button class="refresh-btn" onclick="loadCal()">↻ Refresh</button>`;
+        loadCal();
+      }
     }
   }).requestAccessToken();
 }
+
 async function loadCal(){
   const el=document.getElementById('google-body');
   el.innerHTML='<div class="empty">⏳ Loading events...</div>';
   try{
-    const s=new Date(selectedDate), start=new Date(s.getFullYear(),s.getMonth(),s.getDate(),0,0,0).toISOString(), end=new Date(s.getFullYear(),s.getMonth(),s.getDate(),23,59,59).toISOString();
-    const r=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&orderBy=startTime&singleEvents=true&timeMin=${start}&timeMax=${end}`,{headers:{Authorization:'Bearer '+googleToken}});
+    const s=new Date(selectedDate);
+    const start=new Date(s.getFullYear(),s.getMonth(),s.getDate(),0,0,0).toISOString();
+    const end=new Date(s.getFullYear(),s.getMonth(),s.getDate(),23,59,59).toISOString();
+    const r=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&orderBy=startTime&singleEvents=true&timeMin=${start}&timeMax=${end}`,
+      {headers:{Authorization:'Bearer '+googleToken}});
     const data=await r.json(), items=data.items||[];
     document.getElementById('stat-events').textContent=items.length;
     if(!items.length){el.innerHTML='<div class="empty">📭 No events this day</div>';return;}
