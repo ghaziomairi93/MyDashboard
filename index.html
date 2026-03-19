@@ -1,14 +1,15 @@
 <!-- 
-  DASHBOARD VERSION: v1.3.19.03.26 (19:21:26)
+  DASHBOARD VERSION: v1.5
+  Date: 19.03.2026
   
   CHANGELOG:
-  - Fixed Unread Count: Specifically targeting 'inbox' with isRead=false filter.
-  - Weather: Manual location trigger added ("Press here to choose location").
-  - Greeting: Time-aware (Morning/Afternoon/Evening) + Dynamic name from Outlook.
-  - UI: Fixed Calendar input width bug.
-  - UI: "X" buttons are now squared with soft edges and brighter background.
-  - Branding: Added Google & Outlook logos to card headers.
-  - Navigation: Replaced Refresh text with icon; added Logout per-service.
+  - Weather: Manual 3-city search via Geocoding API. Background adapts to time-of-day (Sunrise/Day/Sunset/Night).
+  - Time Engine: Analog & Digital 7-segment clocks synchronized to the chosen city's timezone.
+  - Links Fix: Added iOS deep links (message://, ms-outlook://, comgooglecalendar://).
+  - Add to Calendar: Fixed using Google Calendar URL templating.
+  - Data Filtering: Reminders strictly show Today's uncompleted tasks.
+  - UI Layout: Restructured 6-row layout per user specifications.
+  - Footer: Red "Clear Data" Nuke Button.
 -->
 
 <!DOCTYPE html>
@@ -16,312 +17,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi's Dashboard v1.3</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Ghazi Dashboard v1.5</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
-:root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--blue2:#1A56CC;--red-bg:rgba(248,113,113,0.2);--red-text:#FF8585}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;}
+:root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--led-green:#39FF14;--nuke-bg:#450a0a;--nuke-text:#fca5a5}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:20px;padding-bottom:60px}
 
-header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.logo{font-family:'Playfair Display',serif;font-size:20px}.logo span{color:var(--blue)}
-.version-tag{font-size:10px; color:var(--muted); background:var(--card2); padding:2px 6px; border-radius:4px; margin-left:8px;}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}.logo span{color:var(--blue)}
 
-.greeting{padding:24px 20px 10px}
-.greeting h1{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:4px; font-weight:700;}
-.greeting p{font-size:14px;color:var(--muted); font-weight:500;}
+/* Layout Grids */
+.dashboard-grid{display:flex;flex-direction:column;gap:16px}
+.row-split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-.weather-card{margin:10px 20px; padding:20px; background: linear-gradient(135deg, #1A56CC, #4F8EF7); border-radius:24px; cursor:pointer;}
-.weather-hint{font-size:12px; margin-top:10px; opacity:0.8; text-decoration:underline}
+/* Weather Card & Backgrounds */
+.weather-card{border-radius:24px;padding:25px;position:relative;overflow:hidden;transition:background 1s ease;min-height:140px;display:flex;flex-direction:column;justify-content:center}
+.bg-day{background:linear-gradient(135deg,#1A56CC,#4F8EF7)}
+.bg-night{background:linear-gradient(135deg,#0a0a12,#16162b)}
+.bg-sunrise{background:linear-gradient(135deg,#ff7e5f,#feb47b);color:#111}
+.bg-sunset{background:linear-gradient(135deg,#ff4e50,#f9d423);color:#111}
 
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 20px 0}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;}
-.stat-val{font-size:28px;font-weight:700}
-.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px; font-weight:600}
+/* Location Search */
+.search-modal{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;flex-direction:column;padding:20px;z-index:10;color:white}
+.search-input{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:12px;border-radius:12px;outline:none;font-size:14px}
+.search-results{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.city-item{padding:12px;background:var(--card);border-radius:10px;font-size:14px;border:1px solid var(--border);cursor:pointer}
 
-.section{padding:24px 20px 0}
-.section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px}
-.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-name-group{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px}
-.brand-icon{width:20px; height:20px; object-fit:contain}
+/* Clock Container */
+.clock-container{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px}
+/* Analog Clock (Apple Style) */
+.analog-clock{width:80px;height:80px;border-radius:50%;background:white;position:relative;border:4px solid #f0f0f0;box-shadow:inset 0 0 5px rgba(0,0,0,0.2)}
+.hand{position:absolute;bottom:50%;left:50%;transform-origin:bottom;border-radius:4px;transform:translateX(-50%)}
+.hour-hand{width:4px;height:22px;background:black;z-index:2}
+.min-hand{width:3px;height:32px;background:black;z-index:3}
+.sec-hand{width:1.5px;height:35px;background:#FF9500;z-index:4}
+.clock-center{position:absolute;top:50%;left:50%;width:6px;height:6px;background:#FF9500;border-radius:50%;transform:translate(-50%,-50%);z-index:5}
+/* Digital Clock */
+.digital-clock{font-family:'Seven Segment',monospace;color:var(--led-green);font-size:18px;letter-spacing:1px;text-shadow:0 0 8px rgba(57,255,20,0.4)}
 
-.action-btns{display:flex; gap:8px; align-items:center}
-.btn-icon{background:var(--card2); border:1px solid var(--border); color:var(--text); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer}
-.btn-logout{background:var(--red-bg); border:none; color:var(--red-text); padding:0 12px; height:32px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer}
+/* Stats Box */
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.stat-num{font-size:36px;font-weight:700;margin-bottom:4px}
+.stat-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600}
 
-/* Squared Soft-Edge Delete Buttons */
-.del-btn{width:32px; height:32px; border-radius:8px; background:var(--red-bg); color:var(--red-text); border:none; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; cursor:pointer}
+/* General Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
+.list-item{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 
-.cal-input-container{padding:16px; display:flex; flex-direction:column; gap:10px; background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border)}
-.cal-input{width:100%; background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:12px; color:white; font-size:14px; outline:none}
-.btn-add-cal{background:var(--blue2); color:white; border:none; padding:10px; border-radius:10px; font-weight:600}
-
-.list-item{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.filter-bar{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
-.chip{font-size:12px;padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);white-space:nowrap;font-weight:500}
-.chip.active{background:var(--blue2);color:white;border-color:var(--blue2)}
-
-.auth-prompt{padding:40px 20px; text-align:center;}
-.btn-fancy-login{background:var(--blue2); color:white; border:none; padding:14px; border-radius:14px; font-weight:600; width: 100%; margin-top:15px}
+/* Inputs & Buttons */
+.cal-input-group{padding:16px;display:flex;gap:10px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
+.input-field{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;color:white;font-size:14px;outline:none}
+.btn-primary{background:var(--blue);color:white;border:none;padding:0 16px;border-radius:10px;font-weight:600;cursor:pointer}
+.btn-add-sq{width:32px;height:32px;border-radius:8px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-weight:bold;cursor:pointer}
+.btn-nuke{background:var(--nuke-bg);color:var(--nuke-text);border:none;padding:18px;border-radius:16px;font-weight:700;font-size:14px;cursor:pointer;width:100%;margin-top:20px}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">G<span>.</span>Dashboard <span class="version-tag">v1.3.19.03.26</span></div>
+    <div class="logo">G<span>.</span>Dashboard <span style="font-size:10px;color:var(--muted);font-family:Inter">v1.5</span></div>
 </header>
 
-<div class="greeting">
-  <h1 id="greeting-text">Loading...</h1>
-  <p id="greeting-sub"></p>
-</div>
-
-<div class="weather-card" onclick="getWeather()">
-    <div id="weather-content">
-        <div style="font-size:16px; font-weight:600">Weather</div>
-        <div class="weather-hint">Press here to choose location</div>
-    </div>
-</div>
-
-<div class="stats">
-  <div class="stat-card">
-    <div class="stat-val" id="stat-events">0</div>
-    <div class="stat-label">Events</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-val" id="stat-mail">0</div>
-    <div class="stat-label">Inbox</div>
-  </div>
-</div>
-
-<!-- Outlook -->
-<div class="section" id="mail-sec">
-  <div class="section-title">Outlook</div>
-  <div class="card">
-    <div class="card-head" id="mail-head-ui" style="display:none">
-      <div class="card-name-group">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" class="brand-icon">
-          <span id="mail-subtitle">Inbox</span>
-      </div>
-      <div class="action-btns">
-          <button class="btn-icon" onclick="loadMail()">🔄</button>
-          <button class="btn-logout" onclick="logout('ms')">Logout</button>
-      </div>
-    </div>
-    <div id="mail-body">
-        <div class="auth-prompt">
-            <button class="btn-fancy-login" onclick="startMSLogin()">Sign In to Outlook</button>
+<div class="dashboard-grid">
+    
+    <!-- 1. Weather Card (Top) -->
+    <div class="weather-card bg-day" id="weather-main">
+        <div id="weather-ui">
+            <div style="font-weight:700;font-size:14px;opacity:0.9;text-transform:uppercase;letter-spacing:1px">Weather</div>
+            <div id="w-temp" style="font-size:48px;font-weight:700;margin:5px 0">--°</div>
+            <div id="w-loc" style="font-size:16px;font-weight:600">Loading...</div>
+            <div style="font-size:12px;opacity:0.8;margin-top:8px;text-decoration:underline" onclick="toggleSearch()">Where would you like to see the weather? (Tap to change)</div>
+        </div>
+        
+        <!-- Search Overlay -->
+        <div class="search-modal" id="search-modal">
+            <div style="font-size:14px;font-weight:600;margin-bottom:10px">Search City</div>
+            <input type="text" class="search-input" placeholder="Type city name..." oninput="searchCity(this.value)">
+            <div class="search-results" id="search-results"></div>
+            <div style="margin-top:auto;text-align:center;font-size:14px;color:var(--muted);padding:10px" onclick="toggleSearch()">Cancel</div>
         </div>
     </div>
-  </div>
-</div>
 
-<!-- Google Calendar -->
-<div class="section" id="cal-sec">
-  <div class="section-title">Google Calendar</div>
-  <div class="card">
-    <div class="card-head" id="cal-head-ui" style="display:none">
-      <div class="card-name-group">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" class="brand-icon">
-          <span>Schedule</span>
-      </div>
-      <div class="action-btns">
-          <button class="btn-icon" onclick="loadGoogleCalendar()">🔄</button>
-          <button class="btn-logout" onclick="logout('google')">Logout</button>
-      </div>
-    </div>
-    <div id="cal-body">
-        <div class="auth-prompt">
-            <button class="btn-fancy-login" onclick="initGoogle()">Sign In to Google</button>
+    <!-- 2. Row 2: Clock & Tasks -->
+    <div class="row-split">
+        <div class="clock-container">
+            <div class="analog-clock">
+                <div class="hand hour-hand" id="hr-hand"></div>
+                <div class="hand min-hand" id="mn-hand"></div>
+                <div class="hand sec-hand" id="sc-hand"></div>
+                <div class="clock-center"></div>
+            </div>
+            <div class="digital-clock" id="digi-clock">00:00:00:00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" id="stat-tasks">0</div>
+            <div class="stat-lbl">Tasks To-Do</div>
         </div>
     </div>
-  </div>
-</div>
 
-<!-- Reminders -->
-<div class="section" id="rem-sec">
-  <div class="section-title">Reminders</div>
-  <div class="card">
-    <div class="card-head">
-      <div class="card-name-group">🔔 Tasks</div>
-      <button class="btn-icon" style="width:auto; padding:0 12px; font-size:12px" onclick="addNewReminder()">+ Add</button>
+    <!-- 3. Row 3: Mail & Event Stats -->
+    <div class="row-split">
+        <div class="stat-box">
+            <div class="stat-num" id="stat-mail">0</div>
+            <div class="stat-lbl">Unread Mail</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" id="stat-events">0</div>
+            <div class="stat-lbl">Events Today</div>
+        </div>
     </div>
-    <div class="filter-bar" id="reminder-chips"></div>
-    <div id="reminders-list"></div>
-  </div>
-</div>
 
-<footer>
-    <button class="btn-logout" style="padding:15px 30px; height:auto" onclick="fullNukeSession()">Clear All Data & Sessions</button>
-</footer>
+    <!-- 4. Google Calendar -->
+    <div class="card">
+        <div class="card-head">
+            <div style="display:flex;gap:10px;align-items:center">📅 Google Calendar</div>
+        </div>
+        <div class="cal-input-group" id="cal-auth-ui" style="display:none">
+            <input type="text" id="new-ev-text" class="input-field" placeholder="Gym @ 6pm">
+            <button class="btn-primary" onclick="addGoogleEvent()">Add</button>
+        </div>
+        <div id="google-body">
+            <div style="padding:30px;text-align:center"><button class="btn-primary" style="padding:12px 24px" onclick="initGoogle()">Sign In</button></div>
+        </div>
+    </div>
+
+    <!-- 5. Reminders -->
+    <div class="card">
+        <div class="card-head">
+            <div style="display:flex;gap:10px;align-items:center">🔔 Reminders</div>
+            <button class="btn-add-sq" onclick="addReminder()">+</button>
+        </div>
+        <div id="rem-list"></div>
+    </div>
+
+    <!-- 6. Outlook -->
+    <div class="card">
+        <div class="card-head">
+            <div style="display:flex;gap:10px;align-items:center">✉️ Outlook Inbox</div>
+        </div>
+        <div id="ms-body">
+            <div style="padding:30px;text-align:center"><button class="btn-primary" style="padding:12px 24px" onclick="startMSLogin()">Sign In</button></div>
+        </div>
+    </div>
+
+    <!-- 7. Footer Nuke Button -->
+    <button class="btn-nuke" onclick="nukeData()">Clear my Data and Sessions from Dashboard</button>
+
+</div>
 
 <script>
-const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
-const GOOGLE_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
-const REDIRECT = 'https://ghaziomairi93.github.io/MyDashboard/';
+let activeTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+let msT = sessionStorage.getItem('ms_token');
+let ggT = sessionStorage.getItem('google_token');
+let tasks = JSON.parse(localStorage.getItem('v15_tasks')) || [];
+let searchTimer;
 
-let msToken = sessionStorage.getItem('ms_token');
-let googleToken = sessionStorage.getItem('google_token');
-let allReminders = JSON.parse(localStorage.getItem('ghazi_rems')) || [];
-
-window.onload = async () => {
-    updateGreeting();
-    initDayBars();
-    renderReminders();
+window.onload = () => {
+    initLocation();
+    renderTasks();
+    if(ggT) { document.getElementById('cal-auth-ui').style.display='flex'; loadCal(); }
+    if(msT) loadMail();
     
-    // Auth Logic
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('code')){
-        const verifier = sessionStorage.getItem('pkce_verifier');
-        const body = new URLSearchParams({client_id:MS_CLIENT_ID, code:params.get('code'), redirect_uri:REDIRECT, grant_type:'authorization_code', code_verifier:verifier});
-        const r = await fetch('https://login.microsoftonline.com/consumers/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
-        const data = await r.json();
-        if(data.access_token){ sessionStorage.setItem('ms_token', data.access_token); window.location.href = REDIRECT; }
-    }
-
-    if(msToken) { document.getElementById('mail-head-ui').style.display='flex'; loadMail(); getMSProfile(); }
-    if(googleToken) { document.getElementById('cal-head-ui').style.display='flex'; loadGoogleCalendar(); }
+    // Sync clocks exactly to screen refresh rate for smooth MS
+    requestAnimationFrame(updateClocks);
 };
 
-function updateGreeting() {
-    const hr = new Date().getHours();
-    let greet = "Good evening";
-    if(hr < 12) greet = "Good morning";
-    else if(hr < 18) greet = "Good afternoon";
-    
-    const name = sessionStorage.getItem('user_name') || "Ghazi";
-    document.getElementById('greeting-text').textContent = `${greet}, ${name}`;
-    
-    const now = new Date();
-    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    document.getElementById('greeting-sub').textContent = `${days[now.getDay()]}, ${now.toLocaleDateString('en-US', {month:'long', day:'numeric'})}`;
+// --- Time & Weather Engine ---
+function initLocation() {
+    const saved = JSON.parse(localStorage.getItem('v15_loc'));
+    if(saved) fetchWeather(saved.lat, saved.lon, saved.name, saved.tz);
+    else fetchWeather(51.5074, -0.1278, "London", "Europe/London"); // Default Fallback
 }
 
-async function getMSProfile() {
+function toggleSearch() {
+    const m = document.getElementById('search-modal');
+    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+}
+
+async function searchCity(val) {
+    if(val.length < 2) return;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(async () => {
+        const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${val}&count=3&language=en&format=json`);
+        const d = await r.json();
+        document.getElementById('search-results').innerHTML = d.results ? d.results.map(c => `
+            <div class="city-item" onclick="saveLoc(${c.latitude}, ${c.longitude}, '${c.name}', '${c.timezone}')">
+                ${c.name}, ${c.country}
+            </div>
+        `).join('') : '<div class="city-item">No results</div>';
+    }, 400);
+}
+
+function saveLoc(lat, lon, name, tz) {
+    localStorage.setItem('v15_loc', JSON.stringify({lat, lon, name, tz}));
+    toggleSearch();
+    fetchWeather(lat, lon, name, tz);
+}
+
+async function fetchWeather(lat, lon, name, tz) {
+    activeTZ = tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=sunrise,sunset&timezone=${activeTZ}`);
+    const d = await r.json();
+    
+    document.getElementById('w-temp').textContent = Math.round(d.current_weather.temperature) + '°';
+    document.getElementById('w-loc').textContent = name;
+    
+    // Dynamic Background Logic based on exact location time
+    const localTime = getTZDate(activeTZ);
+    const sunrise = new Date(d.daily.sunrise[0]);
+    const sunset = new Date(d.daily.sunset[0]);
+    const card = document.getElementById('weather-main');
+    
+    card.className = 'weather-card ';
+    if (Math.abs(localTime - sunrise) < 3600000) card.className += 'bg-sunrise';
+    else if (Math.abs(localTime - sunset) < 3600000) card.className += 'bg-sunset';
+    else if (localTime > sunrise && localTime < sunset) card.className += 'bg-day';
+    else card.className += 'bg-night';
+}
+
+function getTZDate(tz) {
+    const n = new Date();
+    const d = new Date(n.toLocaleString('en-US', { timeZone: tz }));
+    d.setMilliseconds(n.getMilliseconds());
+    return d;
+}
+
+function updateClocks() {
+    const t = getTZDate(activeTZ);
+    
+    // Digital
+    const h = t.getHours().toString().padStart(2,'0');
+    const m = t.getMinutes().toString().padStart(2,'0');
+    const s = t.getSeconds().toString().padStart(2,'0');
+    const ms = Math.floor(t.getMilliseconds()/10).toString().padStart(2,'0');
+    document.getElementById('digi-clock').textContent = `${h}:${m}:${s}:${ms}`;
+    
+    // Analog (Smooth Sweep)
+    const secDeg = (t.getSeconds() + t.getMilliseconds()/1000) * 6;
+    const minDeg = t.getMinutes() * 6 + (t.getSeconds()/10);
+    const hrDeg = (t.getHours()%12) * 30 + (t.getMinutes()/2);
+    
+    document.getElementById('sc-hand').style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+    document.getElementById('mn-hand').style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+    document.getElementById('hr-hand').style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+    
+    requestAnimationFrame(updateClocks);
+}
+
+// --- Reminders (Today Uncompleted Only) ---
+function renderTasks() {
+    const today = new Date().toDateString();
+    // Filter strictly for today and NOT done
+    let activeTasks = tasks.filter(t => t.dateKey === today && !t.done);
+    
+    document.getElementById('stat-tasks').textContent = activeTasks.length;
+    document.getElementById('rem-list').innerHTML = activeTasks.length ? activeTasks.map(t => `
+        <div class="list-item">
+            <div style="display:flex;align-items:center;gap:12px">
+                <input type="checkbox" style="width:18px;height:18px" onclick="checkTask(${t.id})">
+                <span style="font-size:14px;font-weight:500">${t.title}</span>
+            </div>
+        </div>
+    `).join('') : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No tasks for today!</div>';
+}
+
+function addReminder() {
+    const val = prompt("Enter task for today:");
+    if(val) {
+        tasks.push({id: Date.now(), title: val, done: false, dateKey: new Date().toDateString()});
+        localStorage.setItem('v15_tasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+}
+
+function checkTask(id) {
+    const idx = tasks.findIndex(x => x.id === id);
+    if(idx > -1) tasks[idx].done = true;
+    localStorage.setItem('v15_tasks', JSON.stringify(tasks));
+    renderTasks();
+}
+
+// --- Google Calendar & Deep Linking ---
+async function loadCal() {
+    let s = new Date(); s.setHours(0,0,0,0);
+    let e = new Date(); e.setHours(23,59,59,999);
     try {
-        const r = await fetch("https://graph.microsoft.com/v1.0/me", { headers:{Authorization:'Bearer '+msToken}});
-        const data = await r.json();
-        if(data.displayName) {
-            sessionStorage.setItem('user_name', data.displayName.split(' ')[0]);
-            updateGreeting();
-        }
-    } catch(e){}
+        const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${s.toISOString()}&timeMax=${e.toISOString()}&singleEvents=true&orderBy=startTime`, {
+            headers: { Authorization: `Bearer ${ggT}` }
+        });
+        const d = await r.json();
+        const items = d.items.filter(i => !i.id.startsWith('_'));
+        document.getElementById('stat-events').textContent = items.length;
+        
+        document.getElementById('google-body').innerHTML = items.length ? items.map(i => `
+            <div class="list-item" onclick="window.location.href='comgooglecalendar://'">
+                <div>
+                    <div style="font-size:14px;font-weight:600">${i.summary}</div>
+                    <div style="font-size:12px;color:var(--blue);margin-top:2px">${i.start.dateTime ? new Date(i.start.dateTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'All Day'}</div>
+                </div>
+            </div>
+        `).join('') : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Schedule clear.</div>';
+    } catch(err) {}
 }
 
+function addGoogleEvent() {
+    const text = document.getElementById('new-ev-text').value;
+    if(!text) return;
+    // URL Template Injection for mobile browsers
+    window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(text)}`);
+    document.getElementById('new-ev-text').value = '';
+}
+
+// --- Outlook & Deep Linking ---
 async function loadMail() {
     try {
-        // Targeted unread inbox count logic
-        const r = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$filter=isRead eq false&$count=true&$top=10", {
-            headers:{Authorization:'Bearer '+msToken, 'ConsistencyLevel': 'eventual'}
+        const r = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$filter=isRead eq false&$top=5", {
+            headers:{Authorization:'Bearer '+msT, 'ConsistencyLevel':'eventual'}
         });
-        const data = await r.json();
-        const unread = data['@odata.count'] || 0;
-        document.getElementById('stat-mail').textContent = unread;
-        document.getElementById('mail-subtitle').textContent = unread + " New Emails";
-        document.getElementById('mail-body').innerHTML = data.value.map(m => `
-            <div class="list-item">
-                <div style="flex:1">
-                    <div style="font-size:13px; font-weight:700;">${m.from.emailAddress.name}</div>
-                    <div style="font-size:12px; color:var(--muted);">${m.subject}</div>
-                </div>
-            </div>
-        `).join('');
-    } catch(e) {}
-}
-
-async function loadGoogleCalendar() {
-    let start = new Date(); start.setHours(0,0,0,0);
-    let end = new Date(); end.setHours(23,59,59,999);
-    try {
-        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime`, {
-            headers: { Authorization: `Bearer ${googleToken}` }
-        });
-        const data = await res.json();
-        const filtered = data.items.filter(ev => !ev.id.startsWith('_') && ev.eventType !== 'birthday');
-        document.getElementById('stat-events').textContent = filtered.length;
+        const d = await r.json();
+        document.getElementById('stat-mail').textContent = d.value.length || 0;
         
-        let html = `
-            <div class="cal-input-container">
-                <input type="text" class="cal-input" id="cal-title" placeholder="Event name @ time (e.g. Gym @ 6pm)">
-                <button class="btn-add-cal" onclick="addGoogleEvent()">Add to Calendar</button>
-            </div>
-        `;
-        html += filtered.map(ev => `
-            <div class="list-item">
-                <div style="flex:1">
-                    <div style="font-size:14px; font-weight:700">${ev.summary}</div>
-                    <div style="font-size:12px; color:var(--purple)">${ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleTimeString([],{hour:'2-digit', minute:'2-digit'}) : 'All Day'}</div>
-                </div>
-                <button class="del-btn" onclick="deleteGoogleEvent('${ev.id}')">✕</button>
-            </div>
-        `).join('');
-        document.getElementById('cal-body').innerHTML = html;
-    } catch(e) {}
-}
-
-function getWeather() {
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
-        const data = await res.json();
-        document.getElementById('weather-content').innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; color:white">
+        document.getElementById('ms-body').innerHTML = d.value.length ? d.value.map(m => `
+            <div class="list-item" onclick="window.location.href='message://'">
                 <div>
-                    <div style="font-size:42px; font-weight:700">${Math.round(data.current_weather.temperature)}°</div>
-                    <div style="font-size:14px">H:${Math.round(data.daily.temperature_2m_max[0])}° L:${Math.round(data.daily.temperature_2m_min[0])}°</div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-size:32px">☁️</div>
-                    <div style="font-size:14px; font-weight:600">Clear Sky</div>
+                    <div style="font-size:14px;font-weight:600">${m.from.emailAddress.name}</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:250px">${m.subject}</div>
                 </div>
             </div>
-        `;
-    });
+        `).join('') : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Inbox zero!</div>';
+    } catch(err) {}
 }
 
-function initDayBars() {
-    const days = ['Today','Friday','Saturday','Sunday','Monday','Tuesday','Wednesday'];
-    document.getElementById('reminder-chips').innerHTML = days.map((d,i) => `<button class="chip ${i===0?'active':''}">${d}</button>`).join('');
-}
-
-function renderReminders() {
-    const dailyList = allReminders.filter(r => r.dateKey === new Date().toDateString());
-    document.getElementById('reminders-list').innerHTML = dailyList.map(r => `
-        <div class="list-item">
-            <div style="display:flex; align-items:center; gap:12px; flex:1">
-                <input type="checkbox" ${r.done?'checked':''} onclick="toggleRem(${r.id})">
-                <span style="${r.done?'text-decoration:line-through;color:var(--muted)':''}">${r.title}</span>
-            </div>
-            <button class="del-btn" onclick="deleteRem(${r.id})">✕</button>
-        </div>
-    `).join('') || '<div style="padding:40px; text-align:center; color:var(--muted)">All clear!</div>';
-}
-
-function addNewReminder() {
-    const t = prompt("Task:"); if(!t) return;
-    allReminders.push({ id: Date.now(), title: t, done: false, dateKey: new Date().toDateString() });
-    localStorage.setItem('ghazi_rems', JSON.stringify(allReminders)); renderReminders();
-}
-
-function logout(service) {
-    if(service === 'ms') sessionStorage.removeItem('ms_token');
-    if(service === 'google') sessionStorage.removeItem('google_token');
-    location.reload();
-}
-
-// Helper for MS Login
-function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
-async function sha256(str){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))}
-function randomStr(len){const arr=new Uint8Array(len);crypto.getRandomValues(arr);return base64url(arr)}
-async function startMSLogin(){
-  const verifier = randomStr(64); sessionStorage.setItem('pkce_verifier', verifier);
-  const challenge = base64url(await sha256(verifier));
-  window.location.href = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${MS_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=openid profile User.Read Mail.Read&code_challenge=${challenge}&code_challenge_method=S256&prompt=select_account`;
-}
+// --- Auth & System ---
 function initGoogle(){
-  google.accounts.oauth2.initTokenClient({ client_id:GOOGLE_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.events', prompt: 'select_account', callback:(res)=>{sessionStorage.setItem('google_token',res.access_token); location.reload();}}).requestAccessToken();
+    google.accounts.oauth2.initTokenClient({client_id:'623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com',scope:'https://www.googleapis.com/auth/calendar.events',callback:(r)=>{sessionStorage.setItem('google_token',r.access_token);location.reload();}}).requestAccessToken();
+}
+function startMSLogin(){
+    window.location.href = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=1155afdf-d585-48cc-af89-b973843ce21a&response_type=code&redirect_uri=${encodeURIComponent('https://ghaziomairi93.github.io/MyDashboard/')}&scope=openid profile User.Read Mail.Read`;
+}
+function nukeData() {
+    if(confirm("Are you sure you want to clear all data and log out?")) {
+        sessionStorage.clear();
+        localStorage.clear();
+        location.reload();
+    }
 }
 </script>
 </body>
