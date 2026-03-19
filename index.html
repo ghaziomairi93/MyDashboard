@@ -11,9 +11,12 @@
 :root{--bg:#0F0F13;--card:#1A1A22;--card2:#22222E;--border:#2E2E3E;--text:#F0EFE9;--muted:#8A8A9A;--blue:#4F8EF7;--blue2:#1A56CC;--green:#34D399;--amber:#FBBF24;--red:#F87171;--purple:#A78BFA}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:50px;scroll-behavior: smooth;}
 
-/* Header & Navigation */
 header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Playfair Display',serif;font-size:20px}.logo span{color:var(--blue)}
+
+.greeting{padding:24px 20px 0}
+.greeting h1{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:4px}
+.greeting p{font-size:13px;color:var(--muted)}
 
 /* Top Stat Cards */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px 0}
@@ -23,27 +26,21 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 .stat-val{font-size:24px;font-weight:700}
 .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
 
-/* Action Buttons & Feedback */
-.card-action{font-size:12px;color:var(--text);background:var(--card2);border:1px solid var(--border);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:4px;transition: 0.2s;}
-.feedback-check{color: var(--green); font-weight: bold; display: none; margin-left: 5px;}
-.btn-login{background:var(--blue2);border:none;color:white}
-.btn-logout{color:var(--red)}
-
-/* Section Layout */
 .section{padding:20px 20px 0}
 .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px}
 .card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 
-/* List Items */
+.card-action{font-size:12px;color:var(--text);background:var(--card2);border:1px solid var(--border);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:4px}
+.btn-login{background:var(--blue2);border:none;color:white}
+.feedback-check{color: var(--green); font-weight: bold; display: none; margin-left: 5px;}
+
 .list-item{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit}
 .del-btn{color:var(--red);background:none;border:none;padding:8px;cursor:pointer;font-size:14px;opacity:0.6}
 
-/* Input Areas */
 .cal-input-container{padding:12px;display:flex;gap:8px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border)}
 .cal-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:white;font-size:13px;outline:none}
 
-/* Reminder Day Chips */
 .filter-bar{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
 .chip{font-size:11px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);white-space:nowrap}
 .chip.active{background:var(--blue2);color:white;border-color:var(--blue2)}
@@ -96,14 +93,14 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <div class="section-title">Outlook Inbox</div>
   <div class="card">
     <div class="card-head">
-      <div class="card-name">Top 10 Emails</div>
+      <div class="card-name" id="mail-subtitle">Connect Outlook</div>
       <div style="display:flex;gap:8px; align-items:center;">
-          <button class="card-action btn-login" id="ms-login-btn" onclick="loginMS()">Sign In</button>
+          <button class="card-action btn-login" id="ms-login-btn" onclick="startMSLogin()">Sign In</button>
           <button class="card-action" id="ms-refresh-btn" style="display:none" onclick="loadMail(true)">Refresh <span id="ms-check" class="feedback-check">✓</span></button>
-          <button class="card-action btn-logout" id="ms-logout-btn" style="display:none" onclick="logoutMS()">Sign Out</button>
+          <button class="card-action btn-logout" id="ms-logout-btn" style="display:none" onclick="logoutMS()" style="color:var(--red)">Sign Out</button>
       </div>
     </div>
-    <div id="mail-body"><div class="empty">Connect Outlook to see messages</div></div>
+    <div id="mail-body"><div class="empty">Messages will appear here</div></div>
   </div>
 </div>
 
@@ -111,15 +108,15 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <div class="section-title">Google Calendar</div>
   <div class="card">
     <div class="card-head">
-      <div class="card-name">My Personal Schedule</div>
+      <div class="card-name">My Schedule</div>
       <div style="display:flex;gap:8px; align-items:center;">
           <button class="card-action btn-login" id="google-login-btn" onclick="initGoogle()">Connect</button>
           <button class="card-action" id="google-refresh-btn" style="display:none" onclick="loadGoogleCalendar(true)">Refresh <span id="google-check" class="feedback-check">✓</span></button>
-          <button class="card-action btn-logout" id="google-logout-btn" style="display:none" onclick="logoutGoogle()">Sign Out</button>
+          <button class="card-action btn-logout" id="google-logout-btn" style="display:none" onclick="logoutGoogle()" style="color:var(--red)">Sign Out</button>
       </div>
     </div>
     <div class="cal-input-container" id="cal-input-ui" style="display:none">
-        <input type="text" class="cal-input" id="cal-title" placeholder="Dinner at 08:00 PM">
+        <input type="text" class="cal-input" id="cal-title" placeholder="Gym @ 6pm">
         <button class="card-action btn-login" onclick="addGoogleEvent()">Add</button>
     </div>
     <div id="events-list"></div>
@@ -130,7 +127,7 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
   <div class="section-title">Reminders</div>
   <div class="card">
     <div class="card-head">
-      <div class="card-name">Next 5 Days</div>
+      <div class="card-name">Tasks</div>
       <button class="card-action btn-login" onclick="addNewReminder()">+ Add Task</button>
     </div>
     <div class="filter-bar" id="reminder-chips"></div>
@@ -139,31 +136,40 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 </div>
 
 <script>
-/** * =======================================================================
- * REPLACE THESE FOR OTHER USERS:
- * =======================================================================
+/** * CONFIGURATION: Replace these if sending to someone else
  */
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const GOOGLE_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
-const REDIRECT_URI = window.location.origin + window.location.pathname;
+const REDIRECT = 'https://ghaziomairi93.github.io/MyDashboard/';
 
-// Device ID Logic (Unique per phone)
-let deviceID = localStorage.getItem('device_id');
-if(!deviceID) {
-    deviceID = 'dev-' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('device_id', deviceID);
-}
+// PKCE Helpers from your stable code
+function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
+async function sha256(str){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))}
+function randomStr(len){const arr=new Uint8Array(len);crypto.getRandomValues(arr);return base64url(arr)}
 
-let msToken = localStorage.getItem('ms_token');
-let googleToken = localStorage.getItem('google_token');
-let currentDayIdx = 0; // 0=Today, 1=Tomorrow, etc.
+let msToken = sessionStorage.getItem('ms_token');
+let googleToken = sessionStorage.getItem('google_token');
+let currentDayIdx = 0;
 
-window.onload = () => {
+window.onload = async () => {
     updateDate();
-    handleAuthRedirect();
     initReminderChips();
     renderReminders();
     
+    // Handle MS Redirect
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if(code){
+        const verifier = sessionStorage.getItem('pkce_verifier');
+        const body = new URLSearchParams({client_id:MS_CLIENT_ID, code:code, redirect_uri:REDIRECT, grant_type:'authorization_code', code_verifier:verifier, scope:'openid profile User.Read Mail.Read'});
+        const r = await fetch('https://login.microsoftonline.com/consumers/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+        const data = await r.json();
+        if(data.access_token){
+            sessionStorage.setItem('ms_token', data.access_token);
+            window.location.href = REDIRECT;
+        }
+    }
+
     if(msToken) {
         document.getElementById('ms-login-btn').style.display='none';
         document.getElementById('ms-logout-btn').style.display='block';
@@ -186,70 +192,49 @@ function updateDate() {
     document.getElementById('greeting-sub').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 }
 
-// --- VISUAL FEEDBACK ---
-function showConfirmation(id) {
-    const check = document.getElementById(id);
-    check.style.display = 'inline';
-    setTimeout(() => { check.style.display = 'none'; }, 3000);
-}
-
-// --- OUTLOOK AUTH & MAIL ---
-function loginMS() {
-    const url = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${MS_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=Mail.Read&response_mode=fragment`;
-    window.location.href = url;
-}
-
-function handleAuthRedirect() {
-    if(window.location.hash) {
-        const params = new URLSearchParams(window.location.hash.substring(1));
-        const token = params.get('access_token');
-        if(token) {
-            localStorage.setItem('ms_token', token);
-            window.location.hash = "";
-            location.reload();
-        }
-    }
+// --- MICROSOFT (PKCE Flow) ---
+async function startMSLogin(){
+  const verifier = randomStr(64);
+  const challenge = base64url(await sha256(verifier));
+  sessionStorage.setItem('pkce_verifier', verifier);
+  window.location.href = `https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${MS_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=openid profile User.Read Mail.Read&code_challenge=${challenge}&code_challenge_method=S256&response_mode=query`;
 }
 
 async function loadMail(isRefresh = false) {
-    if(isRefresh) showConfirmation('ms-check');
+    if(isRefresh) { document.getElementById('ms-check').style.display='inline'; setTimeout(()=>document.getElementById('ms-check').style.display='none',3000); }
     try {
-        const res = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$count=true", {
-            headers: { Authorization: `Bearer ${msToken}`, 'ConsistencyLevel': 'eventual' }
+        const r = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=10&$count=true", {
+            headers:{Authorization:'Bearer '+msToken, 'ConsistencyLevel': 'eventual'}
         });
-        const data = await res.json();
-        document.getElementById('stat-mail').textContent = data['@odata.count'] || 0;
+        const data = await r.json();
+        const unread = data['@odata.count'] || 0;
+        document.getElementById('stat-mail').textContent = unread;
+        document.getElementById('mail-subtitle').textContent = unread + " Unread Emails";
         document.getElementById('mail-body').innerHTML = data.value.map(m => `
-            <a href="ms-outlook://emails/${m.id}" class="list-item">
+            <div class="list-item" onclick="window.location.href='ms-outlook://emails/${m.id}'">
                 <div style="flex:1">
                     <div style="font-size:13px; font-weight:600;">${m.from.emailAddress.name}</div>
                     <div style="font-size:12px; color:var(--muted);">${m.subject}</div>
                 </div>
-            </a>
+            </div>
         `).join('');
     } catch(e) { logoutMS(); }
 }
+function logoutMS(){ sessionStorage.removeItem('ms_token'); window.location.href = REDIRECT; }
 
-function logoutMS() { localStorage.removeItem('ms_token'); location.reload(); }
-
-// --- GOOGLE CALENDAR ---
-function initGoogle() {
-    google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/calendar.events',
-        callback: (res) => {
-            localStorage.setItem('google_token', res.access_token);
-            location.reload();
-        }
-    }).requestAccessToken();
+// --- GOOGLE ---
+function initGoogle(){
+  google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
+    callback:(res)=>{ if(res.access_token){ sessionStorage.setItem('google_token',res.access_token); location.reload();}}
+  }).requestAccessToken();
 }
 
 async function loadGoogleCalendar(isRefresh = false) {
-    if(isRefresh) showConfirmation('google-check');
+    if(isRefresh) { document.getElementById('google-check').style.display='inline'; setTimeout(()=>document.getElementById('google-check').style.display='none',3000); }
     try {
-        const start = new Date().toISOString();
-        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start}&singleEvents=true&orderBy=startTime`, {
-            headers: { Authorization: `Bearer ${googleToken}` }
+        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`, {
+            headers: { Authorization: `Bearer ${sessionStorage.getItem('google_token')}` }
         });
         const data = await res.json();
         document.getElementById('stat-events').textContent = data.items.length;
@@ -262,18 +247,15 @@ async function loadGoogleCalendar(isRefresh = false) {
                 <button class="del-btn" onclick="deleteGoogleEvent('${ev.id}')">✕</button>
             </div>
         `).join('');
-    } catch(e) { logoutGoogle(); }
+    } catch(e) {}
 }
 
 async function addGoogleEvent() {
     const input = document.getElementById('cal-title').value;
     if(!input) return;
-
-    // SMART PARSING: "Meeting at 5pm" or "Gym @ 6:30 PM"
     let summary = input;
     let startTime = new Date();
     const timeMatch = input.match(/(at|@)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)?)/i);
-
     if(timeMatch) {
         summary = input.replace(timeMatch[0], "").trim();
         const timeStr = timeMatch[2];
@@ -282,31 +264,25 @@ async function addGoogleEvent() {
         if(timeStr.toLowerCase().includes('pm') && hours < 12) hours += 12;
         startTime.setHours(hours, m ? parseInt(m) : 0, 0);
     }
-
-    const endTime = new Date(startTime.getTime() + 3600000); // +1 hour
-
     await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ summary, start: { dateTime: startTime.toISOString() }, end: { dateTime: endTime.toISOString() } })
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('google_token')}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ summary, start: { dateTime: startTime.toISOString() }, end: { dateTime: new Date(startTime.getTime()+3600000).toISOString() } })
     });
-    document.getElementById('cal-title').value = '';
-    loadGoogleCalendar();
+    document.getElementById('cal-title').value = ''; loadGoogleCalendar();
 }
 
 async function deleteGoogleEvent(id) {
-    if(!confirm("Delete this event?")) return;
+    if(!confirm("Delete event?")) return;
     await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${googleToken}` }
+        method: 'DELETE', headers: { Authorization: `Bearer ${sessionStorage.getItem('google_token')}` }
     });
     loadGoogleCalendar();
 }
+function logoutGoogle(){ sessionStorage.removeItem('google_token'); location.reload(); }
 
-function logoutGoogle() { localStorage.removeItem('google_token'); location.reload(); }
-
-// --- REMINDERS (DATE & DEVICE PERSISTENT) ---
-let allReminders = JSON.parse(localStorage.getItem(`rems_${deviceID}`)) || [];
+// --- REMINDERS (DATE PERSISTENT) ---
+let allReminders = JSON.parse(localStorage.getItem('ghazi_rems')) || [];
 
 function initReminderChips() {
     const days = ['Today', 'Tomorrow', 'Saturday', 'Sunday', 'Monday'];
@@ -324,10 +300,8 @@ function setRemDay(idx, el) {
 
 function renderReminders() {
     const list = document.getElementById('reminders-list');
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + currentDayIdx);
+    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + currentDayIdx);
     const dateKey = targetDate.toDateString();
-
     const dailyList = allReminders.filter(r => r.dateKey === dateKey);
     
     document.getElementById('stat-reminders').textContent = allReminders.filter(r => !r.done).length;
@@ -345,30 +319,15 @@ function renderReminders() {
 }
 
 function addNewReminder() {
-    const t = prompt("Task for this day:");
+    const t = prompt("Task:");
     if(!t) return;
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + currentDayIdx);
-    
+    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + currentDayIdx);
     allReminders.push({ id: Date.now(), title: t, done: false, dateKey: targetDate.toDateString() });
-    saveReminders();
+    saveRem();
 }
-
-function toggleRem(id) {
-    const r = allReminders.find(x => x.id === id);
-    if(r) r.done = !r.done;
-    saveReminders();
-}
-
-function deleteRem(id) {
-    allReminders = allReminders.filter(x => x.id !== id);
-    saveReminders();
-}
-
-function saveReminders() {
-    localStorage.setItem(`rems_${deviceID}`, JSON.stringify(allReminders));
-    renderReminders();
-}
+function toggleRem(id){ const r = allReminders.find(x => x.id === id); if(r) r.done = !r.done; saveRem(); }
+function deleteRem(id){ allReminders = allReminders.filter(x => x.id !== id); saveRem(); }
+function saveRem(){ localStorage.setItem('ghazi_rems', JSON.stringify(allReminders)); renderReminders(); }
 </script>
 </body>
 </html>
