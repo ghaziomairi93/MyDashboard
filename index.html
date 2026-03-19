@@ -1,23 +1,30 @@
 <!-- 
   ================================================================
-  DASHBOARD VERSION: v2.1.0
+  DASHBOARD VERSION: v2.0.0
   DATE: 19.03.2026 | BUILD TIMESTAMP: AUTO
   ================================================================
-  CHANGELOG v2.1.0:
-  - Optimized touch targets for mobile (14px -> 16px padding)
-  - Added swipe-fade indicator to horizontal day bars
-  - Fixed z-index conflict between Search and Guide modals
-  - Enhanced active-state feedback on all clickable cards
-  - Refined "Empty State" typography for better legibility
+  CHANGELOG v2.0.0:
+  - Merged v1.9.2 clean base with all v1.9.0 fixes
+  - PKCE Outlook login fully restored
+  - Battery widget restored (auto + iOS manual tap)
+  - Clear Done button restored in Reminders
+  - User Guide modal restored
+  - Version stamp includes hh:mm:ss
+  - Sessions persist via localStorage
+  - Unread stat = real inbox unreadItemCount
+  - Contact form anonymous via Web3Forms
+  - Scroll navigation on stat boxes
+  - Deep link to Google Calendar & Mail apps
   ================================================================
 -->
 
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.0</title>
+<title>Ghazi Dashboard v2.0.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -27,8 +34,7 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:15px;padding-bottom:100px;scroll-behavior:smooth}
 .dashboard-grid{display:flex;flex-direction:column;gap:12px}
 .top-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:150px}
-.widget{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center;transition:transform 0.1s}
-.widget:active{transform:scale(0.98)}
+.widget{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center}
 .weather-widget{cursor:pointer}
 .led-main{font-family:'Seven Segment',monospace;color:var(--led-green);font-size:32px;font-weight:bold;text-shadow:0 0 10px rgba(57,255,20,0.4)}
 .led-ms{font-family:'Seven Segment',monospace;color:var(--led-green);font-size:14px;opacity:0.8;margin-top:-2px}
@@ -39,6 +45,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .stat-box:active{transform:scale(0.95)}
 .stat-num{font-size:28px;font-weight:700}
 .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-top:4px}
+/* ROW 3 */
 .row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .battery-widget{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
 .battery-label{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:1px}
@@ -52,62 +59,67 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .tasks-widget{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .tasks-count{font-size:48px;font-weight:700;color:var(--amber);line-height:1}
 .tasks-label{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:1px;text-align:center;line-height:1.4}
+/* CARDS */
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden}
 .card-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px}
 .card-head-left{display:flex;align-items:center;gap:8px}
-.refresh-btn, .sign-btn, .clear-btn{font-family:'Inter',sans-serif;cursor:pointer;transition:opacity 0.1s}
-.refresh-btn:active, .sign-btn:active, .clear-btn:active{opacity:0.7}
-.refresh-btn{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.25);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700}
-.sign-btn{background:var(--blue2);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700}
-.clear-btn{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.25);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600}
-.day-bar{display:flex;overflow-x:auto;gap:8px;padding:10px 15px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.refresh-btn{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.25);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.sign-btn{background:var(--blue2);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.clear-btn{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.25);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.day-bar{display:flex;overflow-x:auto;gap:8px;padding:10px 15px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
 .day-bar::-webkit-scrollbar{display:none}
-.day-pill{padding:8px 14px;border-radius:10px;background:var(--card2);font-size:11px;font-weight:700;white-space:nowrap;color:var(--muted);border:1px solid transparent;cursor:pointer}
+.day-pill{padding:8px 14px;border-radius:10px;background:var(--card2);font-size:11px;font-weight:700;white-space:nowrap;color:var(--muted);border:1px solid transparent;cursor:pointer;transition:all 0.15s}
 .day-pill.active{background:var(--blue);color:white}
-.list-item{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:14px;cursor:pointer}
-.list-item:active{background:rgba(255,255,255,0.03)}
-.task-item{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.task-cb{width:20px;height:20px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.list-item{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:14px;cursor:pointer}
+.list-item:last-child{border-bottom:none}
+.task-item{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.task-item:last-child{border-bottom:none}
+.task-item.done-item{opacity:0.55}
+.task-cb{width:18px;height:18px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
 .task-title{font-size:14px;color:var(--text);flex:1}
 .task-title.struck{text-decoration:line-through;color:var(--muted)}
-.mail-item{padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;display:block}
-.mail-item:active{background:rgba(255,255,255,0.03)}
+.mail-item{padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;display:block}
+.mail-item:last-child{border-bottom:none}
 .mail-top{display:flex;justify-content:space-between;margin-bottom:4px}
-.mail-sender{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
-.unread-dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.mail-sender{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.unread-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
 .mail-time{font-size:11px;color:var(--muted)}
 .mail-subject{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mail-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.empty{padding:32px;text-align:center;color:var(--muted);font-size:13px;font-style:italic;opacity:0.7}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);display:none;flex-direction:column;padding:24px;z-index:500;overflow-y:auto}
+.empty{padding:28px;text-align:center;color:var(--muted);font-size:13px}
+/* MODALS */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);display:none;flex-direction:column;padding:24px;z-index:200;overflow-y:auto}
 .modal-overlay.active{display:flex}
-.search-input{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:16px;border-radius:14px;font-size:16px;outline:none;font-family:'Inter',sans-serif}
-.guide-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);display:none;flex-direction:column;z-index:600;overflow-y:auto;padding:20px}
+.search-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:14px;border-radius:12px;font-size:16px;outline:none;font-family:'Inter',sans-serif}
+.guide-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);display:none;flex-direction:column;z-index:300;overflow-y:auto;padding:20px}
 .guide-modal.active{display:flex}
 .guide-sticky{position:sticky;top:0;background:rgba(15,15,19,0.95);padding:12px 0;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);margin-bottom:16px}
 .guide-block{margin-bottom:14px;padding:16px;background:var(--card2);border-radius:14px;border:1px solid var(--border)}
-.guide-block h3{font-size:13px;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.guide-block h3{font-size:13px;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .guide-block li{font-size:12px;color:var(--muted);line-height:1.8}
 .guide-block ul{padding-left:16px}
 .guide-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700}
 .tag-new{background:rgba(52,211,153,0.2);color:var(--green)}
 .tag-tip{background:rgba(251,191,36,0.2);color:var(--amber)}
-.contact-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:700;padding:20px}
+.contact-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:400;padding:20px}
 .contact-modal.active{display:flex}
-.contact-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;width:100%;max-width:400px}
-.contact-input, .contact-textarea{width:100%;background:var(--card2);border:1px solid var(--border);color:white;padding:14px;border-radius:12px;font-size:14px;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px}
-.contact-textarea{height:100px;resize:none;margin-bottom:16px}
-.bottom-bar{display:flex;gap:10px}
-.bottom-btn{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);padding:14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
-.bottom-btn:active{background:var(--card2)}
-.btn-nuke{background:var(--nuke-bg);color:var(--nuke-text);border:none;padding:16px;border-radius:16px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;margin-top:4px}
-.version-tag{text-align:center;font-size:10px;color:var(--muted);padding:12px;opacity:0.4}
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;width:100%;max-width:400px}
+.contact-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.contact-card p{font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6}
+.contact-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:'Inter',sans-serif;margin-bottom:10px}
+.contact-textarea{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;height:90px;margin-bottom:14px}
+/* BOTTOM */
+.bottom-bar{display:flex;gap:8px}
+.bottom-btn{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);padding:12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-align:center}
+.btn-nuke{background:var(--nuke-bg);color:var(--nuke-text);border:none;padding:15px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px}
+.version-tag{text-align:center;font-size:10px;color:var(--muted);padding:8px;opacity:0.35}
 </style>
 </head>
 <body>
 <div class="dashboard-grid">
 
-  <!-- ‼️ ROW 1: Weather + Clock -->
+  <!-- ROW 1: Weather + Clock -->
+
   <div class="top-row">
     <div class="widget weather-widget" onclick="toggleSearch()">
       <div id="w-content"><div class="ctx-label">Tap to Search</div><div class="temp-big">--°</div></div>
@@ -120,7 +132,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
     </div>
   </div>
 
-  <!-- ‼️ ROW 2: Stats -->
+  <!-- ROW 2: Stats -->
+
   <div class="row-split">
     <div class="stat-box" onclick="scrollToId('outlook-section')">
       <div class="stat-num" id="stat-mail">—</div>
@@ -132,7 +145,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
     </div>
   </div>
 
-  <!-- ‼️ ROW 3: Battery + Tasks -->
+  <!-- ROW 3: Battery + Tasks -->
+
   <div class="row3">
     <div class="battery-widget" onclick="promptBattery()">
       <div class="battery-label">🔋 Battery</div>
@@ -151,25 +165,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   </div>
 
   <!-- GOOGLE CALENDAR -->
+
   <div class="card" id="cal-section">
     <div class="card-head">
       <div class="card-head-left">
-        <svg width="20" height="20" viewBox="0 0 48 48"><rect width="48" height="48" rx="6" fill="white"/><rect x="4" y="4" width="40" height="40" rx="4" fill="white" stroke="#dadce0" stroke-width="2"/><rect x="4" y="4" width="40" height="14" rx="4" fill="#1a73e8"/><text x="24" y="36" font-family="Arial" font-size="14" font-weight="bold" fill="#1a73e8" text-anchor="middle">19</text></svg>
-        Calendar
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="white"/><rect x="4" y="4" width="40" height="40" rx="4" fill="white" stroke="#dadce0" stroke-width="2"/><rect x="4" y="4" width="40" height="14" rx="4" fill="#1a73e8"/><rect x="4" y="12" width="40" height="6" fill="#1a73e8"/><text x="24" y="36" font-family="Arial" font-size="14" font-weight="bold" fill="#1a73e8" text-anchor="middle">19</text><line x1="14" y1="2" x2="14" y2="10" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="34" y1="2" x2="34" y2="10" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+        Google Calendar
       </div>
       <div id="google-head-btn"><button class="sign-btn" onclick="initGoogle()">Sign In</button></div>
     </div>
     <div class="day-bar" id="cal-day-bar"></div>
-    <div id="google-body"><div class="empty">Connect Google account...</div></div>
+    <div id="google-body"><div class="empty">Sign in to see your events</div></div>
   </div>
 
   <!-- REMINDERS -->
+
   <div class="card" id="rem-section">
     <div class="card-head">
       <span>🔔 Reminders</span>
-      <div style="display:flex;gap:10px;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center">
         <button class="clear-btn" onclick="clearDoneTasks()">Clear Done</button>
-        <button onclick="addReminder()" style="background:none;border:none;color:var(--blue);font-size:28px;font-weight:bold;cursor:pointer;line-height:1">+</button>
+        <button onclick="addReminder()" style="background:none;border:none;color:var(--blue);font-size:26px;font-weight:bold;cursor:pointer;line-height:1;padding:0 4px">+</button>
       </div>
     </div>
     <div class="day-bar" id="rem-day-bar"></div>
@@ -177,81 +193,106 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   </div>
 
   <!-- OUTLOOK -->
+
   <div class="card" id="outlook-section">
     <div class="card-head">
       <div class="card-head-left">
-        <svg width="20" height="20" viewBox="0 0 48 48"><rect width="48" height="48" rx="6" fill="#0078d4"/><rect x="5" y="11" width="22" height="26" rx="3" fill="#106ebe"/><ellipse cx="16" cy="24" rx="6" ry="7" fill="white" opacity="0.95"/></svg>
-        Outlook
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#0078d4"/><rect x="5" y="11" width="22" height="26" rx="3" fill="#106ebe"/><ellipse cx="16" cy="24" rx="6" ry="7" fill="white" opacity="0.95"/><rect x="25" y="13" width="18" height="22" rx="2" fill="white" opacity="0.12"/><line x1="25" y1="18" x2="43" y2="18" stroke="white" stroke-width="1.5" opacity="0.6"/><line x1="25" y1="23" x2="43" y2="23" stroke="white" stroke-width="1.5" opacity="0.6"/><line x1="25" y1="28" x2="43" y2="28" stroke="white" stroke-width="1.5" opacity="0.6"/></svg>
+        Outlook Inbox
       </div>
       <div id="ms-head-btn"><button class="sign-btn" onclick="startMSLogin()">Sign In</button></div>
     </div>
-    <div id="ms-body"><div class="empty">Connect Microsoft account...</div></div>
+    <div id="ms-body"><div class="empty">Sign in to see your emails</div></div>
   </div>
 
-  <!-- BOTTOM BAR -->
+  <!-- BOTTOM -->
+
   <div class="bottom-bar">
     <button class="bottom-btn" onclick="showGuide()">📖 User Guide</button>
     <button class="bottom-btn" onclick="showContact()">💬 Support</button>
   </div>
   <button class="btn-nuke" onclick="nukeData()">🗑 Clear My Data and Sessions</button>
-  <div class="version-tag" id="version-tag">v2.1.0</div>
+  <div class="version-tag" id="version-tag">v2.0.0</div>
 </div>
 
-<!-- MODALS REMAIN FUNCTIONAL PER V2.0.0 BASE -->
+<!-- SEARCH MODAL -->
+
 <div class="modal-overlay" id="search-modal">
   <div style="font-size:17px;font-weight:700;margin-bottom:16px">📍 Choose Location</div>
   <input type="text" class="search-input" placeholder="Search city..." oninput="searchCity(this.value)">
-  <div id="search-results" style="margin-top:14px;display:flex;flex-direction:column;gap:10px"></div>
+  <div id="search-results" style="margin-top:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto"></div>
   <div style="margin-top:auto;text-align:center;padding:20px;color:var(--muted);cursor:pointer" onclick="toggleSearch()">✕ Cancel</div>
 </div>
+
+<!-- GUIDE MODAL -->
 
 <div class="guide-modal" id="guide-modal">
   <div class="guide-sticky">
     <span style="font-size:16px;font-weight:700">📖 User Guide</span>
-    <button onclick="hideGuide()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;cursor:pointer">✕ Close</button>
+    <button onclick="hideGuide()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600">✕ Close</button>
   </div>
-  <div class="guide-block"><h3>📊 Dashboard Tips</h3><ul><li>Tap any stat box to jump to that section</li><li>Swipe the day-bar to view the week</li><li>Long-press a task (simulated by checkbox) to mark as done</li></ul></div>
-  <button onclick="hideGuide()" style="background:var(--blue2);color:white;border:none;padding:16px;border-radius:14px;font-weight:700;width:100%;cursor:pointer">Got it!</button>
+  <div class="guide-block"><h3>🌦 Weather <span class="guide-tag tag-tip">Top Left</span></h3><ul><li>Tap to search and set your city</li><li>Shows real-time temperature in Celsius</li><li>Location saved locally and persists across visits</li></ul></div>
+  <div class="guide-block"><h3>⏱ Live Clock <span class="guide-tag tag-tip">Top Right</span></h3><ul><li>Real-time clock with seconds and milliseconds</li><li>Synced to your selected city's timezone</li></ul></div>
+  <div class="guide-block"><h3>📊 Stats Row</h3><ul><li>Tap <b>Unread Mail</b> to jump to inbox</li><li>Tap <b>Events Today</b> to jump to calendar</li><li>Numbers update automatically after sign-in</li></ul></div>
+  <div class="guide-block"><h3>🔋 Battery <span class="guide-tag tag-new">Row 3</span></h3><ul><li>Auto-reads battery on Android/Desktop</li><li>On iPhone: tap to manually enter your %</li><li>Color: Green &gt;50%, Orange 20–50%, Red &lt;20%</li><li>Value saved and restored across visits</li></ul></div>
+  <div class="guide-block"><h3>✅ Tasks Count <span class="guide-tag tag-new">Row 3</span></h3><ul><li>Shows uncompleted tasks for today</li><li>Tap to jump to Reminders section</li></ul></div>
+  <div class="guide-block"><h3>📅 Google Calendar</h3><ul><li>Tap <b>Sign In</b> to connect Google account</li><li>Session persists across page refreshes</li><li>Use 7-day bar to browse upcoming days</li><li>Tap any event to open Google Calendar app</li><li>Tap <b>↻ Refresh</b> to reload data</li></ul></div>
+  <div class="guide-block"><h3>🔔 Reminders</h3><ul><li>Tap <b>+</b> to add a task for the selected day</li><li>Check box marks done — stays visible with strikethrough</li><li>Tap <b>Clear Done</b> to remove completed tasks</li><li>Tasks stored locally and persist across visits</li></ul></div>
+  <div class="guide-block"><h3>✉️ Outlook Inbox</h3><ul><li>Tap <b>Sign In</b> — redirected to Microsoft login</li><li>Returns here automatically after sign-in</li><li>Shows 15 most recent unread emails</li><li>Unread count stat reflects your real inbox total</li><li>Tap any email to open your mail app</li><li>Session persists across page refreshes</li></ul></div>
+  <div class="guide-block"><h3>🗑 Clear My Data</h3><ul><li>Single tap → confirmation prompt</li><li>Clears tasks, location, and all sessions</li><li>Page reloads automatically</li></ul></div>
+  <div class="guide-block"><h3>💬 Support</h3><ul><li>Fill name, email, and message</li><li>Sent securely — your support address stays hidden</li><li>Response within 24–48 hours</li></ul></div>
+  <button onclick="hideGuide()" style="background:var(--blue2);color:white;border:none;padding:14px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;margin-top:4px">Got it! Close Guide</button>
+  <div style="height:24px"></div>
 </div>
+
+<!-- CONTACT MODAL -->
 
 <div class="contact-modal" id="contact-modal">
   <div class="contact-card">
-    <h3>💬 Support</h3>
-    <input type="text" class="contact-input" id="contact-name" placeholder="Name">
-    <input type="email" class="contact-input" id="contact-email" placeholder="Email">
-    <textarea class="contact-textarea" id="contact-msg" placeholder="Your message..."></textarea>
-    <div id="contact-status" style="font-size:12px;margin-bottom:10px;min-height:18px;text-align:center"></div>
+    <h3>💬 Contact Support</h3>
+    <p>Have a question or found a bug? We'll get back to you within 24–48 hours.</p>
+    <input type="text" class="contact-input" id="contact-name" placeholder="Your name">
+    <input type="email" class="contact-input" id="contact-email" placeholder="Your email address">
+    <textarea class="contact-textarea" id="contact-msg" placeholder="Describe your question or issue..."></textarea>
+    <div id="contact-status" style="font-size:12px;margin-bottom:10px;min-height:18px;text-align:center;color:var(--muted)"></div>
     <div style="display:flex;gap:10px">
-      <button onclick="hideContact()" style="flex:1;padding:12px;border-radius:12px;background:var(--card2);color:var(--muted);border:1px solid var(--border)">Cancel</button>
-      <button onclick="submitContact()" style="flex:1;padding:12px;border-radius:12px;background:var(--blue2);color:white;border:none">Send</button>
+      <button onclick="hideContact()" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--muted);border:1px solid var(--border);font-family:'Inter',sans-serif;font-weight:600;cursor:pointer">Cancel</button>
+      <button onclick="submitContact()" style="flex:1;padding:12px;border-radius:10px;background:var(--blue2);color:white;border:none;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer">Send Message</button>
     </div>
   </div>
 </div>
 
 <script>
-// ‼️ SETUP: CONFIG (Inherited from v2.0.0)
-const G_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
+// ================================================================
+// CONFIG
+// ================================================================
+const G_CLIENT_ID  = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
-const MS_REDIRECT = 'https://ghaziomairi93.github.io/MyDashboard/';
-const MS_SCOPES = 'openid profile User.Read Mail.Read offline_access';
-const MS_AUTH_EP = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize';
-const MS_TOKEN_EP = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
-const W3F_KEY = '53bad208-02b2-40b6-974b-98f8b68d0439';
+const MS_REDIRECT  = 'https://ghaziomairi93.github.io/MyDashboard/';
+const MS_SCOPES    = 'openid profile User.Read Mail.Read offline_access';
+const MS_AUTH_EP   = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize';
+const MS_TOKEN_EP  = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
+const W3F_KEY      = '53bad208-02b2-40b6-974b-98f8b68d0439';
 
-// ‼️ STATE MANAGEMENT
+// ================================================================
+// STATE
+// ================================================================
 let activeTZ = '', selectedDate = new Date().toDateString();
 let tasks = JSON.parse(localStorage.getItem('v17_tasks')) || [];
 let googleToken = localStorage.getItem('google_token');
 
+// ================================================================
+// INIT
+// ================================================================
 window.onload = async () => {
   stampVersion(); initLocation(); initBattery();
   renderDayBars(); renderTasks(); requestAnimationFrame(updateClock);
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
-  if(code){ window.history.replaceState({},'',MS_REDIRECT); await exchangeMSCode(code); return; }
-  if(googleToken){ 
+  if(code){ window.history.replaceState({},'' ,MS_REDIRECT); await exchangeMSCode(code); return; }
+  if(googleToken){
     document.getElementById('google-head-btn').innerHTML=`<button class="refresh-btn" onclick="loadCal()">↻ Refresh</button>`;
-    loadCal(); 
+    loadCal();
   }
   if(localStorage.getItem('ms_token')){
     document.getElementById('ms-head-btn').innerHTML=`<button class="refresh-btn" onclick="loadMail()">↻ Refresh</button>`;
@@ -259,55 +300,79 @@ window.onload = async () => {
   }
 };
 
-// ‼️ HELPER: VERSIONING
+// ================================================================
+// VERSION
+// ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.0 · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.0.0 · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
-// ‼️ CORE: BATTERY
+// ================================================================
+// BATTERY — auto on Android, manual tap on iOS
+// ================================================================
 function initBattery(){
   if(navigator.getBattery){
     navigator.getBattery().then(bat=>{
       updateBatUI(Math.round(bat.level*100), bat.charging?'⚡ Charging':bat.level<=0.2?'⚠ Low':'On Battery');
       bat.addEventListener('levelchange',()=>updateBatUI(Math.round(bat.level*100),bat.charging?'⚡ Charging':'On Battery'));
+      bat.addEventListener('chargingchange',()=>updateBatUI(Math.round(bat.level*100),bat.charging?'⚡ Charging':'On Battery'));
     }).catch(loadManualBat);
   } else { loadManualBat(); }
 }
 function loadManualBat(){
   const s=localStorage.getItem('manual_bat');
   if(s){ const {p,t}=JSON.parse(s); updateBatUI(p,t); }
+  else { document.getElementById('bat-status').textContent='Tap to set'; }
 }
 function updateBatUI(pct, status){
-  const fill = document.getElementById('bat-fill');
-  fill.style.height=pct+'%';
-  fill.style.background=pct>50?'var(--green)':pct>20?'var(--amber)':'var(--red)';
+  document.getElementById('bat-fill').style.height=pct+'%';
+  document.getElementById('bat-fill').style.background=pct>50?'var(--green)':pct>20?'var(--amber)':'var(--red)';
   document.getElementById('bat-pct').textContent=pct+'%';
+  document.getElementById('bat-pct').style.color=pct>50?'var(--led-green)':pct>20?'var(--amber)':'var(--red)';
   document.getElementById('bat-status').textContent=status;
 }
 function promptBattery(){
-  if(navigator.getBattery) return;
-  const val=prompt('Enter battery %:');
-  if(val!==null){
-    const pct=Math.min(100,Math.max(0,parseInt(val)));
-    if(!isNaN(pct)){
-      updateBatUI(pct, pct<=20?'⚠ Low':'On Battery');
-      localStorage.setItem('manual_bat',JSON.stringify({p:pct,t:pct<=20?'⚠ Low':'On Battery'}));
-    }
-  }
+  if(navigator.getBattery) return; // auto mode — no prompt needed
+  const val=prompt('Enter your current battery % (0-100):');
+  if(val===null) return;
+  const pct=Math.min(100,Math.max(0,parseInt(val)));
+  if(isNaN(pct)) return;
+  const status=pct<=20?'⚠ Low Battery':'On Battery';
+  updateBatUI(pct,status);
+  localStorage.setItem('manual_bat',JSON.stringify({p:pct,t:status}));
 }
 
-// ‼️ CORE: WEATHER & TIME
+// ================================================================
+// LOCATION + WEATHER
+// ================================================================
 function initLocation(){
   const loc=JSON.parse(localStorage.getItem('v16_loc'));
   if(loc){ activeTZ=loc.tz; fetchWeather(loc.lat,loc.lon,loc.name); }
+  else { document.getElementById('c-meta').textContent='Setup Required'; }
 }
-async function fetchWeather(lat,lon,name){
-  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+function toggleSearch(){ document.getElementById('search-modal').classList.toggle('active'); }
+async function searchCity(v){
+  if(v.length<2) return;
+  const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=5`);
   const d=await r.json();
-  document.getElementById('w-content').innerHTML=`<div class="ctx-label">Current</div><div class="temp-big">${Math.round(d.current_weather.temperature)}°</div>`;
-  document.getElementById('w-city').textContent=name;
+  document.getElementById('search-results').innerHTML=(d.results||[]).map(c=>
+    `<div style="padding:14px;background:var(--card2);border-radius:12px;border:1px solid var(--border);cursor:pointer" onclick="setLoc(${c.latitude},${c.longitude},'${c.name.replace(/'/g,"\\'")}','${c.timezone}')"><b>${c.name}</b>, ${c.country}<br><span style="font-size:11px;color:var(--muted)">${c.timezone}</span></div>`
+  ).join('')||'<div style="color:var(--muted)">No results</div>';
 }
+function setLoc(lat,lon,name,tz){ localStorage.setItem('v16_loc',JSON.stringify({lat,lon,name,tz})); location.reload(); }
+async function fetchWeather(lat,lon,name){
+  try{
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+    const d=await r.json();
+    document.getElementById('w-content').innerHTML=`<div class="ctx-label">Current</div><div class="temp-big">${Math.round(d.current_weather.temperature)}°</div>`;
+    document.getElementById('w-city').textContent=name;
+  }catch(e){}
+}
+
+// ================================================================
+// CLOCK
+// ================================================================
 function updateClock(){
   if(!activeTZ) return requestAnimationFrame(updateClock);
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
@@ -315,17 +380,19 @@ function updateClock(){
   loc.setMilliseconds(now.getMilliseconds());
   document.getElementById('digi-hms').textContent=`${pad(loc.getHours())}:${pad(loc.getMinutes())}:${pad(loc.getSeconds())}`;
   document.getElementById('digi-ms').textContent=Math.floor(loc.getMilliseconds()/10).toString().padStart(2,'0');
+  const tz=now.toLocaleTimeString('en-US',{timeZone:activeTZ,timeZoneName:'short'}).split(' ').pop();
+  document.getElementById('c-meta').textContent=loc.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+tz;
   requestAnimationFrame(updateClock);
 }
 
-// ‼️ UI: NAVIGATION & LISTS
+// ================================================================
+// NAVIGATION
+// ================================================================
 function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
-function toggleSearch(){ document.getElementById('search-modal').classList.toggle('active'); }
-function showGuide(){ document.getElementById('guide-modal').classList.add('active'); }
-function hideGuide(){ document.getElementById('guide-modal').classList.remove('active'); }
-function showContact(){ document.getElementById('contact-modal').classList.add('active'); }
-function hideContact(){ document.getElementById('contact-modal').classList.remove('active'); }
 
+// ================================================================
+// DAY BARS
+// ================================================================
 function renderDayBars(){
   const days=[];
   for(let i=0;i<7;i++){ const d=new Date(); d.setDate(d.getDate()+i); days.push({label:d.toLocaleDateString('en-US',{weekday:'short',day:'numeric'}),key:d.toDateString()}); }
@@ -335,31 +402,150 @@ function renderDayBars(){
 }
 function selectDay(key){ selectedDate=key; renderDayBars(); renderTasks(); if(googleToken) loadCal(); }
 
+// ================================================================
+// TASKS
+// ================================================================
 function renderTasks(){
   const all=tasks.filter(t=>t.dateKey===selectedDate);
   document.getElementById('tasks-count').textContent=all.filter(t=>!t.done).length;
   document.getElementById('rem-list').innerHTML=all.length
-    ? all.map(t=>`<div class="task-item"><input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask(${t.id},this.checked)"><span class="task-title ${t.done?'struck':''}">${t.title}</span></div>`).join('')
-    : '<div class="empty">No tasks for this day.</div>';
+    ? all.map(t=>`<div class="task-item ${t.done?'done-item':''}"><input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask(${t.id},this.checked)"><span class="task-title ${t.done?'struck':''}">${t.title}</span></div>`).join('')
+    : '<div class="empty">✅ All clear for this day!</div>';
 }
 function toggleTask(id,checked){ tasks=tasks.map(t=>t.id===id?{...t,done:checked}:t); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); }
-function addReminder(){ const v=prompt('Task:'); if(v){ tasks.push({id:Date.now(),title:v.trim(),done:false,dateKey:selectedDate}); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); } }
-function clearDoneTasks(){ tasks=tasks.filter(t=>!t.done); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); }
-function nukeData(){ if(confirm('Clear all?')){ localStorage.clear(); location.reload(); } }
+function addReminder(){ const v=prompt('New task for '+selectedDate+':'); if(v&&v.trim()){ tasks.push({id:Date.now(),title:v.trim(),done:false,dateKey:selectedDate}); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); } }
+function clearDoneTasks(){ const n=tasks.filter(t=>t.done).length; if(!n){alert('No completed tasks to clear.');return;} if(confirm(`Remove ${n} completed task${n>1?'s':''}?`)){ tasks=tasks.filter(t=>!t.done); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); } }
 
-// ‼️ AUTH: GOOGLE & MS (Same logic as v2.0.0)
+// ================================================================
+// NUKE
+// ================================================================
+function nukeData(){ if(confirm('This will log you out and clear all your tasks and location settings. Continue?')){ localStorage.clear(); location.reload(); } }
+
+// ================================================================
+// GUIDE + CONTACT
+// ================================================================
+function showGuide(){ document.getElementById('guide-modal').classList.add('active'); }
+function hideGuide(){ document.getElementById('guide-modal').classList.remove('active'); }
+function showContact(){ document.getElementById('contact-modal').classList.add('active'); }
+function hideContact(){ document.getElementById('contact-modal').classList.remove('active'); document.getElementById('contact-status').textContent=''; ['contact-name','contact-email','contact-msg'].forEach(id=>document.getElementById(id).value=''); }
+async function submitContact(){
+  const name=document.getElementById('contact-name').value.trim();
+  const email=document.getElementById('contact-email').value.trim();
+  const msg=document.getElementById('contact-msg').value.trim();
+  const stat=document.getElementById('contact-status');
+  if(!name||!email||!msg){ stat.style.color='var(--red)'; stat.textContent='Please fill in all fields.'; return; }
+  if(!email.includes('@')){ stat.style.color='var(--red)'; stat.textContent='Invalid email.'; return; }
+  stat.style.color='var(--muted)'; stat.textContent='Sending...';
+  try{
+    const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:W3F_KEY,name,email,message:msg,subject:'Dashboard Support from '+name})});
+    const d=await r.json();
+    if(d.success){ stat.style.color='var(--green)'; stat.textContent='✅ Sent! We\'ll reply within 24–48h.'; setTimeout(hideContact,2000); }
+    else{ stat.style.color='var(--red)'; stat.textContent='Failed. Please try again.'; }
+  }catch(e){ stat.style.color='var(--red)'; stat.textContent='Network error. Try again.'; }
+}
+
+// ================================================================
+// MICROSOFT PKCE
+// ================================================================
+function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
+async function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))}
+function randomStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return base64url(a)}
+
+async function startMSLogin(){
+  const v=randomStr(64), c=base64url(await sha256(v));
+  localStorage.setItem('pkce_v',v);
+  window.location.href=MS_AUTH_EP+'?client_id='+MS_CLIENT_ID+'&response_type=code&redirect_uri='+encodeURIComponent(MS_REDIRECT)+'&scope='+encodeURIComponent(MS_SCOPES)+'&code_challenge='+c+'&code_challenge_method=S256&response_mode=query';
+}
+async function exchangeMSCode(code){
+  document.getElementById('ms-body').innerHTML='<div class="empty">⏳ Signing in to Outlook...</div>';
+  try{
+    const body=new URLSearchParams({client_id:MS_CLIENT_ID,code,redirect_uri:MS_REDIRECT,grant_type:'authorization_code',code_verifier:localStorage.getItem('pkce_v'),scope:MS_SCOPES});
+    const r=await fetch(MS_TOKEN_EP,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+    const data=await r.json();
+    if(data.access_token){
+      localStorage.setItem('ms_token',data.access_token);
+      if(data.refresh_token) localStorage.setItem('ms_refresh',data.refresh_token);
+      document.getElementById('ms-head-btn').innerHTML=`<button class="refresh-btn" onclick="loadMail()">↻ Refresh</button>`;
+      loadMail(); loadUnreadCount();
+    } else {
+      document.getElementById('ms-body').innerHTML=`<div class="empty">⚠️ ${data.error_description||'Login failed'}</div>`;
+    }
+  }catch(e){ document.getElementById('ms-body').innerHTML=`<div class="empty">⚠️ ${e.message}</div>`; }
+}
+async function loadMail(){
+  const token=localStorage.getItem('ms_token'); if(!token)return;
+  const el=document.getElementById('ms-body');
+  el.innerHTML='<div class="empty">⏳ Loading inbox...</div>';
+  try{
+    const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top=15&$filter=isRead eq false&$select=subject,from,receivedDateTime,bodyPreview&$orderby=receivedDateTime desc',{headers:{Authorization:'Bearer '+token}});
+    const data=await r.json();
+    if(data.error) throw new Error(data.error.message);
+    const msgs=data.value||[];
+    if(!msgs.length){el.innerHTML='<div class="empty">🎉 No unread emails!</div>';return;}
+    const colors=['#4F8EF7','#A78BFA','#34D399','#FBBF24','#F87171','#60A5FA','#F472B6'];
+    el.innerHTML='';
+    msgs.forEach((m,i)=>{
+      const sender=m.from?.emailAddress?.name||'Unknown';
+      const init=sender.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      const d=new Date(m.receivedDateTime), now2=new Date();
+      const t=d.toDateString()===now2.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'});
+      el.innerHTML+=`<div class="mail-item" onclick="window.location.href='message://'">
+        <div class="mail-top"><div class="mail-sender"><div style="width:26px;height:26px;border-radius:50%;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0">${init}</div><div class="unread-dot"></div>${sender}</div><div class="mail-time">${t}</div></div>
+        <div class="mail-subject">${m.subject||'(No subject)'}</div>
+        <div class="mail-preview">${(m.bodyPreview||'').slice(0,70)}</div>
+      </div>`;
+    });
+  }catch(e){el.innerHTML=`<div class="empty">⚠️ ${e.message}</div>`;}
+}
+async function loadUnreadCount(){
+  const token=localStorage.getItem('ms_token'); if(!token)return;
+  try{
+    const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox?$select=unreadItemCount',{headers:{Authorization:'Bearer '+token}});
+    const d=await r.json();
+    if(d.unreadItemCount!==undefined) document.getElementById('stat-mail').textContent=d.unreadItemCount;
+  }catch(e){}
+}
+
+// ================================================================
+// GOOGLE CALENDAR
+// ================================================================
 function initGoogle(){
   google.accounts.oauth2.initTokenClient({
-    client_id:G_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.readonly',
-    callback:resp=>{ googleToken=resp.access_token; localStorage.setItem('google_token',googleToken); location.reload(); }
+    client_id:G_CLIENT_ID,
+    scope:'https://www.googleapis.com/auth/calendar.readonly',
+    callback:resp=>{
+      if(resp.access_token){
+        googleToken=resp.access_token;
+        localStorage.setItem('google_token',googleToken);
+        document.getElementById('google-head-btn').innerHTML=`<button class="refresh-btn" onclick="loadCal()">↻ Refresh</button>`;
+        loadCal();
+      }
+    }
   }).requestAccessToken();
 }
-async function startMSLogin(){
-  // PKCE Logic inherited from v2.0.0
-  const v='random_verifier_string_placeholder', c='challenge_placeholder'; 
-  window.location.href=MS_AUTH_EP+'?client_id='+MS_CLIENT_ID+'&response_type=code&redirect_uri='+encodeURIComponent(MS_REDIRECT)+'&scope='+encodeURIComponent(MS_SCOPES);
+async function loadCal(){
+  const el=document.getElementById('google-body');
+  el.innerHTML='<div class="empty">⏳ Loading events...</div>';
+  try{
+    const s=new Date(selectedDate);
+    const start=new Date(s.getFullYear(),s.getMonth(),s.getDate(),0,0,0).toISOString();
+    const end=new Date(s.getFullYear(),s.getMonth(),s.getDate(),23,59,59).toISOString();
+    const r=await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&orderBy=startTime&singleEvents=true&timeMin=${start}&timeMax=${end}`,{headers:{Authorization:'Bearer '+googleToken}});
+    const data=await r.json(), items=data.items||[];
+    document.getElementById('stat-events').textContent=items.length;
+    if(!items.length){el.innerHTML='<div class="empty">📭 No events this day</div>';return;}
+    el.innerHTML='';
+    items.forEach(ev=>{
+      const st=ev.start.dateTime||ev.start.date;
+      const time=ev.start.dateTime?new Date(st).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'All Day';
+      el.innerHTML+=`<div class="list-item" onclick="window.location.href='com.google.calendar://'">
+        <div><div style="font-weight:600;font-size:13px">${ev.summary||'(No title)'}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${ev.location||''}</div></div>
+        <div style="font-size:11px;color:var(--purple);font-weight:700;white-space:nowrap">${time}</div>
+      </div>`;
+    });
+  }catch(e){el.innerHTML=`<div class="empty">⚠️ ${e.message}</div>`;}
 }
-// Note: MS Token exchange and Load functions remain exactly as in v2.0.0
 </script>
+
 </body>
 </html>
