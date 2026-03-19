@@ -1,9 +1,27 @@
+<!-- 
+  DASHBOARD VERSION: v1.0
+  LAST UPDATED: 2026-03-19
+  
+  CHANGELOG:
+  - Replaced Implicit Auth with PKCE for stable Outlook Login.
+  - Added Smart Time Parsing for Google Calendar (e.g., "Dinner at 7pm").
+  - Fixed Reminders to be date-specific (Today vs Tomorrow vs Saturday).
+  - Added Delete buttons (X) to all items.
+  - Added 3-second green checkmark confirmation on Refresh.
+  - Restricted Google Calendar to "primary" to hide holidays/birthdays.
+  
+  SETUP:
+  1. Replace MS_CLIENT_ID with your Azure Client ID.
+  2. Replace GOOGLE_CLIENT_ID with your Google Cloud ID.
+  3. Ensure REDIRECT matches your GitHub Pages URL exactly.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi's Dashboard</title>
+<title>Ghazi's Dashboard v1.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -13,12 +31,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Playfair Display',serif;font-size:20px}.logo span{color:var(--blue)}
+.version-tag{font-size:10px; color:var(--muted); background:var(--card2); padding:2px 6px; border-radius:4px; margin-left:8px;}
 
 .greeting{padding:24px 20px 0}
 .greeting h1{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:4px}
 .greeting p{font-size:13px;color:var(--muted)}
 
-/* Top Stat Cards */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px 0}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:8px}
 .stat-header{display:flex;justify-content:space-between;align-items:center}
@@ -50,7 +68,7 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 <body>
 
 <header>
-  <div class="logo">G<span>.</span>Dashboard</div>
+  <div class="logo">G<span>.</span>Dashboard <span class="version-tag">v1.0</span></div>
 </header>
 
 <div class="greeting">
@@ -136,13 +154,11 @@ header{padding:20px;background:rgba(15,15,19,0.95);display:flex;justify-content:
 </div>
 
 <script>
-/** * CONFIGURATION: Replace these if sending to someone else
- */
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const GOOGLE_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 const REDIRECT = 'https://ghaziomairi93.github.io/MyDashboard/';
 
-// PKCE Helpers from your stable code
+// PKCE Logic
 function base64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
 async function sha256(str){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))}
 function randomStr(len){const arr=new Uint8Array(len);crypto.getRandomValues(arr);return base64url(arr)}
@@ -192,7 +208,7 @@ function updateDate() {
     document.getElementById('greeting-sub').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 }
 
-// --- MICROSOFT (PKCE Flow) ---
+// Outlook Fetch
 async function startMSLogin(){
   const verifier = randomStr(64);
   const challenge = base64url(await sha256(verifier));
@@ -222,7 +238,7 @@ async function loadMail(isRefresh = false) {
 }
 function logoutMS(){ sessionStorage.removeItem('ms_token'); window.location.href = REDIRECT; }
 
-// --- GOOGLE ---
+// Google Calendar Fetch
 function initGoogle(){
   google.accounts.oauth2.initTokenClient({
     client_id:GOOGLE_CLIENT_ID, scope:'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
@@ -281,7 +297,7 @@ async function deleteGoogleEvent(id) {
 }
 function logoutGoogle(){ sessionStorage.removeItem('google_token'); location.reload(); }
 
-// --- REMINDERS (DATE PERSISTENT) ---
+// Reminders
 let allReminders = JSON.parse(localStorage.getItem('ghazi_rems')) || [];
 
 function initReminderChips() {
