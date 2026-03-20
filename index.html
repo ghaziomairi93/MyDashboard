@@ -1,11 +1,11 @@
 <!--
   ================================================================
-  DASHBOARD VERSION: v2.1.6 (Sensei's Release)
-  DATE: 20.03.2026 | BUILD TIMESTAMP: 2026.03.20 13:10:39
+  DASHBOARD VERSION: v2.1.7 (Sensei's Release)
+  DATE: 20.03.2026 | BUILD TIMESTAMP: 2026.03.20 17:23:33
   ================================================================
   CHANGELOG v2.1.4 (Sensei's Release):
   - Battery widget hidden on iPhone, replaced with Countdown widget
-  - Countdown widget: Add Event → date picker → live years/days/h/m
+  - Countdown widget: Add Event → date picker → live years/days/h/m/s
   - Motivational quote widget (full row) with author + year
   - Both countdown and quote persist in localStorage, cleared by nuke
   - Layout reorder: Reminders → Google Calendar → Outlook
@@ -25,7 +25,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.6 (Sensei's Release)</title>
+<title>Ghazi Dashboard v2.1.7 (Sensei's Release)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -58,7 +58,7 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
 .countdown-widget{background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:140px;width:100%}
 .cd-label{font-size:9px;color:#8A8A9A;text-transform:uppercase;font-weight:700;letter-spacing:1px}
 .cd-event-name{font-size:12px;font-weight:700;color:#FBBF24;text-align:center;line-height:1.3;margin-bottom:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;margin-top:2px}
+.cd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;width:100%;margin-top:2px}
 .cd-unit{background:#22222E;border-radius:8px;padding:5px 2px;text-align:center}
 .cd-num{font-family:‘Seven Segment’,monospace;font-size:15px;color:#39FF14;text-shadow:0 0 6px rgba(57,255,20,0.3)}
 .cd-unit-lbl{font-size:7px;color:#8A8A9A;text-transform:uppercase;font-weight:700;margin-top:1px}
@@ -449,7 +449,7 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
   <div class="guide-block"><h3>🌦 Weather <span class="guide-tag tag-tip">Top Left</span></h3><ul><li>Tap to search and set your city</li><li>Shows real-time temperature in Celsius</li><li>Location saved locally and persists across visits</li></ul></div>
   <div class="guide-block"><h3>⏱ Live Clock <span class="guide-tag tag-tip">Top Right</span></h3><ul><li>Real-time clock with seconds and milliseconds</li><li>Synced to your selected city's timezone</li></ul></div>
   <div class="guide-block"><h3>📊 Stats Row</h3><ul><li>Tap Unread Mail to jump to inbox</li><li>Tap Events Today to jump to calendar</li><li>Numbers update automatically after sign-in</li></ul></div>
-  <div class="guide-block"><h3>⏳ Countdown <span class="guide-tag tag-new">New</span></h3><ul><li>Tap + Add Event, enter a name and pick a date</li><li>Live countdown shows years, days, hours, minutes</li><li>Saved in session — cleared by Clear My Data</li></ul></div>
+  <div class="guide-block"><h3>⏳ Countdown <span class="guide-tag tag-new">New</span></h3><ul><li>Tap + Add Event, enter a name and pick a date</li><li>Live countdown shows years, days, hours, minutes, seconds</li><li>Saved in session — cleared by Clear My Data</li></ul></div>
   <div class="guide-block"><h3>💡 Wisdom Quote <span class="guide-tag tag-new">New</span></h3><ul><li>Shows a motivational quote with author and year</li><li>Tap anywhere or the ↻ button for a new quote</li><li>Saved in session — cleared by Clear My Data</li></ul></div>
   <div class="guide-block"><h3>✅ Tasks Count</h3><ul><li>Shows uncompleted tasks for today</li><li>Tap to jump to Reminders section</li></ul></div>
   <div class="guide-block"><h3>🔔 Reminders</h3><ul><li>Tap + to add a task for the selected day</li><li>Check box marks done — stays visible with strikethrough</li><li>Tap 🗑 to delete a task permanently</li><li>Tap Clear Done to remove completed tasks</li><li>Tasks stored locally and persist across visits</li></ul></div>
@@ -486,12 +486,30 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     <button onclick="hideChangelog()" style="background:#22222E;border:1px solid #2E2E3E;color:#F0EFE9;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px">✕ Close</button>
   </div>
   <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v217')">
+      <div class="cl-version-badge" style="background:#1A56CC">v2.1.7 · Sensei's Release</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <div class="cl-version-tag cl-tag-current">CURRENT</div>
+      <span class="cl-chevron" id="chev-v217" style="transform:rotate(180deg)">▶</span>
+    </div>
+    <div class="cl-version-body open" id="cl-body-v217">
+      <div class="cl-item">Countdown widget no longer shows seconds — displays Years / Days / Hours / Minutes only</div>
+      <div class="cl-item">Countdown update interval changed from 1s to 60s (matches new display)</div>
+      <div class="cl-item">Countdown grid layout updated to 2 columns for cleaner display</div>
+      <div class="cl-item">Change Event modal now pre-fills existing event name, date and time for editing</div>
+      <div class="cl-item">Delete event now calls Google Calendar API to remove event from server</div>
+      <div class="cl-item">Deleted events no longer reappear after refresh — server-side deletion confirmed</div>
+      <div class="cl-item">Local events still removed from localStorage only</div>
+      <div class="cl-item">Optimistic UI — event removed from dashboard instantly, API call happens in background</div>
+    </div>
+  </div>
+
+  <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v216')">
 
 ```
-  <div class="cl-version-badge" style="background:#1A56CC">v2.1.6 · Sensei's Release</div>
+  <div class="cl-version-badge" style="background:#444">v2.1.6 · Sensei's Release</div>
   <div class="cl-version-date">20 March 2026</div>
-  <div class="cl-version-tag cl-tag-current">CURRENT</div>
   <span class="cl-chevron" id="chev-v216" style="transform:rotate(180deg)">▶</span>
 </div>
 <div class="cl-version-body open" id="cl-body-v216">
@@ -577,7 +595,7 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     <div class="cl-version-body" id="cl-body-v210">
       <div class="cl-item">Greeting banner added — Welcome to Big Minds Dashboard</div>
       <div class="cl-item">Battery widget replaced with live Countdown widget on all platforms</div>
-      <div class="cl-item">Countdown: name + date + time picker → live years / days / hrs / min</div>
+      <div class="cl-item">Countdown: name + date + time picker → live years / days / hrs / min / sec</div>
       <div class="cl-item">Motivational Wisdom Quote widget — full row, author and year, tap to refresh</div>
       <div class="cl-item">Layout reordered: Reminders → Google Calendar → Outlook Inbox</div>
       <div class="cl-item">Google Calendar header split into two rows — Sign In aligned with Outlook</div>
@@ -710,7 +728,7 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
       <div class="cl-item">City search modal with Open-Meteo geocoding API</div>
       <div class="cl-item">Selected location saved to localStorage and restored on every visit</div>
       <div class="cl-item">Live clock syncs timezone to selected city automatically</div>
-      <div class="cl-item">Timezone abbreviation and date shown above the clock</div>
+      <div class="cl-item">Timezone abbreviation and date shown under the clock</div>
     </div>
   </div>
   <div class="cl-version-block">
@@ -913,7 +931,7 @@ window.onload = async () => {
 // ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.6 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.1.7 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
 // ================================================================
@@ -941,10 +959,28 @@ function setCalDatePickerToday(){
   if(cdDateEl) cdDateEl.min = today;
 }
 function openCDModal(){
-  document.getElementById('cd-name').value = '';
-  document.getElementById('cd-time').value = '';
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-  document.getElementById('cd-date').value = tomorrow.toISOString().split('T')[0];
+  // Pre-fill with existing event if one is saved
+  const saved = localStorage.getItem('cd_event');
+  if(saved){
+    try{
+      const existing = JSON.parse(saved);
+      document.getElementById('cd-name').value = existing.name || '';
+      const dt = new Date(existing.target);
+      const pad = n => n.toString().padStart(2,'0');
+      document.getElementById('cd-date').value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+      document.getElementById('cd-time').value = `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+    } catch(e){
+      document.getElementById('cd-name').value = '';
+      document.getElementById('cd-time').value = '';
+      const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+      document.getElementById('cd-date').value = tomorrow.toISOString().split('T')[0];
+    }
+  } else {
+    document.getElementById('cd-name').value = '';
+    document.getElementById('cd-time').value = '';
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    document.getElementById('cd-date').value = tomorrow.toISOString().split('T')[0];
+  }
   document.getElementById('cd-modal').classList.add('active');
 }
 function closeCDModal(){ document.getElementById('cd-modal').classList.remove('active'); }
@@ -984,7 +1020,6 @@ function renderCountdown(cdData){
     const rem2   = totalSecs % (24*3600);
     const hours  = Math.floor(rem2 / 3600);
     const mins   = Math.floor((rem2 % 3600) / 60);
-    const secs   = totalSecs % 60;
     const pad    = n => String(Math.floor(n)).padStart(2,'0');
     area.innerHTML=`
       <div class="cd-event-name">${cdData.name}</div>
@@ -993,11 +1028,10 @@ function renderCountdown(cdData){
         <div class="cd-unit"><div class="cd-num">${pad(days)}</div><div class="cd-unit-lbl">Days</div></div>
         <div class="cd-unit"><div class="cd-num">${pad(hours)}</div><div class="cd-unit-lbl">Hrs</div></div>
         <div class="cd-unit"><div class="cd-num">${pad(mins)}</div><div class="cd-unit-lbl">Min</div></div>
-        <div class="cd-unit"><div class="cd-num">${pad(secs)}</div><div class="cd-unit-lbl">Sec</div></div>
       </div>`;
   }
   update();
-  cdTimer = setInterval(update, 1000);
+  cdTimer = setInterval(update, 60000);
   // Update button text once countdown is running
   const btn = document.querySelector('.cd-add-btn');
   if(btn) btn.textContent = '✎ Change Event';
@@ -1038,7 +1072,7 @@ async function searchCity(v){
   const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=5`);
   const d=await r.json();
   document.getElementById('search-results').innerHTML=(d.results||[]).map(c=>
-    `<div style="padding:14px;background:#22222E;border-radius:12px;border:1px solid #2E2E3E;cursor:pointer" onclick="setLoc(${c.latitude},${c.longitude},'${c.name.replace(/'/g,"\\'")}','${c.timezone}')"><b>${c.name}</b>, ${c.country}<br><span style="font-size:13px;color:#8A8A9A">${c.timezone}</span></div>`
+    `<div style="padding:14px;background:#22222E;border-radius:12px;border:1px solid #2E2E3E;cursor:pointer" onclick="setLoc(${c.latitude},${c.longitude},'${c.name.replace(/'/g,"\\'")}','${c.timezone}')"><b>${c.name}</b>, ${c.country}<br><span style="font-size:11px;color:#8A8A9A">${c.timezone}</span></div>`
   ).join('')||'<div style="color:#8A8A9A">No results</div>';
 }
 function setLoc(lat,lon,name,tz){ localStorage.setItem('v16_loc',JSON.stringify({lat,lon,name,tz})); location.reload(); }
@@ -1135,7 +1169,7 @@ function nukeData(){ if(confirm('This will log you out and clear all your tasks,
 function showChangelog(){ document.getElementById('changelog-modal').classList.add('active'); }
 function hideChangelog(){ document.getElementById('changelog-modal').classList.remove('active'); }
 // Accordion: close all others, open clicked (or close if already open)
-const CL_IDS = ['v216','v215','v214','v213','v212','v211','v210','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
+const CL_IDS = ['v217','v216','v215','v214','v213','v212','v211','v210','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
 function toggleCL(vid){
   const clickedBody = document.getElementById('cl-body-'+vid);
   const clickedChev = document.getElementById('chev-'+vid);
@@ -1165,6 +1199,21 @@ function toggleCL(vid){
 // ================================================================
 // LOCAL CALENDAR EVENTS (no Google sign-in needed)
 // ================================================================
+function loadLocalCalEvents(){
+  const localEvs = JSON.parse(localStorage.getItem('local_cal_events') || '[]');
+  const selStr = new Date(selectedDate).toDateString();
+  calendarEvents = localEvs.filter(ev => {
+    const d = new Date(ev.start.dateTime || ev.start.date);
+    return d.toDateString() === selStr;
+  });
+  document.getElementById('stat-events').textContent = calendarEvents.length;
+  if(calendarEvents.length){
+    renderCalEvents();
+  } else {
+    document.getElementById('google-body').innerHTML = '<div class="empty">Sign in to see your events</div>';
+  }
+}
+
 // ================================================================
 // GUIDE + CONTACT
 // ================================================================
@@ -1483,16 +1532,51 @@ function openCalEvent(eventId, htmlLink){
     else window.open('https://calendar.google.com/calendar/r', '_blank');
   }
 }
-function deleteCalEvent(idx){
+async function deleteCalEvent(idx){
   const ev = calendarEvents[idx];
-  if(ev && ev.local){
-    // Remove from localStorage too
+  if(!ev) return;
+
+  // If local event — remove from localStorage
+  if(ev.local){
     let localEvs = JSON.parse(localStorage.getItem('local_cal_events') || '[]');
     localEvs = localEvs.filter(e => e.id !== ev.id);
     localStorage.setItem('local_cal_events', JSON.stringify(localEvs));
+    calendarEvents.splice(idx,1);
+    document.getElementById('stat-events').textContent = calendarEvents.length;
+    renderCalEvents();
+    return;
   }
+
+  // If Google Calendar event — delete via API
+  if(googleToken && ev.id){
+    // Optimistically remove from UI immediately
+    calendarEvents.splice(idx,1);
+    document.getElementById('stat-events').textContent = calendarEvents.length;
+    renderCalEvents();
+    try{
+      const r = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(ev.id)}`,
+        { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + googleToken } }
+      );
+      if(r.status === 204){
+        console.log('Event deleted from Google Calendar');
+      } else if(r.status === 410){
+        console.log('Event already deleted');
+      } else {
+        const data = await r.json().catch(()=>({}));
+        console.warn('Delete failed:', data);
+        // Reload to restore accurate state
+        loadCal();
+      }
+    } catch(e){
+      console.warn('Delete API error:', e);
+    }
+    return;
+  }
+
+  // Fallback — just remove from UI
   calendarEvents.splice(idx,1);
-  document.getElementById('stat-events').textContent=calendarEvents.length;
+  document.getElementById('stat-events').textContent = calendarEvents.length;
   renderCalEvents();
 }
 </script>
