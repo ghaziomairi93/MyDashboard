@@ -1,7 +1,7 @@
 <!--
   ================================================================
-  DASHBOARD VERSION: v2.1.5 (Sensei's Release)
-  DATE: 20.03.2026 | BUILD TIMESTAMP: 2026.03.20 12:15:37
+  DASHBOARD VERSION: v2.1.6 (Sensei's Release)
+  DATE: 20.03.2026 | BUILD TIMESTAMP: 2026.03.20 13:10:39
   ================================================================
   CHANGELOG v2.1.4 (Sensei's Release):
   - Battery widget hidden on iPhone, replaced with Countdown widget
@@ -25,7 +25,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.5 (Sensei's Release)</title>
+<title>Ghazi Dashboard v2.1.6 (Sensei's Release)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -309,7 +309,24 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     <!-- Row 1: title + sign in — aligned with Outlook -->
     <div class="card-head">
       <div class="card-head-left">
-        <svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="white"/><rect x="4" y="10" width="40" height="34" rx="3" fill="white" stroke="#dadce0" stroke-width="1.5"/><rect x="4" y="10" width="40" height="11" fill="white"/><rect x="32" y="4" width="8" height="14" rx="4" fill="#1a73e8"/><rect x="8" y="4" width="8" height="14" rx="4" fill="#1a73e8"/><rect x="4" y="17" width="40" height="4" fill="#dadce0"/><rect x="28" y="28" width="16" height="16" rx="2" fill="#34A853"/><rect x="4" y="28" width="12" height="16" rx="2" fill="#FBBC04"/><rect x="4" y="10" width="12" height="20" rx="0" fill="#EA4335"/><text x="24" y="42" font-family="Arial" font-size="13" font-weight="bold" fill="#1a73e8" text-anchor="middle">31</text></svg>
+        <svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="8" fill="white"/>
+  <rect x="6" y="8" width="36" height="34" rx="3" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+  <rect x="6" y="8" width="36" height="10" fill="white"/>
+  <rect x="6" y="16" width="36" height="2" fill="#E0E0E0"/>
+  <rect x="6" y="8" width="36" height="26" rx="0" fill="white"/>
+  <rect x="6" y="34" width="36" height="8" rx="3" fill="white"/>
+  <rect x="6" y="8" width="36" height="10" fill="white"/>
+  <rect x="30" y="34" width="12" height="8" rx="2" fill="#34A853"/>
+  <rect x="6" y="34" width="12" height="8" rx="2" fill="#FBBC04"/>
+  <rect x="6" y="8" width="12" height="28" fill="#EA4335"/>
+  <rect x="18" y="8" width="12" height="28" fill="white"/>
+  <rect x="30" y="8" width="12" height="28" fill="white"/>
+  <rect x="30" y="20" width="12" height="14" fill="#4285F4"/>
+  <text x="24" y="31" font-family="Arial" font-size="11" font-weight="bold" fill="#4285F4" text-anchor="middle">31</text>
+  <rect x="13" y="4" width="5" height="10" rx="2.5" fill="#EA4335"/>
+  <rect x="30" y="4" width="5" height="10" rx="2.5" fill="#34A853"/>
+</svg>
         Google Calendar
       </div>
       <div id="google-head-btn"><button class="sign-btn card-action-btn" onclick="initGoogle()">Sign In</button></div>
@@ -468,122 +485,96 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     <span style="font-size:16px;font-weight:700">📋 Changelog</span>
     <button onclick="hideChangelog()" style="background:#22222E;border:1px solid #2E2E3E;color:#F0EFE9;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px">✕ Close</button>
   </div>
-
-  <!-- v2.1.5 -->
-
   <div class="cl-version-block">
-    <div class="cl-version-head" onclick="toggleCL('v215')">
-      <div class="cl-version-badge">v2.1.5 · Sensei's Release</div>
-      <div class="cl-version-date">20 March 2026</div>
-      <div class="cl-version-tag cl-tag-current">CURRENT</div>
-      <span class="cl-chevron" id="chev-v215" style="transform:rotate(180deg)">▶</span>
-    </div>
-    <div class="cl-version-body open" id="cl-body-v215">
-      <div class="cl-item">Google Calendar logo updated to real icon (blue/green/yellow/red with 31)</div>
-      <div class="cl-item">Outlook replaced with Spark mail logo (blue gradient house icon)</div>
-      <div class="cl-item">Add Event now syncs directly to Google Calendar via API when signed in</div>
-      <div class="cl-item">Add Event falls back to local save if not signed in, with clear message</div>
-      <div class="cl-item">Tapping an event opens Google Calendar app on iOS</div>
-      <div class="cl-item">If Google Calendar app not installed — prompts user to install from App Store</div>
-      <div class="cl-item">Google Calendar scope updated to read+write for event creation</div>
-      <div class="cl-item">Reminders widget: date and time picker added below header</div>
-    </div>
+    <div class="cl-version-head" onclick="toggleCL('v216')">
+
+```
+  <div class="cl-version-badge" style="background:#1A56CC">v2.1.6 · Sensei's Release</div>
+  <div class="cl-version-date">20 March 2026</div>
+  <div class="cl-version-tag cl-tag-current">CURRENT</div>
+  <span class="cl-chevron" id="chev-v216" style="transform:rotate(180deg)">▶</span>
+</div>
+<div class="cl-version-body open" id="cl-body-v216">
+  <div class="cl-item">Google Calendar logo rebuilt as authentic icon (colored squares + 31)</div>
+  <div class="cl-item">Outlook widget logo replaced with Spark mail icon (blue gradient)</div>
+  <div class="cl-item">Add Event syncs directly to Google Calendar API when signed in</div>
+  <div class="cl-item">Add Event falls back to local save if not signed in, with status message</div>
+  <div class="cl-item">Tapping a calendar event opens that specific event in Google Calendar app via eid deep link</div>
+  <div class="cl-item">If Google Calendar not installed on iOS — prompts to install from App Store</div>
+  <div class="cl-item">Google Calendar OAuth scope updated to read+write for event creation</div>
+  <div class="cl-item">Reminders widget: date and time picker added below header</div>
+  <div class="cl-item">Changelog duplicates removed — clean single entry per version</div>
+</div>
+```
+
   </div>
-
-  <!-- v2.1.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v214')">
-      <div class="cl-version-badge">v2.1.5 · Sensei's Release</div>
+      <div class="cl-version-badge" style="background:#444">v2.1.4</div>
       <div class="cl-version-date">20 March 2026</div>
-      <div class="cl-version-tag cl-tag-current">CURRENT</div>
-    <span class="cl-chevron" id="chev-v214" style="transform:rotate(180deg)">▶</span></div>
-    <div class="cl-version-body open" id="cl-body-v214">
-      <div class="cl-item">Greeting banner added at top — Welcome to Big Minds Dashboard</div>
-      <div class="cl-item">Battery widget replaced with live Countdown widget (works on all platforms)</div>
-      <div class="cl-item">Countdown: Add Event → name + date picker → live years / days / hrs / min / sec display</div>
-      <div class="cl-item">Motivational Wisdom Quote widget added — full row, with author name and year</div>
-      <div class="cl-item">Quote and countdown both saved to localStorage, cleared by Clear My Data</div>
-      <div class="cl-item">Layout reordered: Reminders → Google Calendar → Outlook Inbox</div>
-      <div class="cl-item">Google Calendar: inline date picker in card header to jump to any date</div>
-      <div class="cl-item">Google Calendar: + Add button opens native Google Calendar app</div>
-      <div class="cl-item">Google Calendar: 🗑 delete button on every event (red, soft-edged)</div>
-      <div class="cl-item">Reminders: 🗑 delete button on every task (red, soft-edged)</div>
-      <div class="cl-item">Reminders: task font size increased to 16px for better readability</div>
-      <div class="cl-item">Email tap: iOS opens native Mail app (message://), desktop opens webLink</div>
-      <div class="cl-item">Version stamp now bigger, clickable, opens this changelog</div>
-      <div class="cl-item">30 curated motivational quotes with author and year built into the app</div>
+      <span class="cl-chevron" id="chev-v214">▶</span>
+    </div>
+    <div class="cl-version-body" id="cl-body-v214">
+      <div class="cl-item">Version numbering resumed after gap</div>
+      <div class="cl-item">Build timestamp baked in at generation time (hh:mm:ss), no longer shows AUTO</div>
+      <div class="cl-item">Row 3 layout switched to HTML table for Safari iOS compatibility</div>
+      <div class="cl-item">All widget backgrounds hardcoded to hex — immune to CSS variable failures</div>
+      <div class="cl-item">cl-item CSS scoped to changelog modal only — prevented dots bleeding into dashboard</div>
+      <div class="cl-item">width:100% added to countdown and tasks widgets to force Safari grid columns</div>
     </div>
   </div>
-
-  <!-- v2.1.2 -->
-
+  <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v213')">
+      <div class="cl-version-badge" style="background:#444">v2.1.3</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <span class="cl-chevron" id="chev-v213">▶</span>
+    </div>
+    <div class="cl-version-body" id="cl-body-v213">
+      <div class="cl-item">Outlook session expired bug fixed — getSafeToken validator no longer rejects valid Microsoft tokens</div>
+      <div class="cl-item">Add Event no longer redirects to Google Calendar app on iOS — stays on dashboard</div>
+      <div class="cl-item">Row 3 CSS grid replaced with flexbox for Safari compatibility</div>
+      <div class="cl-item">All CSS var() references in stylesheet hardcoded to hex values</div>
+      <div class="cl-item">Reminder + button replaced with in-dashboard modal — browser prompt() blocked on iOS</div>
+      <div class="cl-item">Version stamp and build timestamp always accurate</div>
+    </div>
+  </div>
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v212')">
-      <div class="cl-version-badge" style="background:#555">v2.1.2</div>
+      <div class="cl-version-badge" style="background:#444">v2.1.2</div>
       <div class="cl-version-date">20 March 2026</div>
       <span class="cl-chevron" id="chev-v212">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v212">
-      <div class="cl-item">Changelog accordion rebuilt — max-height clipping removed, content now fully visible</div>
+      <div class="cl-item">Changelog accordion rebuilt — max-height clipping removed, content fully visible</div>
       <div class="cl-item">Expanding a version pushes all items below it down naturally</div>
-      <div class="cl-item">Tapping a version collapses any previously open version (true accordion)</div>
-      <div class="cl-item">All 15 version heads wired with onclick and chevron ▶</div>
-      <div class="cl-item">Changelog modal background changed to solid #0a0a0e — no more transparent bleed</div>
+      <div class="cl-item">True accordion — tapping a version collapses any previously open one</div>
+      <div class="cl-item">All 15 version heads wired with onclick and chevron</div>
+      <div class="cl-item">Changelog modal background solid #0a0a0e — no transparent bleed-through</div>
       <div class="cl-item">All changelog CSS hardcoded — immune to en-dash copy-paste corruption</div>
-      <div class="cl-item">Add Task reminder button replaced with in-dashboard modal — browser prompt() was blocked on iOS Safari</div>
-      <div class="cl-item">Reminder modal shows selected date, text field with Enter key support</div>
-      <div class="cl-item">Version badge date no longer wraps — white-space:nowrap on all header elements</div>
+      <div class="cl-item">Version badge date no longer wraps to multiple lines</div>
     </div>
   </div>
-
-  <!-- v2.1.1 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v211')">
-      <div class="cl-version-badge" style="background:#555">v2.1.1</div>
+      <div class="cl-version-badge" style="background:#444">v2.1.1</div>
       <div class="cl-version-date">20 March 2026</div>
       <span class="cl-chevron" id="chev-v211">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v211">
       <div class="cl-item">Fixed en-dash CSS corruption — all var(--) references hardcoded to hex values</div>
-      <div class="cl-item">Fixed IDX14100 JWT malformed token — getSafeToken validator made smarter</div>
+      <div class="cl-item">Fixed IDX14100 JWT malformed token — getSafeToken validator rebuilt</div>
       <div class="cl-item">Changelog modal fully opaque background — bleed-through fixed</div>
       <div class="cl-item">Changelog item font increased to 13px with better contrast</div>
-      <div class="cl-item">Version stamp bumped and all 4 title references updated consistently</div>
+      <div class="cl-item">Version stamp and all 4 title references updated consistently</div>
     </div>
   </div>
-
-  <!-- v2.1.5 -->
-
   <div class="cl-version-block">
-    <div class="cl-version-head" onclick="toggleCL('v215')">
-      <div class="cl-version-badge">v2.1.5 · Sensei's Release</div>
+    <div class="cl-version-head" onclick="toggleCL('v210')">
+      <div class="cl-version-badge" style="background:#444">v2.1.0</div>
       <div class="cl-version-date">20 March 2026</div>
-      <div class="cl-version-tag cl-tag-current">CURRENT</div>
-      <span class="cl-chevron" id="chev-v215" style="transform:rotate(180deg)">▶</span>
+      <span class="cl-chevron" id="chev-v210">▶</span>
     </div>
-    <div class="cl-version-body open" id="cl-body-v215">
-      <div class="cl-item">Google Calendar logo updated to real icon (blue/green/yellow/red with 31)</div>
-      <div class="cl-item">Outlook replaced with Spark mail logo (blue gradient house icon)</div>
-      <div class="cl-item">Add Event now syncs directly to Google Calendar via API when signed in</div>
-      <div class="cl-item">Add Event falls back to local save if not signed in, with clear message</div>
-      <div class="cl-item">Tapping an event opens Google Calendar app on iOS</div>
-      <div class="cl-item">If Google Calendar app not installed — prompts user to install from App Store</div>
-      <div class="cl-item">Google Calendar scope updated to read+write for event creation</div>
-      <div class="cl-item">Reminders widget: date and time picker added below header</div>
-    </div>
-  </div>
-
-  <!-- v2.1.0 -->
-
-  <div class="cl-version-block">
-    <div class="cl-version-head" onclick="toggleCL('v210b')">
-      <div class="cl-version-badge" style="background:#555">v2.1.0</div>
-      <div class="cl-version-date">20 March 2026</div>
-      <span class="cl-chevron" id="chev-v210b">▶</span>
-    </div>
-    <div class="cl-version-body" id="cl-body-v210b">
+    <div class="cl-version-body" id="cl-body-v210">
       <div class="cl-item">Greeting banner added — Welcome to Big Minds Dashboard</div>
       <div class="cl-item">Battery widget replaced with live Countdown widget on all platforms</div>
       <div class="cl-item">Countdown: name + date + time picker → live years / days / hrs / min / sec</div>
@@ -597,34 +588,27 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
       <div class="cl-item">Reminder task font increased to 16px</div>
       <div class="cl-item">Email tap — iOS opens native Mail app, desktop opens specific email via webLink</div>
       <div class="cl-item">Version stamp clickable — opens full changelog modal</div>
-      <div class="cl-item">Full changelog modal with all versions from v1.0.0</div>
       <div class="cl-item">30 curated motivational quotes with author and year built in</div>
     </div>
   </div>
-
-  <!-- v2.0.1 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v201')">
-      <div class="cl-version-badge" style="background:#F87171">v2.0.1</div>
+      <div class="cl-version-badge" style="background:#444">v2.0.1</div>
       <div class="cl-version-date">20 March 2026</div>
       <div class="cl-version-tag cl-tag-fix">HOTFIX</div>
       <span class="cl-chevron" id="chev-v201">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v201">
-      <div class="cl-item">Fixed: IDX14100 JWT malformed token error in Outlook Inbox</div>
-      <div class="cl-item">Added token validator — checks JWT has 3 correct parts before use</div>
-      <div class="cl-item">Added auto-recovery — bad token silently cleared, Sign In button restored</div>
-      <div class="cl-item">Added 401 / InvalidAuthenticationToken handler — auto-clears expired session</div>
-      <div class="cl-item">Same validation applied to Google token on page load</div>
+      <div class="cl-item">Fixed IDX14100 JWT malformed token error in Outlook Inbox</div>
+      <div class="cl-item">Added token validator — checks JWT structure before every API call</div>
+      <div class="cl-item">Auto-recovery — bad token silently cleared, Sign In button restored</div>
+      <div class="cl-item">401 / InvalidAuthenticationToken handler — auto-clears expired session</div>
+      <div class="cl-item">Same token validation applied to Google token on page load</div>
     </div>
   </div>
-
-  <!-- v2.0.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v200')">
-      <div class="cl-version-badge" style="background:#555">v2.0.0</div>
+      <div class="cl-version-badge" style="background:#444">v2.0.0</div>
       <div class="cl-version-date">19 March 2026</div>
       <span class="cl-chevron" id="chev-v200">▶</span>
     </div>
@@ -634,128 +618,104 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
       <div class="cl-item">Battery widget restored — auto on Android/Desktop, manual tap on iPhone</div>
       <div class="cl-item">Clear Done button restored in Reminders card</div>
       <div class="cl-item">User Guide modal fully restored with all sections</div>
-      <div class="cl-item">Version stamp now includes full hh:mm:ss timestamp</div>
+      <div class="cl-item">Version stamp includes full hh:mm:ss timestamp</div>
       <div class="cl-item">Sessions persist via localStorage — survive page refresh</div>
       <div class="cl-item">Unread mail stat = real inbox unreadItemCount from Microsoft Graph</div>
       <div class="cl-item">Contact form fully anonymous via Web3Forms API</div>
-      <div class="cl-item">Scroll navigation: tapping stats scrolls to relevant section</div>
+      <div class="cl-item">Scroll navigation — tapping stats scrolls to relevant section</div>
       <div class="cl-item">Deep links to Google Calendar and Mail apps on mobile</div>
-      <div class="cl-item">Google Calendar SVG logo added to card header</div>
-      <div class="cl-item">Outlook SVG logo added to card header</div>
+      <div class="cl-item">Google Calendar and Outlook SVG logos added to card headers</div>
     </div>
   </div>
-
-  <!-- v1.9.2 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v192')">
-      <div class="cl-version-badge" style="background:#555">v1.9.2</div>
+      <div class="cl-version-badge" style="background:#444">v1.9.2</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v192">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v192">
       <div class="cl-item">Stabilization release — clean base with reduced bugs</div>
       <div class="cl-item">Improved UI consistency across all sections</div>
-      <div class="cl-item">Step-by-step developer annotations added inside code (‼️ markers)</div>
+      <div class="cl-item">Developer annotations added inside code</div>
       <div class="cl-item">Scroll navigation integrated on stat boxes</div>
       <div class="cl-item">Deep link to iOS Calendar app (com.google.calendar://)</div>
       <div class="cl-item">Deep link to iOS Mail app (message://)</div>
     </div>
   </div>
-
-  <!-- v1.9.1 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v191')">
-      <div class="cl-version-badge" style="background:#555">v1.9.1</div>
+      <div class="cl-version-badge" style="background:#444">v1.9.1</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v191">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v191">
-      <div class="cl-item">Fixed session persistence — Microsoft and Google tokens now survive page refresh</div>
+      <div class="cl-item">Fixed session persistence — Microsoft and Google tokens survive page refresh</div>
       <div class="cl-item">Fixed Google Calendar token handling — no longer lost on reload</div>
-      <div class="cl-item">Fixed unread email count — now uses real server-side unreadItemCount</div>
+      <div class="cl-item">Fixed unread email count — uses real server-side unreadItemCount</div>
       <div class="cl-item">Fixed Outlook emails showing read messages — added isRead eq false filter</div>
     </div>
   </div>
-
-  <!-- v1.9.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v190')">
-      <div class="cl-version-badge" style="background:#555">v1.9.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.9.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v190">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v190">
       <div class="cl-item">PKCE OAuth flow for Outlook — first fully stable login version</div>
       <div class="cl-item">Removed dependency on MSAL.js library entirely</div>
-      <div class="cl-item">7-day date selector bar added to Google Calendar</div>
-      <div class="cl-item">7-day date selector bar added to Reminders</div>
-      <div class="cl-item">Tasks now persist across page refreshes via localStorage (v17_tasks)</div>
-      <div class="cl-item">Refresh buttons now reload data only — do not reload the full page</div>
+      <div class="cl-item">7-day date selector bar added to Google Calendar and Reminders</div>
+      <div class="cl-item">Tasks persist across page refreshes via localStorage</div>
+      <div class="cl-item">Refresh buttons reload data only — no full page reload</div>
       <div class="cl-item">Contact form anonymized via Web3Forms — email never exposed in code</div>
     </div>
   </div>
-
-  <!-- v1.8.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v180')">
-      <div class="cl-version-badge" style="background:#555">v1.8.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.8.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v180">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v180">
       <div class="cl-item">User Guide modal added with detailed explanations of every feature</div>
       <div class="cl-item">Contact / Support form added with anonymous email delivery</div>
-      <div class="cl-item">Battery widget added — auto-read on Android/Desktop, manual on iPhone</div>
+      <div class="cl-item">Battery widget added — auto on Android/Desktop, manual on iPhone</div>
       <div class="cl-item">Uncompleted tasks count widget added to Row 3</div>
-      <div class="cl-item">Clear Done button added to Reminders section</div>
-      <div class="cl-item">Google Calendar and Outlook SVG logos first added</div>
-      <div class="cl-item">Version stamp now auto-generated with full date and time on load</div>
+      <div class="cl-item">Clear Done button added to Reminders</div>
+      <div class="cl-item">Version stamp auto-generated with full date and time on load</div>
     </div>
   </div>
-
-  <!-- v1.7.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v170')">
-      <div class="cl-version-badge" style="background:#555">v1.7.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.7.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v170">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v170">
-      <div class="cl-item">Tasks persistence introduced — tasks saved to localStorage</div>
-      <div class="cl-item">Battery widget introduced (basic version — no iOS support yet)</div>
+      <div class="cl-item">Tasks persistence — saved to localStorage</div>
+      <div class="cl-item">Battery widget introduced (basic — no iOS support yet)</div>
       <div class="cl-item">Unread email list limited to 15 most recent unread messages</div>
       <div class="cl-item">Emails sorted by receivedDateTime descending (newest first)</div>
       <div class="cl-item">Sender initials avatar with colour-coded background added to inbox</div>
     </div>
   </div>
-
-  <!-- v1.6.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v160')">
-      <div class="cl-version-badge" style="background:#555">v1.6.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.6.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v160">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v160">
-      <div class="cl-item">Weather widget added — real-time temperature via Open-Meteo API</div>
-      <div class="cl-item">City search modal added with Open-Meteo geocoding API</div>
+      <div class="cl-item">Weather widget — real-time temperature via Open-Meteo API</div>
+      <div class="cl-item">City search modal with Open-Meteo geocoding API</div>
       <div class="cl-item">Selected location saved to localStorage and restored on every visit</div>
-      <div class="cl-item">Live clock now syncs timezone to selected city automatically</div>
+      <div class="cl-item">Live clock syncs timezone to selected city automatically</div>
       <div class="cl-item">Timezone abbreviation and date shown under the clock</div>
     </div>
   </div>
-
-  <!-- v1.5.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v150')">
-      <div class="cl-version-badge" style="background:#555">v1.5.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.5.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v150">▶</span>
     </div>
@@ -763,32 +723,24 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
       <div class="cl-item">Google Calendar API integrated — first real event fetching</div>
       <div class="cl-item">Google Identity Services (GSI) used for OAuth token flow</div>
       <div class="cl-item">Events Today stat updated dynamically after sign-in</div>
-      <div class="cl-item">Calendar limited to today's events only (day navigation added later)</div>
     </div>
   </div>
-
-  <!-- v1.4.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v140')">
-      <div class="cl-version-badge" style="background:#555">v1.4.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.4.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v140">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v140">
       <div class="cl-item">Reminders section added — task list with add and toggle completion</div>
-      <div class="cl-item">Checkbox marks task as done with strikethrough visual</div>
-      <div class="cl-item">Tasks not yet persistent — lost on page refresh (fixed in v1.7.0)</div>
+      <div class="cl-item">Checkbox marks task done with strikethrough visual</div>
       <div class="cl-item">Live digital clock with milliseconds added (Seven Segment font)</div>
       <div class="cl-item">requestAnimationFrame used for smooth 60fps clock updates</div>
     </div>
   </div>
-
-  <!-- v1.3.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v130')">
-      <div class="cl-version-badge" style="background:#555">v1.3.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.3.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v130">▶</span>
     </div>
@@ -796,59 +748,46 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
       <div class="cl-item">First real Microsoft Graph API email fetching implemented</div>
       <div class="cl-item">Inbox messages displayed with sender, subject, and preview</div>
       <div class="cl-item">Unread Mail stat box introduced</div>
-      <div class="cl-item">Security issues with token handling present — addressed in later versions</div>
     </div>
   </div>
-
-  <!-- v1.2.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v120')">
-      <div class="cl-version-badge" style="background:#555">v1.2.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.2.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v120">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v120">
       <div class="cl-item">First Microsoft OAuth login attempt using MSAL.js library</div>
       <div class="cl-item">MSAL failed on iPhone Safari — ReferenceError: Can not find variable: msal</div>
-      <div class="cl-item">Multiple CDN fallbacks tried — Cloudflare and Microsoft official CDN</div>
-      <div class="cl-item">Implicit OAuth flow attempted — blocked by Azure for personal accounts</div>
+      <div class="cl-item">Multiple CDN fallbacks tried — all failed on iOS Safari</div>
       <div class="cl-item">Decision made to implement PKCE directly without any library</div>
     </div>
   </div>
-
-  <!-- v1.1.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v110')">
-      <div class="cl-version-badge" style="background:#555">v1.1.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.1.0</div>
       <div class="cl-version-date">March 2026</div>
       <span class="cl-chevron" id="chev-v110">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v110">
       <div class="cl-item">Outlook Inbox section added (mock data only)</div>
       <div class="cl-item">Google Calendar section added (mock data only)</div>
-      <div class="cl-item">Stats row introduced: Unread Mail and Events Today placeholders</div>
+      <div class="cl-item">Stats row: Unread Mail and Events Today placeholders</div>
       <div class="cl-item">Dark theme CSS variables system introduced</div>
-      <div class="cl-item">Inter and Playfair Display Google Fonts loaded</div>
       <div class="cl-item">Mobile-first responsive layout implemented</div>
     </div>
   </div>
-
-  <!-- v1.0.0 -->
-
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v100')">
-      <div class="cl-version-badge" style="background:#333">v1.0.0</div>
+      <div class="cl-version-badge" style="background:#444">v1.0.0</div>
       <div class="cl-version-date">March 2026</div>
       <div class="cl-version-tag" style="background:rgba(139,92,246,0.2);color:#A78BFA">INITIAL RELEASE</div>
       <span class="cl-chevron" id="chev-v100">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v100">
       <div class="cl-item">Initial concept — static HTML dashboard, no APIs, dummy data only</div>
-      <div class="cl-item">Single-file architecture decided: one index.html, no backend, no build tools</div>
+      <div class="cl-item">Single-file architecture: one index.html, no backend, no build tools</div>
       <div class="cl-item">Dark theme with CSS variables: #0F0F13 background, card-based layout</div>
-      <div class="cl-item">Basic grid layout with rounded card widgets</div>
       <div class="cl-item">Hosted on GitHub Pages — ghaziomairi93.github.io/MyDashboard/</div>
       <div class="cl-item">Created by Ghazi Omairi using AI assistance (Claude, ChatGPT, Gemini)</div>
     </div>
@@ -974,7 +913,7 @@ window.onload = async () => {
 // ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.5 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.1.6 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
 // ================================================================
@@ -1196,7 +1135,7 @@ function nukeData(){ if(confirm('This will log you out and clear all your tasks,
 function showChangelog(){ document.getElementById('changelog-modal').classList.add('active'); }
 function hideChangelog(){ document.getElementById('changelog-modal').classList.remove('active'); }
 // Accordion: close all others, open clicked (or close if already open)
-const CL_IDS = ['v215','v214','v212','v211','v210b','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
+const CL_IDS = ['v216','v215','v214','v213','v212','v211','v210','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
 function toggleCL(vid){
   const clickedBody = document.getElementById('cl-body-'+vid);
   const clickedChev = document.getElementById('chev-'+vid);
@@ -1526,28 +1465,34 @@ function renderCalEvents(){
 function openCalEvent(eventId, htmlLink){
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isAndroid = /Android/.test(navigator.userAgent);
+  const appStoreUrl = 'https://apps.apple.com/app/google-calendar-get-organised/id909319292';
+
   if(isIOS){
-    // Try to open Google Calendar app via URL scheme
-    const appUrl = 'googlecalendar://';
-    const appStoreUrl = 'https://apps.apple.com/app/google-calendar-get-organised/id909319292';
-    // Use iframe trick to detect if app is installed
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    let appOpened = false;
-    window.addEventListener('blur', ()=>{ appOpened = true; }, { once: true });
-    iframe.src = appUrl;
-    setTimeout(()=>{
-      document.body.removeChild(iframe);
-      if(!appOpened){
-        // App not installed — ask user
-        if(confirm('Google Calendar app is not installed. Open App Store to install it?')){
+    // Build deep link to specific event using eid (base64 encoded event ID)
+    let deepLink = 'googlecalendar://';
+    if(eventId && !eventId.startsWith('local_')){
+      try{
+        // Google Calendar iOS deep link format for specific event
+        const eid = btoa(eventId).replace(/=/g,'');
+        deepLink = `googlecalendar://calendar/event?eid=${eid}`;
+      } catch(e){ deepLink = 'googlecalendar://'; }
+    }
+    // Use visibilitychange to detect if app opened successfully
+    let appLaunched = false;
+    const onHide = () => { appLaunched = true; };
+    document.addEventListener('visibilitychange', onHide, { once: true });
+    window.location.href = deepLink;
+    setTimeout(() => {
+      document.removeEventListener('visibilitychange', onHide);
+      if(!appLaunched){
+        if(confirm('Google Calendar app is not installed.\nOpen App Store to install it?')){
           window.location.href = appStoreUrl;
         }
       }
-    }, 1200);
+    }, 2000);
   } else if(isAndroid){
-    window.open('https://calendar.google.com/calendar/r', '_blank');
+    if(htmlLink) window.open(htmlLink, '_blank');
+    else window.open('https://calendar.google.com/calendar/r', '_blank');
   } else {
     if(htmlLink) window.open(htmlLink, '_blank');
     else window.open('https://calendar.google.com/calendar/r', '_blank');
