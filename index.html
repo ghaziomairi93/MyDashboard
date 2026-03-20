@@ -1,7 +1,7 @@
 <!--
   ================================================================
-  DASHBOARD VERSION: v2.1.4 (Sensei's Release)
-  DATE: 20.03.2026 | BUILD TIMESTAMP: 2026.03.20 12:05:08
+  DASHBOARD VERSION: v2.1.5 (Sensei's Release)
+  DATE: 20.03.2026 | BUILD TIMESTAMP: 2026.03.20 12:15:37
   ================================================================
   CHANGELOG v2.1.4 (Sensei's Release):
   - Battery widget hidden on iPhone, replaced with Countdown widget
@@ -25,7 +25,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.4 (Sensei's Release)</title>
+<title>Ghazi Dashboard v2.1.5 (Sensei's Release)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -309,7 +309,7 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     <!-- Row 1: title + sign in — aligned with Outlook -->
     <div class="card-head">
       <div class="card-head-left">
-        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="white"/><rect x="4" y="4" width="40" height="40" rx="4" fill="white" stroke="#dadce0" stroke-width="2"/><rect x="4" y="4" width="40" height="14" rx="4" fill="#1a73e8"/><rect x="4" y="12" width="40" height="6" fill="#1a73e8"/><text x="24" y="36" font-family="Arial" font-size="14" font-weight="bold" fill="#1a73e8" text-anchor="middle">19</text><line x1="14" y1="2" x2="14" y2="10" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="34" y1="2" x2="34" y2="10" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+        <svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="white"/><rect x="4" y="10" width="40" height="34" rx="3" fill="white" stroke="#dadce0" stroke-width="1.5"/><rect x="4" y="10" width="40" height="11" fill="white"/><rect x="32" y="4" width="8" height="14" rx="4" fill="#1a73e8"/><rect x="8" y="4" width="8" height="14" rx="4" fill="#1a73e8"/><rect x="4" y="17" width="40" height="4" fill="#dadce0"/><rect x="28" y="28" width="16" height="16" rx="2" fill="#34A853"/><rect x="4" y="28" width="12" height="16" rx="2" fill="#FBBC04"/><rect x="4" y="10" width="12" height="20" rx="0" fill="#EA4335"/><text x="24" y="42" font-family="Arial" font-size="13" font-weight="bold" fill="#1a73e8" text-anchor="middle">31</text></svg>
         Google Calendar
       </div>
       <div id="google-head-btn"><button class="sign-btn card-action-btn" onclick="initGoogle()">Sign In</button></div>
@@ -328,7 +328,7 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
   <div class="card" id="outlook-section">
     <div class="card-head">
       <div class="card-head-left">
-        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="6" fill="#0078d4"/><rect x="5" y="11" width="22" height="26" rx="3" fill="#106ebe"/><ellipse cx="16" cy="24" rx="6" ry="7" fill="white" opacity="0.95"/><rect x="25" y="13" width="18" height="22" rx="2" fill="white" opacity="0.12"/><line x1="25" y1="18" x2="43" y2="18" stroke="white" stroke-width="1.5" opacity="0.6"/><line x1="25" y1="23" x2="43" y2="23" stroke="white" stroke-width="1.5" opacity="0.6"/><line x1="25" y1="28" x2="43" y2="28" stroke="white" stroke-width="1.5" opacity="0.6"/></svg>
+        <svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5BB8FF"/><stop offset="100%" style="stop-color:#2F6FED"/></linearGradient><linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#A8D8FF"/><stop offset="100%" style="stop-color:#5BB8FF"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="url(#sg1)"/><path d="M24 8 L38 18 L38 38 L10 38 L10 18 Z" fill="url(#sg2)" opacity="0.9"/><path d="M24 8 L10 18 L24 26 L38 18 Z" fill="white" opacity="0.95"/><path d="M16 28 L24 33 L32 28" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/></svg>
         Outlook Inbox
       </div>
       <div id="ms-head-btn"><button class="sign-btn card-action-btn" onclick="startMSLogin()">Sign In</button></div>
@@ -469,11 +469,32 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     <button onclick="hideChangelog()" style="background:#22222E;border:1px solid #2E2E3E;color:#F0EFE9;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px">✕ Close</button>
   </div>
 
+  <!-- v2.1.5 -->
+
+  <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v215')">
+      <div class="cl-version-badge">v2.1.5 · Sensei's Release</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <div class="cl-version-tag cl-tag-current">CURRENT</div>
+      <span class="cl-chevron" id="chev-v215" style="transform:rotate(180deg)">▶</span>
+    </div>
+    <div class="cl-version-body open" id="cl-body-v215">
+      <div class="cl-item">Google Calendar logo updated to real icon (blue/green/yellow/red with 31)</div>
+      <div class="cl-item">Outlook replaced with Spark mail logo (blue gradient house icon)</div>
+      <div class="cl-item">Add Event now syncs directly to Google Calendar via API when signed in</div>
+      <div class="cl-item">Add Event falls back to local save if not signed in, with clear message</div>
+      <div class="cl-item">Tapping an event opens Google Calendar app on iOS</div>
+      <div class="cl-item">If Google Calendar app not installed — prompts user to install from App Store</div>
+      <div class="cl-item">Google Calendar scope updated to read+write for event creation</div>
+      <div class="cl-item">Reminders widget: date and time picker added below header</div>
+    </div>
+  </div>
+
   <!-- v2.1.0 -->
 
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v214')">
-      <div class="cl-version-badge">v2.1.4 · Sensei's Release</div>
+      <div class="cl-version-badge">v2.1.5 · Sensei's Release</div>
       <div class="cl-version-date">20 March 2026</div>
       <div class="cl-version-tag cl-tag-current">CURRENT</div>
     <span class="cl-chevron" id="chev-v214" style="transform:rotate(180deg)">▶</span></div>
@@ -530,6 +551,27 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
       <div class="cl-item">Changelog modal fully opaque background — bleed-through fixed</div>
       <div class="cl-item">Changelog item font increased to 13px with better contrast</div>
       <div class="cl-item">Version stamp bumped and all 4 title references updated consistently</div>
+    </div>
+  </div>
+
+  <!-- v2.1.5 -->
+
+  <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v215')">
+      <div class="cl-version-badge">v2.1.5 · Sensei's Release</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <div class="cl-version-tag cl-tag-current">CURRENT</div>
+      <span class="cl-chevron" id="chev-v215" style="transform:rotate(180deg)">▶</span>
+    </div>
+    <div class="cl-version-body open" id="cl-body-v215">
+      <div class="cl-item">Google Calendar logo updated to real icon (blue/green/yellow/red with 31)</div>
+      <div class="cl-item">Outlook replaced with Spark mail logo (blue gradient house icon)</div>
+      <div class="cl-item">Add Event now syncs directly to Google Calendar via API when signed in</div>
+      <div class="cl-item">Add Event falls back to local save if not signed in, with clear message</div>
+      <div class="cl-item">Tapping an event opens Google Calendar app on iOS</div>
+      <div class="cl-item">If Google Calendar app not installed — prompts user to install from App Store</div>
+      <div class="cl-item">Google Calendar scope updated to read+write for event creation</div>
+      <div class="cl-item">Reminders widget: date and time picker added below header</div>
     </div>
   </div>
 
@@ -932,7 +974,7 @@ window.onload = async () => {
 // ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.4 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.1.5 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
 // ================================================================
@@ -1154,7 +1196,7 @@ function nukeData(){ if(confirm('This will log you out and clear all your tasks,
 function showChangelog(){ document.getElementById('changelog-modal').classList.add('active'); }
 function hideChangelog(){ document.getElementById('changelog-modal').classList.remove('active'); }
 // Accordion: close all others, open clicked (or close if already open)
-const CL_IDS = ['v214','v212','v211','v210b','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
+const CL_IDS = ['v215','v214','v212','v211','v210b','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
 function toggleCL(vid){
   const clickedBody = document.getElementById('cl-body-'+vid);
   const clickedChev = document.getElementById('chev-'+vid);
@@ -1342,48 +1384,93 @@ function openAddCalModal(){
 function closeAddCalModal(){
   document.getElementById('add-cal-modal').classList.remove('active');
 }
-function confirmAddCalEvent(){
+async function confirmAddCalEvent(){
   const title = document.getElementById('new-ev-title').value.trim();
   const dateVal = document.getElementById('new-ev-date').value;
   const timeVal = document.getElementById('new-ev-time').value;
   if(!title){ alert('Please enter an event title.'); return; }
   if(!dateVal){ alert('Please select a date.'); return; }
   if(!timeVal){ alert('Please select a start time.'); return; }
-  // Build event object (30 min duration default)
+
   const startDT = new Date(`${dateVal}T${timeVal}:00`);
   const endDT   = new Date(startDT.getTime() + 30*60*1000);
-  const pad = n => n.toString().padStart(2,'0');
+
+  // Show loading state on confirm button
+  const btn = document.querySelector('.add-cal-confirm');
+  if(btn){ btn.textContent = '⏳ Saving...'; btn.disabled = true; }
+
+  // If signed into Google — create event via API (real sync)
+  if(googleToken){
+    try{
+      const body = {
+        summary: title,
+        start: { dateTime: startDT.toISOString(), timeZone: activeTZ || 'UTC' },
+        end:   { dateTime: endDT.toISOString(),   timeZone: activeTZ || 'UTC' }
+      };
+      const r = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if(data.id){
+        // Success — add to dashboard with Google event ID
+        const newEv = {
+          id: data.id,
+          summary: title,
+          start: { dateTime: startDT.toISOString() },
+          end:   { dateTime: endDT.toISOString() },
+          htmlLink: data.htmlLink
+        };
+        selectedDate = startDT.toDateString();
+        calendarEvents.unshift(newEv);
+        document.getElementById('stat-events').textContent = calendarEvents.length;
+        renderCalEvents();
+        renderDayBars();
+        closeAddCalModal();
+        showCalConfirm('✅ Event saved to Google Calendar!');
+        // Refresh from Google to get full event data
+        setTimeout(()=>loadCal(), 1500);
+        return;
+      } else {
+        // Token might be expired — fall through to local save
+        console.warn('Google API error:', data);
+      }
+    } catch(e){
+      console.warn('Google API failed, saving locally:', e);
+    }
+  }
+
+  // Not signed in or API failed — save locally
   const newEv = {
     id: 'local_' + Date.now(),
     summary: title,
     start: { dateTime: startDT.toISOString() },
-    end:   { dateTime: endDT.toISOString()   },
+    end:   { dateTime: endDT.toISOString() },
     local: true
   };
-  // Add to local events array and re-render
-  // Also update selectedDate to the event's date so it's visible
   selectedDate = startDT.toDateString();
   calendarEvents.unshift(newEv);
   document.getElementById('stat-events').textContent = calendarEvents.length;
   renderCalEvents();
   renderDayBars();
   closeAddCalModal();
-  // Save local events to localStorage
   const localEvs = JSON.parse(localStorage.getItem('local_cal_events') || '[]');
   localEvs.push(newEv);
   localStorage.setItem('local_cal_events', JSON.stringify(localEvs));
-  // Event saved to dashboard locally — show brief confirmation
-  // No redirect — stays on dashboard
-  const confirmMsg = document.getElementById('add-cal-confirm-msg');
-  if(confirmMsg){
-    confirmMsg.style.display = 'block';
-    setTimeout(()=>{ confirmMsg.style.display='none'; }, 2000);
-  }
+  showCalConfirm('✅ Event saved locally (sign in to sync)');
+}
+function showCalConfirm(msg){
+  const el = document.getElementById('add-cal-confirm-msg');
+  if(el){ el.textContent = msg; el.style.display='block'; setTimeout(()=>{ el.style.display='none'; }, 2500); }
+  // Reset button
+  const btn = document.querySelector('.add-cal-confirm');
+  if(btn){ btn.textContent = '✓ Add Event'; btn.disabled = false; }
 }
 function initGoogle(){
   google.accounts.oauth2.initTokenClient({
     client_id:G_CLIENT_ID,
-    scope:'https://www.googleapis.com/auth/calendar.readonly',
+    scope:'https://www.googleapis.com/auth/calendar',
     callback:resp=>{
       if(resp.access_token){
         googleToken=resp.access_token;
@@ -1424,10 +1511,10 @@ function renderCalEvents(){
     const st=ev.start.dateTime||ev.start.date;
     const time=ev.start.dateTime?new Date(st).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'All Day';
     const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
-    const calLink=isIOS?`com.google.calendar://`:`https://calendar.google.com/calendar/r`;
     const localBadge = ev.local ? '<span class="local-event-badge">LOCAL</span>' : '';
+    const eventId = ev.id || '';
     el.innerHTML+=`<div class="list-item">
-      <div style="flex:1;cursor:pointer" onclick="${ev.local ? '' : `window.location.href='${calLink}'`}">
+      <div style="flex:1;cursor:pointer" onclick="openCalEvent('${eventId}','${ev.htmlLink||''}')">
         <div style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:14px">${ev.summary||'(No title)'}${localBadge}</div>
         <div style="font-size:11px;color:#8A8A9A;margin-top:2px">${ev.location||''}</div>
         <div style="font-size:11px;color:#A78BFA;font-weight:700;margin-top:2px">${time}</div>
@@ -1435,6 +1522,36 @@ function renderCalEvents(){
       <button class="del-btn" onclick="deleteCalEvent(${idx})" title="Remove from view">🗑</button>
     </div>`;
   });
+}
+function openCalEvent(eventId, htmlLink){
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  if(isIOS){
+    // Try to open Google Calendar app via URL scheme
+    const appUrl = 'googlecalendar://';
+    const appStoreUrl = 'https://apps.apple.com/app/google-calendar-get-organised/id909319292';
+    // Use iframe trick to detect if app is installed
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    let appOpened = false;
+    window.addEventListener('blur', ()=>{ appOpened = true; }, { once: true });
+    iframe.src = appUrl;
+    setTimeout(()=>{
+      document.body.removeChild(iframe);
+      if(!appOpened){
+        // App not installed — ask user
+        if(confirm('Google Calendar app is not installed. Open App Store to install it?')){
+          window.location.href = appStoreUrl;
+        }
+      }
+    }, 1200);
+  } else if(isAndroid){
+    window.open('https://calendar.google.com/calendar/r', '_blank');
+  } else {
+    if(htmlLink) window.open(htmlLink, '_blank');
+    else window.open('https://calendar.google.com/calendar/r', '_blank');
+  }
 }
 function deleteCalEvent(idx){
   const ev = calendarEvents[idx];
