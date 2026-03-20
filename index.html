@@ -1,9 +1,9 @@
 <!--
   ================================================================
-  DASHBOARD VERSION: v2.1.2 (Sensei's Release)
+  DASHBOARD VERSION: v2.1.3 (Sensei's Release)
   DATE: 20.03.2026 | BUILD TIMESTAMP: AUTO
   ================================================================
-  CHANGELOG v2.1.2 (Sensei's Release):
+  CHANGELOG v2.1.3 (Sensei's Release):
   - Battery widget hidden on iPhone, replaced with Countdown widget
   - Countdown widget: Add Event → date picker → live years/days/h/m/s
   - Motivational quote widget (full row) with author + year
@@ -25,7 +25,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.2 (Sensei's Release)</title>
+<title>Ghazi Dashboard v2.1.3 (Sensei's Release)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -52,10 +52,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .stat-lbl{font-size:10px;color:var(–muted);text-transform:uppercase;font-weight:600;margin-top:4px}
 
 /* ROW 3 — countdown + tasks */
-.row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
 
 /* COUNTDOWN WIDGET */
-.countdown-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:160px}
+.countdown-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:160px;height:100%}
 .cd-label{font-size:9px;color:var(–muted);text-transform:uppercase;font-weight:700;letter-spacing:1px}
 .cd-event-name{font-size:12px;font-weight:700;color:var(–amber);text-align:center;line-height:1.3;margin-bottom:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;margin-top:2px}
@@ -65,7 +65,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .cd-add-btn{background:rgba(79,142,247,0.15);color:var(–blue);border:1px solid rgba(79,142,247,0.3);padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif;width:100%;margin-top:4px}
 
 /* TASKS WIDGET */
-.tasks-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.tasks-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:160px;height:100%}
 .tasks-count{font-size:48px;font-weight:700;color:var(–amber);line-height:1}
 .tasks-label{font-size:10px;color:var(–muted);text-transform:uppercase;font-weight:700;letter-spacing:1px;text-align:center;line-height:1.4}
 
@@ -359,6 +359,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
       </div>
     </div>
     <div style="font-size:10px;color:var(--muted);margin-top:4px;margin-bottom:12px">⏱ Duration: 30 minutes (default)</div>
+    <div id="add-cal-confirm-msg" style="display:none;text-align:center;color:#34D399;font-size:13px;font-weight:700;padding:8px 0">✅ Event saved to dashboard!</div>
     <div class="add-cal-btn-row">
       <button class="add-cal-cancel" onclick="closeAddCalModal()">Cancel</button>
       <button class="add-cal-confirm" onclick="confirmAddCalEvent()">✓ Add Event</button>
@@ -466,7 +467,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v211')">
-      <div class="cl-version-badge">v2.1.2 · Sensei's Release</div>
+      <div class="cl-version-badge">v2.1.3 · Sensei's Release</div>
       <div class="cl-version-date">20 March 2026</div>
       <div class="cl-version-tag cl-tag-current">CURRENT</div>
     <span class="cl-chevron" id="chev-v211" style="transform:rotate(180deg)">▶</span></div>
@@ -803,14 +804,22 @@ let calendarEvents = []; // local store for deletion
 // ================================================================
 // TOKEN VALIDATION
 // ================================================================
-function isValidJWT(token){
-  if(!token || typeof token !== 'string') return false;
-  const parts = token.split('.');
-  return parts.length === 3 && parts.every(p => p.length > 0);
-}
 function getSafeToken(key){
   const t = localStorage.getItem(key);
-  if(!isValidJWT(t)){ if(t) localStorage.removeItem(key); return null; }
+  if(!t || typeof t !== 'string' || t.length < 10) {
+    if(t) localStorage.removeItem(key);
+    return null;
+  }
+  // Only do JWT validation if it looks like a JWT (contains dots)
+  // Some Microsoft tokens are opaque and don't have 3 parts
+  if(t.includes('.')) {
+    const parts = t.split('.');
+    // If it has dots but clearly not a valid JWT, reject it
+    if(parts.length < 2 || parts.some(p => p.length === 0)) {
+      localStorage.removeItem(key);
+      return null;
+    }
+  }
   return t;
 }
 
@@ -839,9 +848,11 @@ window.onload = async () => {
   const msRaw = getSafeToken('ms_token');
   if(msRaw){
     document.getElementById('ms-head-btn').innerHTML=`<button class="refresh-btn card-action-btn" onclick="loadMail()">↻ Refresh</button>`;
-    loadMail(); loadUnreadCount();
+    // Small delay to let page settle before API call
+    setTimeout(()=>{ loadMail(); loadUnreadCount(); }, 300);
   } else {
-    document.getElementById('ms-head-btn').innerHTML=`<button class="sign-btn" onclick="startMSLogin()">Sign In</button>`;
+    document.getElementById('ms-head-btn').innerHTML=`<button class="sign-btn card-action-btn" onclick="startMSLogin()">Sign In</button>`;
+    document.getElementById('ms-body').innerHTML='<div class="empty">Sign in to see your emails</div>';
   }
 };
 
@@ -850,7 +861,7 @@ window.onload = async () => {
 // ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.2 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.1.3 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
 // ================================================================
@@ -1169,8 +1180,10 @@ async function exchangeMSCode(code){
 async function loadMail(){
   const token=getSafeToken('ms_token');
   if(!token){
-    document.getElementById('ms-head-btn').innerHTML=`<button class="sign-btn" onclick="startMSLogin()">Sign In</button>`;
-    document.getElementById('ms-body').innerHTML='<div class="empty">Session expired. Please sign in again.</div>';
+    localStorage.removeItem('ms_token');
+    localStorage.removeItem('ms_refresh');
+    document.getElementById('ms-head-btn').innerHTML=`<button class="sign-btn card-action-btn" onclick="startMSLogin()">Sign In</button>`;
+    document.getElementById('ms-body').innerHTML='<div class="empty">Sign in to see your emails</div>';
     return;
   }
   const el=document.getElementById('ms-body');
@@ -1276,19 +1289,12 @@ function confirmAddCalEvent(){
   const localEvs = JSON.parse(localStorage.getItem('local_cal_events') || '[]');
   localEvs.push(newEv);
   localStorage.setItem('local_cal_events', JSON.stringify(localEvs));
-  // Also attempt to open Google Calendar app to sync (deep link)
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-  const evTitle = encodeURIComponent(title);
-  const startISO = startDT.toISOString().replace(/-|:|\.\d+/g,'');
-  const endISO   = endDT.toISOString().replace(/-|:|\.\d+/g,'');
-  if(isIOS){
-    // Google Calendar URL scheme for iOS
-    window.location.href = `com.google.calendar://`;
-  } else if(isAndroid){
-    window.open(`https://calendar.google.com/calendar/r/eventedit?text=${evTitle}&dates=${startISO}/${endISO}`, '_blank');
-  } else {
-    window.open(`https://calendar.google.com/calendar/r/eventedit?text=${evTitle}&dates=${startISO}/${endISO}`, '_blank');
+  // Event saved to dashboard locally — show brief confirmation
+  // No redirect — stays on dashboard
+  const confirmMsg = document.getElementById('add-cal-confirm-msg');
+  if(confirmMsg){
+    confirmMsg.style.display = 'block';
+    setTimeout(()=>{ confirmMsg.style.display='none'; }, 2000);
   }
 }
 function initGoogle(){
