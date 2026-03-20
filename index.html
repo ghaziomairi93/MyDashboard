@@ -252,27 +252,27 @@ body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15p
     </div>
   </div>
 
-  <!-- ROW 3: Countdown (hidden on iOS → battery shown instead) + Tasks -->
+  <!-- ROW 3: Countdown + Tasks — table layout for Safari compatibility -->
 
-  <div class="row3">
-    <!-- Countdown Widget (shown on all platforms; on iOS replaces battery) -->
-    <div class="countdown-widget" id="countdown-widget">
-      <div class="cd-label">⏳ Countdown</div>
-      <div id="cd-display-area" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:5px">
-        <div style="font-size:12px;color:#8A8A9A;margin-top:4px;text-align:center">No event set</div>
-      </div>
-      <button class="cd-add-btn" onclick="openCDModal()">＋ Add Event</button>
-    </div>
-
-```
-<!-- Tasks Widget -->
-<div class="tasks-widget" onclick="scrollToId('rem-section')">
-  <div class="tasks-count" id="tasks-count">0</div>
-  <div class="tasks-label">Uncompleted<br>Tasks Today</div>
-</div>
-```
-
-  </div>
+  <table style="width:100%;border-collapse:separate;border-spacing:10px 0;table-layout:fixed">
+    <tr>
+      <td style="width:50%;vertical-align:top;padding:0">
+        <div class="countdown-widget" id="countdown-widget">
+          <div class="cd-label">⏳ Countdown</div>
+          <div id="cd-display-area" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="font-size:12px;color:#8A8A9A;margin-top:4px;text-align:center">No event set</div>
+          </div>
+          <button class="cd-add-btn" onclick="openCDModal()">＋ Add Event</button>
+        </div>
+      </td>
+      <td style="width:50%;vertical-align:top;padding:0">
+        <div class="tasks-widget" onclick="scrollToId('rem-section')">
+          <div class="tasks-count" id="tasks-count">0</div>
+          <div class="tasks-label">Uncompleted<br>Tasks Today</div>
+        </div>
+      </td>
+    </tr>
+  </table>
 
   <!-- QUOTE WIDGET — full row -->
 
