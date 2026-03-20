@@ -1,9 +1,9 @@
 <!--
   ================================================================
-  DASHBOARD VERSION: v2.1.1 (Sensei's Release)
+  DASHBOARD VERSION: v2.1.2 (Sensei's Release)
   DATE: 20.03.2026 | BUILD TIMESTAMP: AUTO
   ================================================================
-  CHANGELOG v2.1.1 (Sensei's Release):
+  CHANGELOG v2.1.2 (Sensei's Release):
   - Battery widget hidden on iPhone, replaced with Countdown widget
   - Countdown widget: Add Event → date picker → live years/days/h/m/s
   - Motivational quote widget (full row) with author + year
@@ -25,7 +25,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.1 (Sensei's Release)</title>
+<title>Ghazi Dashboard v2.1.2 (Sensei's Release)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -167,20 +167,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .greeting-line2 span{color:var(–blue)}
 
 /* CHANGELOG MODAL */
-.changelog-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);display:none;flex-direction:column;z-index:350;overflow-y:auto;padding:20px}
+.changelog-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0e;display:none;flex-direction:column;z-index:350;overflow-y:auto;padding:20px}
 .changelog-modal.active{display:flex}
-.changelog-sticky{position:sticky;top:0;background:rgba(15,15,19,0.97);padding:12px 0;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);margin-bottom:18px;border-bottom:1px solid var(–border)}
-.cl-version-block{margin-bottom:16px;background:var(–card2);border-radius:14px;border:1px solid var(–border);overflow:hidden}
+.changelog-sticky{position:sticky;top:0;background:#0a0a0e;padding:12px 0;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);margin-bottom:18px;border-bottom:1px solid #2E2E3E}
+.cl-version-block{margin-bottom:12px;background:#1e1e28;border-radius:14px;border:1px solid #2E2E3E;overflow:visible}
 .cl-version-head{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(–border)}
-.cl-version-badge{background:var(–blue2);color:white;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
-.cl-version-date{font-size:11px;color:var(–muted);font-weight:500}
-.cl-version-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
-.cl-tag-current{background:rgba(52,211,153,0.2);color:var(–green)}
-.cl-tag-fix{background:rgba(248,113,113,0.15);color:var(–red)}
+.cl-version-badge{background:#1A56CC;color:white;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:0.3px;white-space:nowrap;flex-shrink:1;min-width:0}
+.cl-version-date{font-size:11px;color:#8A8A9A;font-weight:500;white-space:nowrap;flex-shrink:0}
+.cl-version-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.cl-tag-current{background:rgba(52,211,153,0.2);color:#34D399}
+.cl-tag-fix{background:rgba(248,113,113,0.15);color:#F87171}
 .cl-version-body{padding:12px 16px}
-.cl-item{font-size:12px;color:var(–muted);line-height:2;display:flex;gap:8px;align-items:flex-start}
-.cl-item::before{content:”•”;color:var(–blue);font-weight:900;flex-shrink:0;margin-top:1px}
+.cl-item{font-size:13px;color:#C8C8D8;line-height:1.6;padding:8px 16px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:10px;align-items:flex-start}
+.cl-item:last-child{border-bottom:none;padding-bottom:14px}
+.cl-item:first-child{padding-top:12px}
+.cl-item::before{content:”›”;color:#4F8EF7;font-weight:900;flex-shrink:0;font-size:15px;margin-top:1px}
 
+.reminder-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:700;padding:24px}
+.reminder-modal-overlay.active{display:flex}
 /* iOS battery detection helper */
 .ios-hidden{display:none!important}
 
@@ -199,10 +203,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .local-event-badge{font-size:9px;background:rgba(52,211,153,0.2);color:var(–green);padding:2px 6px;border-radius:6px;font-weight:700;letter-spacing:0.5px;flex-shrink:0}
 
 /* COLLAPSIBLE CHANGELOG — version head becomes toggle */
-.cl-version-head{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background 0.15s}
+.cl-version-head{padding:12px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;transition:background 0.15s;border-radius:14px;flex-wrap:nowrap;min-height:48px}
+.cl-version-head.active-head{border-radius:14px 14px 0 0}
 .cl-version-head:hover{background:rgba(255,255,255,0.04)}
-.cl-chevron{margin-left:auto;font-size:12px;color:var(–muted);transition:transform 0.2s;flex-shrink:0}
-.cl-version-body{padding:12px 16px;display:none}
+.cl-chevron{margin-left:auto;font-size:13px;color:#8A8A9A;transition:transform 0.2s;flex-shrink:0;padding-left:6px}
+.cl-version-body{display:none;background:#16161f;border-radius:0 0 14px 14px;border:1px solid #2E2E3E;border-top:none;overflow:visible}
 .cl-version-body.open{display:block}
 
 /* ALIGNED SIGN-IN / REFRESH BUTTONS — fixed width so all cards match */
@@ -285,7 +290,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
       <span>🔔 Reminders</span>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="clear-btn" onclick="clearDoneTasks()">Clear Done</button>
-        <button onclick="addReminder()" style="background:none;border:none;color:var(--blue);font-size:26px;font-weight:bold;cursor:pointer;line-height:1;padding:0 4px">+</button>
+        <button onclick="openReminderModal()" style="background:none;border:none;color:var(--blue);font-size:26px;font-weight:bold;cursor:pointer;line-height:1;padding:0 4px">+</button>
       </div>
     </div>
     <div class="day-bar" id="rem-day-bar"></div>
@@ -357,6 +362,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
     <div class="add-cal-btn-row">
       <button class="add-cal-cancel" onclick="closeAddCalModal()">Cancel</button>
       <button class="add-cal-confirm" onclick="confirmAddCalEvent()">✓ Add Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- REMINDER MODAL -->
+
+<div class="reminder-modal-overlay" id="reminder-modal">
+  <div style="background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;padding:24px;width:100%;max-width:360px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px;text-align:center">🔔 Add Task</div>
+    <div style="font-size:11px;color:#8A8A9A;margin-bottom:16px;text-align:center">Adding task for <span id="reminder-date-label"></span></div>
+    <input type="text" id="reminder-input" placeholder="What do you need to do?" onkeydown="if(event.key==='Enter')confirmReminder()"
+      style="width:100%;background:#22222E;border:1px solid #2E2E3E;color:#F0EFE9;padding:13px 14px;border-radius:10px;font-size:15px;outline:none;font-family:'Inter',sans-serif;margin-bottom:16px">
+    <div style="display:flex;gap:10px">
+      <button onclick="closeReminderModal()" style="flex:1;padding:12px;border-radius:10px;background:#22222E;color:#8A8A9A;border:1px solid #2E2E3E;font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;font-size:13px">Cancel</button>
+      <button onclick="confirmReminder()" style="flex:1;padding:12px;border-radius:10px;background:#1A56CC;color:white;border:none;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;font-size:13px">Add Task</button>
     </div>
   </div>
 </div>
@@ -439,18 +459,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 <div class="changelog-modal" id="changelog-modal">
   <div class="changelog-sticky">
     <span style="font-size:16px;font-weight:700">📋 Changelog</span>
-    <button onclick="hideChangelog()" style="background:var(--card2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600">✕ Close</button>
+    <button onclick="hideChangelog()" style="background:#22222E;border:1px solid #2E2E3E;color:#F0EFE9;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:13px">✕ Close</button>
   </div>
 
   <!-- v2.1.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head" onclick="toggleCL('v210')">
-      <div class="cl-version-badge">v2.1.1 (Sensei's Release)</div>
+    <div class="cl-version-head" onclick="toggleCL('v211')">
+      <div class="cl-version-badge">v2.1.2 · Sensei's Release</div>
       <div class="cl-version-date">20 March 2026</div>
       <div class="cl-version-tag cl-tag-current">CURRENT</div>
-    <span class="cl-chevron" id="chev-v210" style="transform:rotate(180deg)">▶</span></div>
-    <div class="cl-version-body open" id="cl-body-v210">
+    <span class="cl-chevron" id="chev-v211" style="transform:rotate(180deg)">▶</span></div>
+    <div class="cl-version-body open" id="cl-body-v211">
       <div class="cl-item">Greeting banner added at top — Welcome to Big Minds Dashboard</div>
       <div class="cl-item">Battery widget replaced with live Countdown widget (works on all platforms)</div>
       <div class="cl-item">Countdown: Add Event → name + date picker → live years / days / hrs / min / sec display</div>
@@ -471,10 +491,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v2.0.1 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
-      <div class="cl-version-badge" style="background:var(--red)">v2.0.1</div>
+    <div class="cl-version-head" onclick="toggleCL('v201')">
+      <div class="cl-version-badge" style="background:#F87171">v2.0.1</div>
       <div class="cl-version-date">20 March 2026</div>
       <div class="cl-version-tag cl-tag-fix">HOTFIX</div>
+      <span class="cl-chevron" id="chev-v201">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v201">
       <div class="cl-item">Fixed: IDX14100 JWT malformed token error in Outlook Inbox</div>
@@ -488,9 +509,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v2.0.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v200')">
       <div class="cl-version-badge" style="background:#555">v2.0.0</div>
       <div class="cl-version-date">19 March 2026</div>
+      <span class="cl-chevron" id="chev-v200">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v200">
       <div class="cl-item">Merged v1.9.2 clean base with all v1.9.0 feature fixes</div>
@@ -512,9 +534,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.9.2 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v192')">
       <div class="cl-version-badge" style="background:#555">v1.9.2</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v192">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v192">
       <div class="cl-item">Stabilization release — clean base with reduced bugs</div>
@@ -529,9 +552,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.9.1 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v191')">
       <div class="cl-version-badge" style="background:#555">v1.9.1</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v191">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v191">
       <div class="cl-item">Fixed session persistence — Microsoft and Google tokens now survive page refresh</div>
@@ -544,9 +568,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.9.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v190')">
       <div class="cl-version-badge" style="background:#555">v1.9.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v190">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v190">
       <div class="cl-item">PKCE OAuth flow for Outlook — first fully stable login version</div>
@@ -562,9 +587,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.8.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v180')">
       <div class="cl-version-badge" style="background:#555">v1.8.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v180">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v180">
       <div class="cl-item">User Guide modal added with detailed explanations of every feature</div>
@@ -580,9 +606,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.7.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v170')">
       <div class="cl-version-badge" style="background:#555">v1.7.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v170">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v170">
       <div class="cl-item">Tasks persistence introduced — tasks saved to localStorage</div>
@@ -596,9 +623,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.6.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v160')">
       <div class="cl-version-badge" style="background:#555">v1.6.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v160">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v160">
       <div class="cl-item">Weather widget added — real-time temperature via Open-Meteo API</div>
@@ -612,9 +640,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.5.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v150')">
       <div class="cl-version-badge" style="background:#555">v1.5.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v150">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v150">
       <div class="cl-item">Google Calendar API integrated — first real event fetching</div>
@@ -627,9 +656,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.4.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v140')">
       <div class="cl-version-badge" style="background:#555">v1.4.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v140">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v140">
       <div class="cl-item">Reminders section added — task list with add and toggle completion</div>
@@ -643,9 +673,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.3.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v130')">
       <div class="cl-version-badge" style="background:#555">v1.3.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v130">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v130">
       <div class="cl-item">First real Microsoft Graph API email fetching implemented</div>
@@ -658,9 +689,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.2.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v120')">
       <div class="cl-version-badge" style="background:#555">v1.2.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v120">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v120">
       <div class="cl-item">First Microsoft OAuth login attempt using MSAL.js library</div>
@@ -674,9 +706,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.1.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v110')">
       <div class="cl-version-badge" style="background:#555">v1.1.0</div>
       <div class="cl-version-date">March 2026</div>
+      <span class="cl-chevron" id="chev-v110">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v110">
       <div class="cl-item">Outlook Inbox section added (mock data only)</div>
@@ -691,10 +724,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
   <!-- v1.0.0 -->
 
   <div class="cl-version-block">
-    <div class="cl-version-head">
+    <div class="cl-version-head" onclick="toggleCL('v100')">
       <div class="cl-version-badge" style="background:#333">v1.0.0</div>
       <div class="cl-version-date">March 2026</div>
       <div class="cl-version-tag" style="background:rgba(139,92,246,0.2);color:#A78BFA">INITIAL RELEASE</div>
+      <span class="cl-chevron" id="chev-v100">▶</span>
     </div>
     <div class="cl-version-body" id="cl-body-v100">
       <div class="cl-item">Initial concept — static HTML dashboard, no APIs, dummy data only</div>
@@ -816,7 +850,7 @@ window.onload = async () => {
 // ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.1 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.1.2 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
 // ================================================================
@@ -1002,7 +1036,24 @@ function renderTasks(){
 }
 function toggleTask(id,checked){ tasks=tasks.map(t=>t.id===id?{...t,done:checked}:t); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); }
 function deleteTask(id){ if(confirm('Delete this task?')){ tasks=tasks.filter(t=>t.id!==id); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); } }
-function addReminder(){ const v=prompt('New task for '+selectedDate+':'); if(v&&v.trim()){ tasks.push({id:Date.now(),title:v.trim(),done:false,dateKey:selectedDate}); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); } }
+function openReminderModal(){
+  document.getElementById('reminder-input').value='';
+  document.getElementById('reminder-date-label').textContent=selectedDate;
+  document.getElementById('reminder-modal').classList.add('active');
+  setTimeout(()=>document.getElementById('reminder-input').focus(),100);
+}
+function closeReminderModal(){
+  document.getElementById('reminder-modal').classList.remove('active');
+}
+function confirmReminder(){
+  const v = document.getElementById('reminder-input').value.trim();
+  if(!v) return;
+  tasks.push({id:Date.now(),title:v,done:false,dateKey:selectedDate});
+  localStorage.setItem('v17_tasks',JSON.stringify(tasks));
+  renderTasks();
+  closeReminderModal();
+}
+function addReminder(){ openReminderModal(); }
 function clearDoneTasks(){ const n=tasks.filter(t=>t.done).length; if(!n){alert('No completed tasks to clear.');return;} if(confirm(`Remove ${n} completed task${n>1?'s':''}?`)){ tasks=tasks.filter(t=>!t.done); localStorage.setItem('v17_tasks',JSON.stringify(tasks)); renderTasks(); } }
 
 // ================================================================
@@ -1015,13 +1066,32 @@ function nukeData(){ if(confirm('This will log you out and clear all your tasks 
 // ================================================================
 function showChangelog(){ document.getElementById('changelog-modal').classList.add('active'); }
 function hideChangelog(){ document.getElementById('changelog-modal').classList.remove('active'); }
+// Accordion: close all others, open clicked (or close if already open)
+const CL_IDS = ['v211','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
 function toggleCL(vid){
-  const body  = document.getElementById('cl-body-'+vid);
-  const chev  = document.getElementById('chev-'+vid);
-  if(!body) return;
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  if(chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
+  const clickedBody = document.getElementById('cl-body-'+vid);
+  const clickedChev = document.getElementById('chev-'+vid);
+  const clickedHead = clickedChev ? clickedChev.closest('.cl-version-head') : null;
+  if(!clickedBody) return;
+  const isOpen = clickedBody.classList.contains('open');
+  // Close ALL first
+  CL_IDS.forEach(id => {
+    const b = document.getElementById('cl-body-'+id);
+    const ch = document.getElementById('chev-'+id);
+    const h = ch ? ch.closest('.cl-version-head') : null;
+    if(b){ b.classList.remove('open'); }
+    if(ch){ ch.style.transform = ''; }
+    if(h){ h.classList.remove('active-head'); }
+  });
+  // If it wasn't open, open it now
+  if(!isOpen){
+    clickedBody.classList.add('open');
+    if(clickedChev) clickedChev.style.transform = 'rotate(180deg)';
+    if(clickedHead) clickedHead.classList.add('active-head');
+    setTimeout(()=>{
+      clickedBody.parentElement.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 50);
+  }
 }
 
 // ================================================================
