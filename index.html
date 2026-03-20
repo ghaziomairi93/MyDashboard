@@ -1,9 +1,9 @@
 <!--
   ================================================================
-  DASHBOARD VERSION: v2.1.0 (Sensei's Release)
+  DASHBOARD VERSION: v2.1.1 (Sensei's Release)
   DATE: 20.03.2026 | BUILD TIMESTAMP: AUTO
   ================================================================
-  CHANGELOG v2.0.0:
+  CHANGELOG v2.1.1 (Sensei's Release):
   - Battery widget hidden on iPhone, replaced with Countdown widget
   - Countdown widget: Add Event → date picker → live years/days/h/m/s
   - Motivational quote widget (full row) with author + year
@@ -25,7 +25,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghazi Dashboard v2.1.0 (Sensei's Release)</title>
+<title>Ghazi Dashboard v2.1.1 (Sensei's Release)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -332,7 +332,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
     <button class="bottom-btn" onclick="showContact()">💬 Support</button>
   </div>
   <button class="btn-nuke" onclick="nukeData()">🗑 Clear My Data and Sessions</button>
-  <div class="version-tag" id="version-tag" onclick="showChangelog()" title="View full changelog">v2.1.0 (Sensei's Release)</div>
+  <div class="version-tag" id="version-tag" onclick="showChangelog()" title="View full changelog">v2.1.0</div>
 </div>
 
 <!-- ADD CALENDAR EVENT MODAL -->
@@ -446,7 +446,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 
   <div class="cl-version-block">
     <div class="cl-version-head" onclick="toggleCL('v210')">
-      <div class="cl-version-badge">v2.1.0 (Sensei's Release)</div>
+      <div class="cl-version-badge">v2.1.1 (Sensei's Release)</div>
       <div class="cl-version-date">20 March 2026</div>
       <div class="cl-version-tag cl-tag-current">CURRENT</div>
     <span class="cl-chevron" id="chev-v210" style="transform:rotate(180deg)">▶</span></div>
@@ -816,7 +816,7 @@ window.onload = async () => {
 // ================================================================
 function stampVersion(){
   const now=new Date(), pad=n=>n.toString().padStart(2,'0');
-  document.getElementById('version-tag').textContent=`v2.1.0 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('version-tag').textContent=`v2.1.1 (Sensei's Release) · ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
 // ================================================================
