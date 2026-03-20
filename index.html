@@ -37,7 +37,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 
 /* TOP ROW */
 .top-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:150px}
-.widget{background:var(–card);border:1px solid var(–border);border-radius:24px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center}
+.widget{background:#1A1A22;border:1px solid #2E2E3E;border-radius:24px;padding:15px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center}
 .weather-widget{cursor:pointer}
 .led-main{font-family:‘Seven Segment’,monospace;color:var(–led-green);font-size:32px;font-weight:bold;text-shadow:0 0 10px rgba(57,255,20,0.4)}
 .led-ms{font-family:‘Seven Segment’,monospace;color:var(–led-green);font-size:14px;opacity:0.8;margin-top:-2px}
@@ -46,7 +46,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 
 /* STATS ROW */
 .row-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat-box{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:15px;text-align:center;cursor:pointer;transition:transform 0.1s}
+.stat-box{background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;padding:15px;text-align:center;cursor:pointer;transition:transform 0.1s}
 .stat-box:active{transform:scale(0.95)}
 .stat-num{font-size:28px;font-weight:700}
 .stat-lbl{font-size:10px;color:var(–muted);text-transform:uppercase;font-weight:600;margin-top:4px}
@@ -55,30 +55,30 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .row3{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
 
 /* COUNTDOWN WIDGET */
-.countdown-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:160px;height:100%}
+.countdown-widget{background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:160px;height:100%}
 .cd-label{font-size:9px;color:var(–muted);text-transform:uppercase;font-weight:700;letter-spacing:1px}
 .cd-event-name{font-size:12px;font-weight:700;color:var(–amber);text-align:center;line-height:1.3;margin-bottom:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;margin-top:2px}
-.cd-unit{background:var(–card2);border-radius:8px;padding:5px 2px;text-align:center}
+.cd-unit{background:#22222E;border-radius:8px;padding:5px 2px;text-align:center}
 .cd-num{font-family:‘Seven Segment’,monospace;font-size:15px;color:var(–led-green);text-shadow:0 0 6px rgba(57,255,20,0.3)}
 .cd-unit-lbl{font-size:7px;color:var(–muted);text-transform:uppercase;font-weight:700;margin-top:1px}
 .cd-add-btn{background:rgba(79,142,247,0.15);color:var(–blue);border:1px solid rgba(79,142,247,0.3);padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif;width:100%;margin-top:4px}
 
 /* TASKS WIDGET */
-.tasks-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:160px;height:100%}
+.tasks-widget{background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:160px;height:100%}
 .tasks-count{font-size:48px;font-weight:700;color:var(–amber);line-height:1}
 .tasks-label{font-size:10px;color:var(–muted);text-transform:uppercase;font-weight:700;letter-spacing:1px;text-align:center;line-height:1.4}
 
 /* QUOTE WIDGET — full row */
-.quote-widget{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:20px 22px;position:relative;cursor:pointer}
+.quote-widget{background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;padding:20px 22px;position:relative;cursor:pointer}
 .quote-icon{font-size:28px;color:var(–purple);opacity:0.6;line-height:1;margin-bottom:8px}
 .quote-text{font-size:15px;font-style:italic;color:var(–text);line-height:1.7;font-weight:400}
 .quote-author{font-size:12px;color:var(–muted);margin-top:10px;font-weight:600}
 .quote-refresh{position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(–muted);padding:4px}
 
 /* CARDS */
-.card{background:var(–card);border:1px solid var(–border);border-radius:20px;overflow:hidden}
-.card-head{padding:12px 18px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px;gap:8px;flex-wrap:wrap}
+.card{background:#1A1A22;border:1px solid #2E2E3E;border-radius:20px;overflow:hidden}
+.card-head{padding:12px 18px;border-bottom:1px solid #2E2E3E;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px;gap:8px;flex-wrap:wrap}
 .card-head-left{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .card-head-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .refresh-btn{background:rgba(79,142,247,0.12);color:var(–blue);border:1px solid rgba(79,142,247,0.25);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif}
@@ -88,9 +88,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 .cal-date-input{background:var(–card2);border:1px solid var(–border);color:var(–text);padding:5px 8px;border-radius:8px;font-size:11px;font-family:‘Inter’,sans-serif;cursor:pointer;outline:none}
 
 /* DAY BAR */
-.day-bar{display:flex;overflow-x:auto;gap:8px;padding:10px 15px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(–border)}
+.day-bar{display:flex;overflow-x:auto;gap:8px;padding:10px 15px;background:rgba(255,255,255,0.02);border-bottom:1px solid #2E2E3E}
 .day-bar::-webkit-scrollbar{display:none}
-.day-pill{padding:8px 14px;border-radius:10px;background:var(–card2);font-size:11px;font-weight:700;white-space:nowrap;color:var(–muted);border:1px solid transparent;cursor:pointer;transition:all 0.15s}
+.day-pill{padding:8px 14px;border-radius:10px;background:#22222E;font-size:11px;font-weight:700;white-space:nowrap;color:#8A8A9A;border:1px solid transparent;cursor:pointer;transition:all 0.15s}
 .day-pill.active{background:var(–blue);color:white}
 
 /* LIST ITEMS */
@@ -155,16 +155,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
 
 /* BOTTOM */
 .bottom-bar{display:flex;gap:8px}
-.bottom-btn{flex:1;background:var(–card);border:1px solid var(–border);color:var(–muted);padding:12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;text-align:center}
+.bottom-btn{flex:1;background:#1A1A22;border:1px solid #2E2E3E;color:#8A8A9A;padding:12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;text-align:center}
 .btn-nuke{background:var(–nuke-bg);color:var(–nuke-text);border:none;padding:15px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-family:‘Inter’,sans-serif;font-size:13px}
 .version-tag{text-align:center;font-size:13px;color:var(–muted);padding:10px 8px;opacity:0.6;cursor:pointer;font-weight:600;letter-spacing:0.3px;transition:opacity 0.2s}
 .version-tag:hover{opacity:1}
 
 /* GREETING BANNER */
 .greeting-banner{background:linear-gradient(135deg,rgba(79,142,247,0.12) 0%,rgba(167,139,250,0.10) 100%);border:1px solid rgba(79,142,247,0.2);border-radius:20px;padding:16px 20px;text-align:center}
-.greeting-line1{font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:4px}
-.greeting-line2{font-size:20px;font-weight:700;color:var(–text);letter-spacing:0.2px}
-.greeting-line2 span{color:var(–blue)}
+.greeting-line1{font-size:11px;color:#8A8A9A;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:4px}
+.greeting-line2{font-size:20px;font-weight:700;color:#F0EFE9;letter-spacing:0.2px}
+.greeting-line2 span{color:#4F8EF7}
 
 /* CHANGELOG MODAL */
 .changelog-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0e;display:none;flex-direction:column;z-index:350;overflow-y:auto;padding:20px}
@@ -486,6 +486,71 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);paddi
       <div class="cl-item">Email tap: iOS opens native Mail app (message://), desktop opens webLink</div>
       <div class="cl-item">Version stamp now bigger, clickable, opens this changelog</div>
       <div class="cl-item">30 curated motivational quotes with author and year built into the app</div>
+    </div>
+  </div>
+
+  <!-- v2.1.2 -->
+
+  <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v212')">
+      <div class="cl-version-badge" style="background:#555">v2.1.2</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <span class="cl-chevron" id="chev-v212">▶</span>
+    </div>
+    <div class="cl-version-body" id="cl-body-v212">
+      <div class="cl-item">Changelog accordion rebuilt — max-height clipping removed, content now fully visible</div>
+      <div class="cl-item">Expanding a version pushes all items below it down naturally</div>
+      <div class="cl-item">Tapping a version collapses any previously open version (true accordion)</div>
+      <div class="cl-item">All 15 version heads wired with onclick and chevron ▶</div>
+      <div class="cl-item">Changelog modal background changed to solid #0a0a0e — no more transparent bleed</div>
+      <div class="cl-item">All changelog CSS hardcoded — immune to en-dash copy-paste corruption</div>
+      <div class="cl-item">Add Task reminder button replaced with in-dashboard modal — browser prompt() was blocked on iOS Safari</div>
+      <div class="cl-item">Reminder modal shows selected date, text field with Enter key support</div>
+      <div class="cl-item">Version badge date no longer wraps — white-space:nowrap on all header elements</div>
+    </div>
+  </div>
+
+  <!-- v2.1.1 -->
+
+  <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v211')">
+      <div class="cl-version-badge" style="background:#555">v2.1.1</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <span class="cl-chevron" id="chev-v211">▶</span>
+    </div>
+    <div class="cl-version-body" id="cl-body-v211">
+      <div class="cl-item">Fixed en-dash CSS corruption — all var(--) references hardcoded to hex values</div>
+      <div class="cl-item">Fixed IDX14100 JWT malformed token — getSafeToken validator made smarter</div>
+      <div class="cl-item">Changelog modal fully opaque background — bleed-through fixed</div>
+      <div class="cl-item">Changelog item font increased to 13px with better contrast</div>
+      <div class="cl-item">Version stamp bumped and all 4 title references updated consistently</div>
+    </div>
+  </div>
+
+  <!-- v2.1.0 -->
+
+  <div class="cl-version-block">
+    <div class="cl-version-head" onclick="toggleCL('v210b')">
+      <div class="cl-version-badge" style="background:#555">v2.1.0</div>
+      <div class="cl-version-date">20 March 2026</div>
+      <span class="cl-chevron" id="chev-v210b">▶</span>
+    </div>
+    <div class="cl-version-body" id="cl-body-v210b">
+      <div class="cl-item">Greeting banner added — Welcome to Big Minds Dashboard</div>
+      <div class="cl-item">Battery widget replaced with live Countdown widget on all platforms</div>
+      <div class="cl-item">Countdown: name + date + time picker → live years / days / hrs / min / sec</div>
+      <div class="cl-item">Motivational Wisdom Quote widget — full row, author and year, tap to refresh</div>
+      <div class="cl-item">Layout reordered: Reminders → Google Calendar → Outlook Inbox</div>
+      <div class="cl-item">Google Calendar header split into two rows — Sign In aligned with Outlook</div>
+      <div class="cl-item">Google Calendar date picker in header to jump to any date</div>
+      <div class="cl-item">Google Calendar + Add Event opens internal modal — title, date, time, 30 min default</div>
+      <div class="cl-item">Local events saved to localStorage with LOCAL badge, visible without Google sign-in</div>
+      <div class="cl-item">Delete button on every calendar event and every reminder task (red, soft edges)</div>
+      <div class="cl-item">Reminder task font increased to 16px</div>
+      <div class="cl-item">Email tap — iOS opens native Mail app, desktop opens specific email via webLink</div>
+      <div class="cl-item">Version stamp clickable — opens full changelog modal</div>
+      <div class="cl-item">Full changelog modal with all versions from v1.0.0</div>
+      <div class="cl-item">30 curated motivational quotes with author and year built in</div>
     </div>
   </div>
 
@@ -1078,7 +1143,7 @@ function nukeData(){ if(confirm('This will log you out and clear all your tasks 
 function showChangelog(){ document.getElementById('changelog-modal').classList.add('active'); }
 function hideChangelog(){ document.getElementById('changelog-modal').classList.remove('active'); }
 // Accordion: close all others, open clicked (or close if already open)
-const CL_IDS = ['v211','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
+const CL_IDS = ['v213','v212','v211','v210b','v201','v200','v192','v191','v190','v180','v170','v160','v150','v140','v130','v120','v110','v100'];
 function toggleCL(vid){
   const clickedBody = document.getElementById('cl-body-'+vid);
   const clickedChev = document.getElementById('chev-'+vid);
