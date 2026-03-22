@@ -1,83 +1,86 @@
 /* 
   ================================================================
-  ‼️ STEP 1: CONFIGURATION & CONSTANTS
+  ‼️ STEP 1: STATE MANAGEMENT
   ================================================================
 */
-const G_CLIENT_ID = 'YOUR_GOOGLE_ID';
-const MS_CLIENT_ID = 'YOUR_MS_ID';
-const QUOTES = [
-  {q:"The only way to do great work is to love what you do.",a:"Steve Jobs",y:"2005"},
-  // ... include all 30 quotes from source
-];
-
-let tasks = JSON.parse(localStorage.getItem('v17_tasks')) || [];
-let googleToken = null;
-let cdTimer = null;
-
-/* 
-  ================================================================
-  ‼️ STEP 2: CORE INITIALIZATION (window.onload)
-  ================================================================
-*/
-window.onload = async () => {
-    stampVersion();
-    initLocation();
-    renderDayBars();
-    renderTasks();
-    initCountdown();
-    initQuote();
-    requestAnimationFrame(updateClock);
-    
-    // Handle MS OAuth Redirects
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('code')) await exchangeMSCode(params.get('code'));
+let state = {
+    tasks: JSON.parse(localStorage.getItem('tasks')) || [],
+    event: JSON.parse(localStorage.getItem('targetEvent')) || null,
+    weather: { temp: 0, city: 'Ingolstadt' }
 };
 
 /* 
   ================================================================
-  ‼️ STEP 3: SMART COUNTDOWN LOGIC
+  ‼️ STEP 2: CORE TICKER (CLOCK & COUNTDOWN)
   ================================================================
 */
-function renderCountdown(cdData) {
-    if(cdTimer) clearInterval(cdTimer);
-    const area = document.getElementById('cd-display-area');
-    
-    function update() {
-        const diff = cdData.target - Date.now();
-        if(diff <= 0) {
-            area.innerHTML = `<div>🎉 ${cdData.name} Arrived!</div>`;
-            clearInterval(cdTimer); return;
-        }
+function startTick() {
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('live-clock').innerText = now.toLocaleTimeString();
         
-        const totalSecs = Math.floor(diff/1000);
-        // ‼️ Logic: If < 24h, show HH:MM:SS ticker (1s interval)
-        if(totalSecs <= 86399) {
-            const hh = Math.floor(totalSecs / 3600);
-            const mm = Math.floor((totalSecs % 3600) / 60);
-            const ss = totalSecs % 60;
-            area.innerHTML = `<div class="led-main">${hh}:${mm}:${ss}</div>`;
-            resetTimer(1000);
-        } else {
-            // ‼️ Logic: If > 24h, show Days/Hours only (60s interval)
-            const days = Math.floor(totalSecs / 86400);
-            area.innerHTML = `<div>${days} Days Remaining</div>`;
-            resetTimer(60000);
+        if (state.event) {
+            updateCountdown(state.event);
         }
+    }, 1000);
+}
+
+function updateCountdown(targetDate) {
+    const diff = new Date(targetDate) - new Date();
+    const display = document.getElementById('cd-timer');
+    
+    if (diff <= 0) {
+        display.innerText = "EVENT STARTED";
+        return;
     }
-    update();
+
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    
+    // ‼️ Logic: If more than 24h, show days, else show HMS
+    display.innerText = h > 24 ? `${Math.floor(h/24)}d ${h%24}h` : `${h}:${m}:${s}`;
 }
 
 /* 
   ================================================================
-  ‼️ STEP 4: AUTH & API HANDLING (PKCE & GSI)
+  ‼️ STEP 3: WEATHER LOGIC (Open-Meteo)
   ================================================================
 */
-function getSafeToken(key) {
-    const t = localStorage.getItem(key);
-    if(!t || t.length < 10) return null;
-    return t; // Basic validation check logic
+async function updateWeather() {
+    try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=48.76&longitude=11.42&current_weather=true`);
+        const data = await res.json();
+        document.getElementById('temp-display').innerText = `${data.current_weather.temperature}°C`;
+        document.getElementById('weather-desc').innerText = "Clear Skies";
+    } catch (e) {
+        console.error("Weather failed");
+    }
 }
 
-async function startMSLogin() {
-    // ‼️ Implementation of PKCE flow without external libraries
+/* 
+  ================================================================
+  ‼️ STEP 4: UTILS & DATA DESTRUCTION
+  ================================================================
+*/
+function nukeStorage() {
+    if(confirm("Wipe all local data?")) {
+        localStorage.clear();
+        location.reload();
+    }
 }
+
+function addTask() {
+    const input = document.getElementById('task-in');
+    if(!input.value) return;
+    state.tasks.push(input.value);
+    localStorage.setItem('tasks', JSON.stringify(state.tasks));
+    input.value = '';
+    renderTasks();
+}
+
+window.onload = () => {
+    startTick();
+    updateWeather();
+    // ‼️ Initial render logic
+};
