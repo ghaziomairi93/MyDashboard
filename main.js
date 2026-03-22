@@ -7,79 +7,62 @@
 // Date: 22.03.2026
 // Time: 19:15:30
 
-// ‼️ STEP 1: UI Utility & Security Helpers
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+// ‼️ STEP 1: Precision LED Clock & Milliseconds
+function updateClock() {
+    const now = new Date();
+    // Use IDs for precision, Fallback to Classes if IDs are missing
+    const clockMain = document.getElementById("clock-main") || document.querySelector(".clock-main");
+    const clockMs = document.getElementById("clock-ms") || document.querySelector(".clock-ms");
+    const dateLabel = document.getElementById("clock-date") || document.querySelector(".clock-date");
+
+    if (clockMain) {
+        clockMain.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+    }
+    if (clockMs) {
+        clockMs.textContent = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
+    }
+    if (dateLabel) {
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        dateLabel.textContent = now.toLocaleDateString('en-GB', options).toUpperCase() + " - GMT+1";
+    }
+}
+setInterval(updateClock, 50);
+
+// ‼️ STEP 2: Horizontal Day Bar Generator (v2.1.8 Layout)
+function generateDayBar(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = ''; // Clear for fresh render
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const now = new Date();
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(now.getDate() + i);
+        
+        const dayBtn = document.createElement('button');
+        dayBtn.className = i === 0 ? 'day-btn active' : 'day-btn';
+        
+        // Structure: "Fri 20"
+        dayBtn.textContent = `${days[d.getDay()]} ${d.getDate()}`;
+        
+        dayBtn.onclick = () => {
+            container.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+            dayBtn.classList.add('active');
+            console.log(`Switched to date: ${d.toDateString()}`);
+        };
+        container.appendChild(dayBtn);
+    }
 }
 
+// ‼️ STEP 3: Initializing Widgets
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Dashboard v1.3: System Online");
-
-  // ‼️ STEP 2: The LED Digital Clock Logic (Option A)
-  function updateClock() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
+    updateClock();
+    // Assuming your HTML has these IDs for the scrolling bars
+    generateDayBar("reminders-days"); 
+    generateDayBar("calendar-days");
     
-    const timeString = `${h}:${m}:${s}`;
-    
-    // Safely updating elements from your index.html
-    const clockMain = document.getElementById("clock-main");
-    const clockMs = document.getElementById("clock-ms");
-    
-    if (clockMain) clockMain.textContent = timeString;
-    if (clockMs) clockMs.textContent = ms;
-
-    // Update Date Label below clock
-    const dateLabel = document.getElementById("clock-date");
-    if (dateLabel) {
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
-      dateLabel.textContent = now.toLocaleDateString('en-GB', options).toUpperCase() + " - GMT+1";
-    }
-  }
-  setInterval(updateClock, 50);
-
-  // ‼️ STEP 3: Weather Integration (Safe Fetching)
-  async function updateWeather(city = "Ingolstadt") {
-    try {
-      // Logic for fetching weather would go here. Using safe fallback for now.
-      const tempElement = document.querySelector(".temp-big");
-      const cityElement = document.querySelector(".weather-city");
-      
-      if (tempElement) tempElement.textContent = "8°";
-      if (cityElement) cityElement.textContent = city.toUpperCase();
-    } catch (error) {
-      console.error("Weather failed:", error);
-    }
-  }
-
-  // ‼️ STEP 4: Task Counter & Management
-  function refreshTaskStats() {
-    // Simulated count from your "Testing tasks" screenshot
-    const taskCount = 1; 
-    const taskDisplay = document.querySelector(".task-count");
-    if (taskDisplay) {
-      taskDisplay.textContent = taskCount;
-    }
-  }
-
-  // ‼️ STEP 5: Modal & Changelog Handling
-  // Logic to handle opening/closing the version history as seen in your screenshots
-  const closeBtn = document.querySelector(".close-modal");
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      document.querySelector(".changelog-modal").style.display = "none";
-    });
-  }
-
-  // Initialize features
-  updateWeather();
-  refreshTaskStats();
+    console.log("Sensei v2.2.0 Logic: ACTIVE");
 });
+
