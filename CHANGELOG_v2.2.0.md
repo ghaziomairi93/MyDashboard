@@ -1,4 +1,5 @@
-# Changelog v2.2.0
+
+## Changelog v2.2.0
 
 ### Added
 - ‼️ Step-by-step markers inside code blocks.
