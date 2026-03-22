@@ -4,45 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Big Minds Dashboard - Sensei v2.2.0</title>
-    <!-- ‼️ STEP 1: Linking Google Fonts & Identity Services -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Google Identity Services for Login -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="dashboard-wrapper">
-        <!-- ‼️ STEP 2: Main Header -->
         <header class="main-header">
             <p class="welcome-text">WELCOME TO</p>
             <h1 class="brand-title">Big Minds Dashboard</h1>
         </header>
 
-        <!-- ‼️ STEP 3: Top Stats Grid -->
         <div class="dashboard-grid">
-            <!-- Weather -->
             <div class="widget weather-widget">
                 <p class="label">CURRENT</p>
-                <div class="temp-big">9°</div>
+                <div class="temp-big">8°</div>
                 <div class="weather-city">INGOLSTADT</div>
             </div>
 
-            <!-- Precision LED Clock -->
             <div class="widget clock-widget">
                 <div class="clock-display">
-                    <span id="clock-main">22:00:04</span>
-                    <span id="clock-ms" class="ms-glow">31</span>
+                    <span id="clock-main">00:00:00</span>
+                    <span id="clock-ms" class="ms-glow">00</span>
                 </div>
                 <div id="clock-date" class="date-display">MAR 22 - GMT+1</div>
             </div>
 
-            <!-- Mail -->
             <div class="widget mail-widget">
                 <div class="stat-value">—</div>
                 <p class="label">UNREAD MAIL</p>
             </div>
 
-            <!-- Events -->
             <div class="widget events-widget">
                 <div class="stat-value">1</div>
                 <p class="label">EVENTS TODAY</p>
@@ -51,107 +45,102 @@
             <!-- Countdown: Bannounti -->
             <div class="widget countdown-widget">
                 <p class="label">⏳ COUNTDOWN</p>
-                <div class="event-name">Bannounti 🇩🇿❤️</div>
+                <div id="event-title-display" class="event-name">Bannounti 🇩🇿❤️</div>
                 <div class="cd-grid">
-                    <div class="cd-item"><span class="cd-num">112</span><span class="cd-lbl">DAYS</span></div>
-                    <div class="cd-item"><span class="cd-num">02</span><span class="cd-lbl">HRS</span></div>
-                    <div class="cd-item"><span class="cd-num">50</span><span class="cd-lbl">MIN</span></div>
+                    <div class="cd-item"><span id="cd-days" class="cd-num">000</span><span class="cd-lbl">DAYS</span></div>
+                    <div class="cd-item"><span id="cd-hrs" class="cd-num">00</span><span class="cd-lbl">HRS</span></div>
+                    <div class="cd-item"><span id="cd-min" class="cd-num">00</span><span class="cd-lbl">MIN</span></div>
                 </div>
-                <button class="action-btn">🔗 Change Event</button>
+                <button class="action-btn" onclick="openModal('countdown-modal')">🔗 Change Event</button>
             </div>
 
-            <!-- Tasks Circle -->
             <div class="widget tasks-widget">
                 <div class="task-circle">
-                    <span class="task-count">0</span>
+                    <span class="task-count">1</span>
                 </div>
                 <p class="label">UNCOMPLETED TASKS TODAY</p>
             </div>
         </div>
 
-        <!-- ‼️ STEP 4: Inspirational Quote Widget -->
         <div class="widget wide-widget quote-section">
-            <div class="quote-header">
-                <span class="quote-icon">"</span>
-                <button class="refresh-quote">↻</button>
-            </div>
             <p id="quote-text">In the middle of difficulty lies opportunity.</p>
-            <p id="quote-author">— Albert Einstein - ~1940s</p>
+            <p id="quote-author">— Albert Einstein</p>
         </div>
 
-        <!-- ‼️ STEP 5: Reminders Section -->
+        <!-- Reminders -->
         <div class="widget wide-widget">
             <div class="widget-header">
                 <span>🔔 Reminders</span>
                 <div class="header-actions">
                     <button class="text-link red">Clear Done</button>
-                    <button class="plus-btn">+</button>
+                    <button class="plus-btn" onclick="openModal('event-modal')">+</button>
                 </div>
             </div>
-            <div class="date-picker-row">
-                <div class="date-display-box">22. Mar 2026</div>
-                <div class="time-display-box">--:--</div>
-            </div>
             <div id="reminders-days" class="day-bar"></div>
-            <div class="status-msg">
-                <span class="check-icon">✅</span> All clear for this day!
-            </div>
+            <div class="status-msg">✅ All clear for this day!</div>
         </div>
 
-        <!-- ‼️ STEP 6: Google Calendar Section -->
+        <!-- Google Calendar -->
         <div class="widget wide-widget">
             <div class="widget-header">
                 <div class="brand-group">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" width="18" alt="GCal">
                     <span>Google Calendar</span>
                 </div>
-                <button class="action-btn-sm">↻ Refresh</button>
-            </div>
-            <div class="calendar-controls">
-                <div class="date-display-box full">22. Mar 2026</div>
-                <button class="add-event-btn">+ Add Event</button>
+                <button class="action-btn-sm" onclick="handleGoogleLogin()">↻ Refresh</button>
             </div>
             <div id="calendar-days" class="day-bar"></div>
-            
-            <div class="event-list" id="gcal-list">
-                <!-- Logic will inject events here -->
-                <div class="event-item">
-                    <div class="event-info">
-                        <strong>Ggg</strong> <span class="badge local">LOCAL</span>
-                        <p class="event-time">22:00</p>
-                    </div>
-                    <button class="delete-btn">🗑️</button>
-                </div>
-            </div>
         </div>
 
-        <!-- ‼️ STEP 7: Outlook Inbox -->
+        <!-- Outlook Inbox -->
         <div class="widget wide-widget">
             <div class="widget-header">
                 <div class="brand-group">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" width="18" alt="Outlook">
                     <span>Outlook Inbox</span>
                 </div>
-                <button class="action-btn-sm primary">Sign In</button>
+                <button class="action-btn-sm primary" onclick="handleOutlookLogin()">Sign In</button>
             </div>
-            <div class="empty-state">
-                <p>Session expired. Tap Sign In to reconnect.</p>
-            </div>
+            <p class="empty-state">Session expired. Tap Sign In to reconnect.</p>
         </div>
 
-        <!-- ‼️ STEP 8: Footer & Nuke Button -->
         <div class="footer-actions">
             <button class="footer-btn">📖 User Guide</button>
-            <button class="footer-btn">💬 Support</button>
+            <button class="footer-btn" onclick="openModal('support-modal')">💬 Support</button>
         </div>
 
-        <button class="nuke-btn">
-            <span class="nuke-icon">🗑️</span> Clear My Data and Sessions
-        </button>
+        <button class="nuke-btn" onclick="clearAllData()">🗑️ Clear My Data and Sessions</button>
 
         <footer class="version-info">
-            v2.1.9 (Sensei's Release) - 2026.03.20 23:51:26
+            DASHBOARD VERSION: v1.3 | Date: 22.03.2026
         </footer>
+    </div>
+
+    <!-- ‼️ MODAL: Change Countdown Event -->
+    <div id="countdown-modal" class="modal">
+        <div class="modal-content">
+            <h3>Change Countdown</h3>
+            <input type="text" id="new-event-title" placeholder="Event Title (e.g. Vacation 🏖️)">
+            <input type="datetime-local" id="new-event-date">
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('countdown-modal')">Cancel</button>
+                <button class="btn-save" onclick="saveCountdown()">Save Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ‼️ MODAL: Support Form -->
+    <div id="support-modal" class="modal">
+        <div class="modal-content">
+            <h3>Contact Support</h3>
+            <input type="text" placeholder="Your Name">
+            <input type="email" placeholder="Email Address">
+            <textarea placeholder="How can we help?"></textarea>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('support-modal')">Close</button>
+                <button class="btn-save" onclick="submitSupport()">Send Message</button>
+            </div>
+        </div>
     </div>
 
     <script src="main.js"></script>
