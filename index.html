@@ -1,581 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MyDashboard (XSS‑safe)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    :root{
-      --bg:#0F0F13;
-      --card:#1A1A22;
-      --card2:#22222E;
-      --border:#2E2E3E;
-      --text:#F0EFE9;
-      --muted:#8A8A9A;
-      --blue:#4F8EF7;
-      --blue2:#1A56CC;
-      --green:#34D399;
-      --amber:#FBBF24;
-      --red:#F87171;
-      --purple:#A78BFA;
-      --led-green:#39FF14;
-      --nuke-bg:#7f1d1d;
-      --nuke-text:#ffffff;
-    }
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-      -webkit-tap-highlight-color:transparent;
-    }
-    body{
-      font-family:'Inter',sans-serif;
-      background:#0F0F13;
-      color:#F0EFE9;
-      padding:15px;
-      padding-bottom:100px;
-      scroll-behavior:smooth;
-    }
-    .dashboard-grid{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    .top-row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    .widget{
-      background:#1A1A22;
-      border:1px solid #2E2E3E;
-      border-radius:20px;
-      padding:15px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      overflow:hidden;
-      min-height:140px;
-      width:100%;
-    }
-    .weather-widget{
-      cursor:pointer;
-    }
-    .led-main{
-      font-family:'Seven Segment',monospace;
-      color:#39FF14;
-      font-size:32px;
-      font-weight:bold;
-      text-shadow:0 0 10px rgba(57,255,20,0.4);
-    }
-    .led-ms{
-      font-family:'Seven Segment',monospace;
-      color:#39FF14;
-      font-size:14px;
-      opacity:0.8;
-      margin-top:-2px;
-    }
-    .ctx-label{
-      font-size:10px;
-      color:#8A8A9A;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      margin-top:8px;
-      font-weight:700;
-    }
-    .temp-big{
-      font-size:36px;
-      font-weight:700;
-      margin:2px 0;
-    }
-    .row-split{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    .stat-box{
-      background:#1A1A22;
-      border:1px solid #2E2E3E;
-      border-radius:20px;
-      padding:15px;
-      text-align:center;
-      cursor:pointer;
-      transition:transform 0.1s;
-      overflow:hidden;
-      min-height:100px;
-    }
-    .stat-box:active{
-      transform:scale(0.95);
-    }
-    .stat-num{
-      font-size:28px;
-      font-weight:700;
-    }
-    .stat-lbl{
-      font-size:10px;
-      color:#8A8A9A;
-      text-transform:uppercase;
-      font-weight:600;
-      margin-top:4px;
-    }
-    .row3{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    .countdown-widget{
-      background:#1A1A22;
-      border:1px solid #2E2E3E;
-      border-radius:20px;
-      padding:15px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:5px;
-      min-height:140px;
-      width:100%;
-    }
-    .cd-label{
-      font-size:9px;
-      color:#8A8A9A;
-      text-transform:uppercase;
-      font-weight:700;
-      letter-spacing:1px;
-    }
-    .cd-event-name{
-      font-size:12px;
-      font-weight:700;
-      color:#FBBF24;
-      text-align:center;
-      line-height:1.3;
-      margin-bottom:2px;
-      max-width:100%;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-    .cd-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:4px;
-      width:100%;
-      margin-top:2px;
-    }
-    .cd-unit{
-      background:#22222E;
-      border-radius:8px;
-      padding:5px 2px;
-      text-align:center;
-    }
-    .cd-num{
-      font-family:'Seven Segment',monospace;
-      font-size:15px;
-      color:#39FF14;
-      text-shadow:0 0 6px rgba(57,255,20,0.3);
-    }
-    .cd-unit-lbl{
-      font-size:7px;
-      color:#8A8A9A;
-      text-transform:uppercase;
-      font-weight:700;
-      margin-top:1px;
-    }
-    .cd-add-btn{
-      background:rgba(79,142,247,0.15);
-      color:#4F8EF7;
-      border:1px solid rgba(79,142,247,0.3);
-      padding:8px 14px;
-      border-radius:10px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-      font-family:'Inter',sans-serif;
-      width:100%;
-      margin-top:4px;
-    }
-    .tasks-widget{
-      background:#1A1A22;
-      border:1px solid #2E2E3E;
-      border-radius:20px;
-      padding:15px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      cursor:pointer;
-      min-height:140px;
-      width:100%;
-    }
-    .tasks-count{
-      font-size:48px;
-      font-weight:700;
-      color:#FBBF24;
-      line-height:1;
-    }
-    .tasks-label{
-      font-size:10px;
-      color:#8A8A9A;
-      text-transform:uppercase;
-      font-weight:700;
-      letter-spacing:1px;
-      text-align:center;
-      line-height:1.4;
-    }
-    .quote-widget{
-      background:#1A1A22;
-      border:1px solid #2E2E3E;
-      border-radius:20px;
-      padding:20px 22px;
-      position:relative;
-      cursor:pointer;
-      overflow:hidden;
-    }
-    .quote-text{
-      font-size:15px;
-      font-style:italic;
-      color:#F0EFE9;
-      line-height:1.7;
-      font-weight:400;
-    }
-    .quote-author{
-      font-size:12px;
-      color:#8A8A9A;
-      margin-top:10px;
-      font-weight:600;
-    }
-    .quote-refresh{
-      background:none;
-      border:none;
-      font-size:18px;
-      cursor:pointer;
-      color:#8A8A9A;
-      padding:4px;
-    }
-    .card{
-      background:#1A1A22;
-      border:1px solid #2E2E3E;
-      border-radius:20px;
-      overflow:hidden;
-    }
-    .card-head{
-      padding:12px 18px;
-      border-bottom:1px solid #2E2E3E;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-weight:600;
-      font-size:13px;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    .card-head-left{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-shrink:0;
-    }
-    .card-head-right{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      flex-shrink:0;
-    }
-    .refresh-btn{
-      background:rgba(79,142,247,0.12);
-      color:#4F8EF7;
-      border:1px solid rgba(79,142,247,0.25);
-      padding:5px 12px;
-      border-radius:8px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-      font-family:'Inter',sans-serif;
-    }
-    .sign-btn{
-      background:#1A56CC;
-      color:white;
-      border:none;
-      padding:6px 14px;
-      border-radius:8px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-      font-family:'Inter',sans-serif;
-    }
-    .add-event-btn{
-      background:rgba(52,211,153,0.12);
-      color:#34D399;
-      border:1px solid rgba(52,211,153,0.25);
-      padding:5px 10px;
-      border-radius:8px;
-      font-size:11px;
-      font-weight:700;
-      cursor:pointer;
-      font-family:'Inter',sans-serif;
-    }
-    .clear-btn{
-      background:rgba(248,113,113,0.12);
-      color:#F87171;
-      border:1px solid rgba(248,113,113,0.25);
-      padding:5px 10px;
-      border-radius:8px;
-      font-size:11px;
-      font-weight:600;
-      cursor:pointer;
-      font-family:'Inter',sans-serif;
-    }
-    .cal-date-input{
-      background:#22222E;
-      border:1px solid #2E2E3E;
-      color:#F0EFE9;
-      padding:5px 8px;
-      border-radius:8px;
-      font-size:11px;
-      font-family:'Inter',sans-serif;
-      cursor:pointer;
-      outline:none;
-    }
-    .day-bar{
-      display:flex;
-      overflow-x:auto;
-      gap:8px;
-      padding:10px 15px;
-      background:rgba(255,255,255,0.02);
-      border-bottom:1px solid #2E2E3E;
-    }
-    .day-bar::-webkit-scrollbar{
-      display:none;
-    }
-    .day-pill{
-      padding:8px 14px;
-      border-radius:10px;
-      background:#22222E;
-      font-size:11px;
-      font-weight:700;
-      white-space:nowrap;
-      color:#8A8A9A;
-      border:1px solid transparent;
-      cursor:pointer;
-      transition:all 0.15s;
-    }
-    .day-pill.active{
-      background:#4F8EF7;
-      color:white;
-    }
-    .list-item{
-      padding:12px 18px;
-      border-bottom:1px solid #2E2E3E;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:14px;
-    }
-    .list-item:last-child{
-      border-bottom:none;
-    }
-    .task-item{
-      padding:13px 18px;
-      border-bottom:1px solid #2E2E3E;
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .task-item:last-child{
-      border-bottom:none;
-    }
-    .task-item.done-item{
-      opacity:0.55;
-    }
-    .task-cb{
-      width:18px;
-      height:18px;
-      accent-color:#34D399;
-      cursor:pointer;
-      flex-shrink:0;
-    }
-    .task-title{
-      font-size:16px;
-      color:#F0EFE9;
-      flex:1;
-      font-weight:500;
-    }
-    .task-title.struck{
-      text-decoration:line-through;
-      color:#8A8A9A;
-    }
-    .del-btn{
-      background:#F87171;
-      color:white;
-      border:none;
-      width:28px;
-      height:28px;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-shrink:0;
-      font-family:'Inter',sans-serif;
-      line-height:1;
-    }
-    .mail-item{
-      padding:12px 18px;
-      border-bottom:1px solid #2E2E3E;
-      cursor:pointer;
-      display:block;
-    }
-    .mail-item:last-child{
-      border-bottom:none;
-    }
-    .mail-top{
-      display:flex;
-      justify-content:space-between;
-      margin-bottom:4px;
-    }
-    .mail-sender{
-      font-size:13px;
-      font-weight:700;
-      color:#F0EFE9;
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    .unread-dot{
-      width:6px;
-      height:6px;
-      border-radius:50%;
-      background:#4F8EF7;
-      flex-shrink:0;
-    }
-    .mail-time{
-      font-size:11px;
-      color:#8A8A9A;
-    }
-    .mail-subject{
-      font-size:12px;
-      color:#F0EFE9;
-      font-weight:500;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .mail-preview{
-      font-size:11px;
-      color:#8A8A9A;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      margin-top:2px;
-    }
-    .empty{
-      padding:28px;
-      text-align:center;
-      color:#8A8A9A;
-      font-size:13px;
-    }
-    .modal-overlay{
-      position:fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      background:rgba(0,0,0,0.96);
-      display:none;
-      flex-direction:column;
-      padding:24px;
-      z-index:200;
-      overflow-y:auto;
-    }
-    .modal-overlay.active{
-      display:flex;
-    }
-    .search-input{
-      width:100%;
-      background:#22222E;
-      border:1px solid #2E2E3E;
-      color:#F0EFE9;
-      padding:14px;
-      border-radius:12px;
-      font-size:16px;
-      outline:none;
-      font-family:'Inter',sans-serif;
-    }
-    .guide-modal{
-      position:fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      background:rgba(0,0,0,0.97);
-      display:none;
-      flex-direction:column;
-      z-index:300;
-      overflow-y:auto;
-      padding:20px;
-    }
-    .guide-modal.active{
-      display:flex;
-    }
-    .guide-sticky{
-      position:sticky;
-      top:0;
-      background:rgba(15,15,19,0.95);
-      padding:12px 0;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      backdrop-filter:blur(10px);
-      margin-bottom:16px;
-    }
-    .guide-block{
-      margin-bottom:14px;
-      padding:16px;
-      background:#22222E;
-      border-radius:14px;
-      border:1px solid #2E2E3E;
-    }
-    .guide-block h3{
-      font-size:13px;
-      color:#F0EFE9;
-      margin-bottom:8px;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      flex-wrap:wrap;
-    }
-    .guide-block li{
-      font-size:12px;
-      color:#8A8A9A;
-      line-height:1.8;
-    }
-    .guide-block ul{
-      padding-left:16px;
-    }
-    .guide-tag{
-      font-size:10px;
-      padding:2px 7px;
-      border-radius:20px;
-      font-weight:700;
-    }
-    .tag-new{
-      background:rgba(52,211,153,0.2);
-      color:#34D399;
-    }
-    .tag-tip{
-      background:rgba(251,191,36,0.2);
-      color:#FBBF24;
-      
-  <!-- ... all your widgets, CSS, etc. ... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Big Minds Dashboard v1.3</title>
+    <link rel="stylesheet" href="style.css"> <!-- Ensure your CSS file is named style.css -->
+</head>
+<body>
 
+    <div class="dashboard-wrapper">
+        <header class="main-header">
+            <p class="welcome-text">WELCOME TO</p>
+            <h1 class="brand-title">Big Minds Dashboard</h1>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- ‼️ STEP 1: Weather Widget (Matches Screenshot) -->
+            <div class="widget weather-widget">
+                <p class="label">CURRENT</p>
+                <div class="temp-big">8°</div>
+                <div class="weather-city">INGOLSTADT</div>
+            </div>
+
+            <!-- ‼️ STEP 2: Precision LED Clock -->
+            <div class="widget clock-widget">
+                <div class="clock-display">
+                    <span id="clock-main">00:00:00</span>
+                    <span id="clock-ms" class="ms-glow">00</span>
+                </div>
+                <div id="clock-date" class="date-display">MAR 22 - GMT+1</div>
+            </div>
+
+            <!-- ‼️ STEP 3: Mail & Events Today -->
+            <div class="widget mail-widget">
+                <div class="stat-value">757</div>
+                <p class="label">UNREAD MAIL</p>
+            </div>
+
+            <div class="widget events-widget">
+                <div class="stat-value">2</div>
+                <p class="label">EVENTS TODAY</p>
+            </div>
+
+            <!-- ‼️ STEP 4: Countdown & Tasks -->
+            <div class="widget countdown-widget">
+                <p class="label">COUNTDOWN</p>
+                <div class="event-name">Testing v2.1.9</div>
+                <div class="cd-grid">
+                    <div class="cd-item"><span class="cd-num">01</span><span class="cd-lbl">DAYS</span></div>
+                    <div class="cd-item"><span class="cd-num">01</span><span class="cd-lbl">HRS</span></div>
+                </div>
+                <button class="action-btn">🔗 Change Event</button>
+            </div>
+
+            <div class="widget tasks-widget">
+                <div class="task-circle">
+                    <span class="task-count">1</span>
+                </div>
+                <p class="label">UNCOMPLETED TASKS TODAY</p>
+            </div>
+        </div>
+
+        <!-- ‼️ STEP 5: Reminders & Day Bar (The Scroller from Screenshot) -->
+        <div class="widget wide-widget">
+            <div class="widget-header">
+                <span>🔔 Reminders</span>
+                <div class="header-actions">
+                    <button class="text-btn">Clear Done</button>
+                    <button class="icon-btn">+</button>
+                </div>
+            </div>
+            <!-- This ID is where JS injects the buttons -->
+            <div id="reminders-days" class="day-bar"></div>
+            <div class="task-list-item">
+                <input type="checkbox"> <span>Testing tasks</span>
+                <button class="delete-btn">🗑️</button>
+            </div>
+        </div>
+
+        <!-- ‼️ STEP 6: Google Calendar Section -->
+        <div class="widget wide-widget">
+            <div class="widget-header">
+                <span>📅 Google Calendar</span>
+                <button class="action-btn-sm">Sync</button>
+            </div>
+            <div id="calendar-days" class="day-bar"></div>
+        </div>
+
+        <!-- ‼️ STEP 7: Nuke Button -->
+        <footer>
+            <button class="nuke-btn">🗑️ Clear My Data and Sessions</button>
+            <p class="version-stamp">v2.2.0 (Sensei's Release) - 2026.03.22</p>
+        </footer>
+    </div>
+
+    <script src="main.js"></script>
 </body>
-<script src="main.js"></script>
 </html>
-
