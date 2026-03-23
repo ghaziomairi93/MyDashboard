@@ -1,18 +1,18 @@
 /* ================================================================
-Big Minds Dashboard — main.js
+Big Minds Dashboard \u2014 main.js
 v1.0.0 | 2026-03-23
 Single shared location drives: weather, clock, greeting,
 prayer times, calendar timezone, theme.
 ================================================================ */
 
-// ── APP CONFIG ─────────────────────────────────────────────────
+// \u2500\u2500 APP CONFIG \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 const APP = {
 version:   ‘1.0.0’,
 buildDate: ‘2026-03-23’,
 name:      ‘Big Minds Dashboard’,
 };
 
-// ── API KEYS / CONSTANTS ───────────────────────────────────────
+// \u2500\u2500 API KEYS / CONSTANTS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 const G_CLIENT_ID  = ‘623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com’;
 const MS_CLIENT_ID = ‘1155afdf-d585-48cc-af89-b973843ce21a’;
 const MS_REDIRECT  = ‘https://ghaziomairi93.github.io/MyDashboard/’;
@@ -31,16 +31,16 @@ const COINS = [
 { id:‘helium’,   sym:‘HNT’, name:‘Helium’,   color:’#474dff’ },
 ];
 
-// WMO weather codes → { label, theme, icon }
+// WMO weather codes \u2192 { label, theme, icon }
 const WX = {
-0:{l:‘Clear’,t:‘clear’,i:‘☀️’},       1:{l:‘Mostly Clear’,t:‘clear’,i:‘🌤’},
-2:{l:‘Partly Cloudy’,t:‘cloudy’,i:‘⛅’}, 3:{l:‘Overcast’,t:‘cloudy’,i:‘☁️’},
-45:{l:‘Foggy’,t:‘fog’,i:‘🌫’},          48:{l:‘Icy Fog’,t:‘fog’,i:‘🌫’},
-51:{l:‘Drizzle’,t:‘rain’,i:‘🌦’},       53:{l:‘Drizzle’,t:‘rain’,i:‘🌦’},       55:{l:‘Heavy Drizzle’,t:‘rain’,i:‘🌧’},
-61:{l:‘Light Rain’,t:‘rain’,i:‘🌧’},    63:{l:‘Rain’,t:‘rain’,i:‘🌧’},          65:{l:‘Heavy Rain’,t:‘rain’,i:‘🌧’},
-71:{l:‘Light Snow’,t:‘snow’,i:‘🌨’},    73:{l:‘Snow’,t:‘snow’,i:‘❄️’},          75:{l:‘Heavy Snow’,t:‘snow’,i:‘❄️’},
-80:{l:‘Showers’,t:‘rain’,i:‘🌦’},       81:{l:‘Showers’,t:‘rain’,i:‘🌦’},       82:{l:‘Heavy Showers’,t:‘rain’,i:‘🌧’},
-95:{l:‘Thunderstorm’,t:‘storm’,i:‘⛈’}, 96:{l:‘Thunderstorm’,t:‘storm’,i:‘⛈’}, 99:{l:‘Thunderstorm’,t:‘storm’,i:‘⛈’},
+0:{l:‘Clear’,t:‘clear’,i:’\u2600\uFE0F’},       1:{l:‘Mostly Clear’,t:‘clear’,i:’\u{1F324}’},
+2:{l:‘Partly Cloudy’,t:‘cloudy’,i:’\u26C5’}, 3:{l:‘Overcast’,t:‘cloudy’,i:’\u2601\uFE0F’},
+45:{l:‘Foggy’,t:‘fog’,i:’\u{1F32B}’},          48:{l:‘Icy Fog’,t:‘fog’,i:’\u{1F32B}’},
+51:{l:‘Drizzle’,t:‘rain’,i:’\u{1F326}’},       53:{l:‘Drizzle’,t:‘rain’,i:’\u{1F326}’},       55:{l:‘Heavy Drizzle’,t:‘rain’,i:’\u{1F327}’},
+61:{l:‘Light Rain’,t:‘rain’,i:’\u{1F327}’},    63:{l:‘Rain’,t:‘rain’,i:’\u{1F327}’},          65:{l:‘Heavy Rain’,t:‘rain’,i:’\u{1F327}’},
+71:{l:‘Light Snow’,t:‘snow’,i:’\u{1F328}’},    73:{l:‘Snow’,t:‘snow’,i:’\u2744\uFE0F’},          75:{l:‘Heavy Snow’,t:‘snow’,i:’\u2744\uFE0F’},
+80:{l:‘Showers’,t:‘rain’,i:’\u{1F326}’},       81:{l:‘Showers’,t:‘rain’,i:’\u{1F326}’},       82:{l:‘Heavy Showers’,t:‘rain’,i:’\u{1F327}’},
+95:{l:‘Thunderstorm’,t:‘storm’,i:’\u26C8’}, 96:{l:‘Thunderstorm’,t:‘storm’,i:’\u26C8’}, 99:{l:‘Thunderstorm’,t:‘storm’,i:’\u26C8’},
 };
 
 const PRAYER_NAMES = [‘Fajr’,‘Dhuhr’,‘Asr’,‘Maghrib’,‘Isha’];
@@ -66,13 +66,13 @@ const QUOTES = [
 const CHANGELOG = [
 { v:‘1.0.0’, label:‘Initial Release’, date:‘23 Mar 2026’, tag:‘current’, items:[
 ‘Full dashboard: greeting, weather, clock, stats, crypto, forex/metals, countdown, tasks, quote, prayer times, news, mini calendar, Google Calendar, Outlook’,
-‘Single shared location — drives weather, clock timezone, greeting time, prayer times, calendar timezone, and weather theme’,
+‘Single shared location \u2014 drives weather, clock timezone, greeting time, prayer times, calendar timezone, and weather theme’,
 ‘Location search: worldwide via Open-Meteo geocoding, debounced, event-listener based’,
 ‘Dynamic weather theme system: background changes with time-of-day + weather condition’,
 ‘Night: stars + moon | Dawn/Dusk: warm gradients | Day: sky blue + sun | Rain: raindrops | Snow: snowflakes | Storm: lightning | Fog: drifting bands’,
-‘Crypto: BTC, ETH, SOL, HNT via CoinGecko — auto-refresh every 5 minutes’,
-‘Forex + Metals: USD/EUR, Gold (XAU), Silver (XAG) per troy oz — auto-refresh every 5 minutes’,
-‘Prayer times: Fajr, Dhuhr, Asr, Maghrib, Isha via Aladhan API — next prayer highlighted’,
+‘Crypto: BTC, ETH, SOL, HNT via CoinGecko \u2014 auto-refresh every 5 minutes’,
+‘Forex + Metals: USD/EUR, Gold (XAU), Silver (XAG) per troy oz \u2014 auto-refresh every 5 minutes’,
+‘Prayer times: Fajr, Dhuhr, Asr, Maghrib, Isha via Aladhan API \u2014 next prayer highlighted’,
 ‘News: top 5 headlines via NYT RSS + rss2json’,
 ‘Mini calendar: tap any day to sync all date-aware widgets’,
 ‘Google Calendar: OAuth, read/create/delete events’,
@@ -81,9 +81,9 @@ const CHANGELOG = [
 ]},
 ];
 
-// ── STATE ──────────────────────────────────────────────────────
+// \u2500\u2500 STATE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 let LOC         = JSON.parse(localStorage.getItem(‘bmd_loc’) || ‘null’);
-// LOC = { lat, lon, name, tz } — single source of truth
+// LOC = { lat, lon, name, tz } \u2014 single source of truth
 
 let selectedDate   = new Date().toDateString();
 let tasks          = JSON.parse(localStorage.getItem(‘bmd_tasks’) || ‘[]’);
@@ -94,7 +94,7 @@ let miniCalMonth   = new Date(); // which month is shown
 let _searchResults = [];
 let _sTmr          = null;
 
-// ── HELPERS ────────────────────────────────────────────────────
+// \u2500\u2500 HELPERS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 const $    = id  => document.getElementById(id);
 const html = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
 const pad  = n   => String(Math.floor(n)).padStart(2,‘0’);
@@ -112,7 +112,7 @@ if (t.includes(’.’)) { const p=t.split(’.’); if(p.length<2||p.some(x=>!x
 return t;
 }
 
-// ── INIT ───────────────────────────────────────────────────────
+// \u2500\u2500 INIT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 window.onload = async () => {
 // Stamp version
 html(‘version-stamp’, ‘v’+APP.version+’ \u00b7 ‘+APP.buildDate);
@@ -156,7 +156,7 @@ setTimeout(()=>{loadMail();loadUnreadCount();},300);
 }
 };
 
-// ── LOCATION UI ────────────────────────────────────────────────
+// \u2500\u2500 LOCATION UI \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Called on init and after any location change
 function initLocationUI() {
 if (LOC) {
@@ -218,14 +218,14 @@ closeSearch();
 initLocationUI(); // re-trigger everything with new location
 }
 
-// ── WEATHER ────────────────────────────────────────────────────
+// \u2500\u2500 WEATHER \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function fetchWeather() {
 if (!LOC) return;
 try {
 const r = await fetch(‘https://api.open-meteo.com/v1/forecast?latitude=’+LOC.lat+’&longitude=’+LOC.lon+’&current_weather=true’);
 const d = await r.json();
 const wc   = d.current_weather;
-const meta = WX[wc.weathercode] || {l:‘Weather’,t:‘clear’,i:‘🌡’};
+const meta = WX[wc.weathercode] || {l:‘Weather’,t:‘clear’,i:’\u{1F321}’};
 html(‘w-temp’, Math.round(wc.temperature)+’°’);
 html(‘w-cond’, meta.l);
 html(‘w-icon’, meta.i);
@@ -237,7 +237,7 @@ html(‘w-temp’,’–°’); html(‘w-cond’,‘Unavailable’);
 }
 }
 
-// ── THEME ENGINE ───────────────────────────────────────────────
+// \u2500\u2500 THEME ENGINE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function applyWeatherTheme(weatherType) {
 const h = locHour();
 const slot = h>=5&&h<7?‘dawn’: h>=7&&h<19?‘day’: h>=19&&h<21?‘dusk’: ‘night’;
@@ -303,7 +303,7 @@ function addSnow(sc){for(let i=0;i<60;i++){const f=document.createElement(‘div
 
 window.addEventListener(‘resize’, () => { if(LOC) applyWeatherTheme(); });
 
-// ── CLOCK + GREETING ───────────────────────────────────────────
+// \u2500\u2500 CLOCK + GREETING \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function clockTick() {
 const now = new Date();
 const zone = LOC?.tz;
@@ -333,7 +333,7 @@ try { now=new Date(new Date().toLocaleString(‘en-US’,{timeZone:tz()})); } ca
 html(‘greeting-msg’, g+’ \u00b7 ‘+days[now.getDay()]+’, ‘+months[now.getMonth()]+’ ’+now.getDate());
 }
 
-// ── CRYPTO ─────────────────────────────────────────────────────
+// \u2500\u2500 CRYPTO \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadCrypto() {
 const ids = COINS.map(c=>c.id).join(’,’);
 try {
@@ -352,7 +352,7 @@ html(‘crypto-ts’,’Updated ’+new Date().toLocaleTimeString([],{hour:‘2-
 } catch(e) { html(‘crypto-ts’,‘Offline’); }
 }
 
-// ── FOREX + METALS ─────────────────────────────────────────────
+// \u2500\u2500 FOREX + METALS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadForex() {
 try {
 // Primary: exchangerate.host (free, no key needed for limited use)
@@ -374,7 +374,7 @@ html(‘forex-ts’,‘Partial’);
 }
 }
 
-// ── PRAYER TIMES ───────────────────────────────────────────────
+// \u2500\u2500 PRAYER TIMES \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadPrayerTimes() {
 if (!LOC) return;
 try {
@@ -397,7 +397,7 @@ grid.innerHTML=list.map((p,i)=>
 } catch(e){ html(‘prayer-grid’,’<div class="empty">Prayer times unavailable</div>’); }
 }
 
-// ── NEWS ───────────────────────────────────────────────────────
+// \u2500\u2500 NEWS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadNews() {
 const el=$(‘news-list’); if(!el) return;
 el.innerHTML=’<div class="empty">Loading…</div>’;
@@ -414,7 +414,7 @@ return ‘<a class="news-item" href="'+(item.link||'#')+'" target="_blank" rel="
 } catch(e){el.innerHTML=’<div class="empty">Could not load news</div>’;}
 }
 
-// ── MINI CALENDAR ──────────────────────────────────────────────
+// \u2500\u2500 MINI CALENDAR \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function renderMiniCal() {
 const y=miniCalMonth.getFullYear(), m=miniCalMonth.getMonth();
 const months=[‘January’,‘February’,‘March’,‘April’,‘May’,‘June’,‘July’,‘August’,‘September’,‘October’,‘November’,‘December’];
@@ -442,7 +442,7 @@ if(googleToken) loadCal();
 document.getElementById(‘rem-section’)?.scrollIntoView({behavior:‘smooth’});
 }
 
-// ── DAY BARS ───────────────────────────────────────────────────
+// \u2500\u2500 DAY BARS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function renderDayBars() {
 const days=[];
 for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);days.push({label:d.toLocaleDateString(‘en-US’,{weekday:‘short’,day:‘numeric’}),key:d.toDateString()});}
@@ -459,7 +459,7 @@ const today=new Date().toISOString().split(‘T’)[0];
 const cd=$(‘cd-date’);if(cd)cd.min=today;
 }
 
-// ── TASKS ──────────────────────────────────────────────────────
+// \u2500\u2500 TASKS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function renderTasks(){
 const all=tasks.filter(t=>t.dateKey===selectedDate);
 html(‘tasks-count’, all.filter(t=>!t.done).length);
@@ -494,7 +494,7 @@ tasks=tasks.filter(t=>!t.done);localStorage.setItem(‘bmd_tasks’,JSON.stringi
 function onRemDatePick(v){if(!v)return;selectedDate=new Date(v+‘T00:00:00’).toDateString();renderDayBars();renderTasks();renderMiniCal();}
 function onCalDatePick(v){if(!v)return;selectedDate=new Date(v+‘T00:00:00’).toDateString();renderDayBars();renderTasks();renderMiniCal();if(googleToken)loadCal();}
 
-// ── COUNTDOWN ──────────────────────────────────────────────────
+// \u2500\u2500 COUNTDOWN \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function openCDModal(){
 const s=localStorage.getItem(‘bmd_cd’);
 if(s){try{const ex=JSON.parse(s);const dt=new Date(ex.target);$(‘cd-name’).value=ex.name||’’;$(‘cd-date’).value=dt.getFullYear()+’-’+pad(dt.getMonth()+1)+’-’+pad(dt.getDate());$(‘cd-time’).value=pad(dt.getHours())+’:’+pad(dt.getMinutes());}catch(e){resetCD();}}else{resetCD();}
@@ -533,15 +533,15 @@ cdTimer=setInterval(upd,iv);cdTimer._iv=iv;
 const btn=$(‘cd-btn’);if(btn)btn.textContent=’\u270e Change Event’;
 }
 
-// ── QUOTE ──────────────────────────────────────────────────────
+// \u2500\u2500 QUOTE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function initQuote(){const s=localStorage.getItem(‘bmd_quote’);if(s){try{showQuote(JSON.parse(s));return;}catch(e){}}newQuote();}
 function newQuote(){const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];localStorage.setItem(‘bmd_quote’,JSON.stringify(q));showQuote(q);}
 function showQuote(q){html(‘q-text’,q.q);html(‘q-author’,q.a?’\u2014 ‘+q.a+(q.y?’ \u00b7 ‘+q.y:’’):’’);}
 
-// ── NUKE ───────────────────────────────────────────────────────
+// \u2500\u2500 NUKE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function nukeData(){if(confirm(‘Clear all data and sessions? This cannot be undone.’)){localStorage.clear();location.reload();}}
 
-// ── MODALS ─────────────────────────────────────────────────────
+// \u2500\u2500 MODALS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function openModal(id)  {$(id)?.classList.add(‘open’);}
 function closeModal(id) {$(id)?.classList.remove(‘open’);}
 function showGuide()    {openModal(‘guide-modal’);}
@@ -555,7 +555,7 @@ html(‘contact-status’,’’);
 [‘contact-name’,‘contact-email’,‘contact-msg’].forEach(id=>{const e=$(id);if(e)e.value=’’;});
 }
 
-// ── CONTACT ────────────────────────────────────────────────────
+// \u2500\u2500 CONTACT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function submitContact(){
 const name=$(‘contact-name’).value.trim(),email=$(‘contact-email’).value.trim(),msg=$(‘contact-msg’).value.trim(),stat=$(‘contact-status’);
 if(!name||!email||!msg){stat.style.color=‘var(–red)’;stat.textContent=‘Please fill in all fields.’;return;}
@@ -569,7 +569,7 @@ else{stat.style.color=‘var(–red)’;stat.textContent=‘Failed. Try again.�
 }catch(e){stat.style.color=‘var(–red)’;stat.textContent=‘Network error.’;}
 }
 
-// ── CHANGELOG ──────────────────────────────────────────────────
+// \u2500\u2500 CHANGELOG \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function buildChangelog(){
 const c=$(‘cl-body’);if(!c)return;
 c.innerHTML=CHANGELOG.map((cl,i)=>{
@@ -589,7 +589,7 @@ document.querySelectorAll(’.cl-chev’).forEach(x=>x.style.transform=’’);
 if(!open){b.classList.add(‘open’);if(c)c.style.transform=‘rotate(180deg)’;setTimeout(()=>b.parentElement.scrollIntoView({behavior:‘smooth’,block:‘start’}),50);}
 }
 
-// ── MICROSOFT PKCE ─────────────────────────────────────────────
+// \u2500\u2500 MICROSOFT PKCE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function base64url(buf){return btoa(String.fromCharCode(…new Uint8Array(buf))).replace(/+/g,’-’).replace(///g,’_’).replace(/=/g,’’);}
 async function sha256(s){return crypto.subtle.digest(‘SHA-256’,new TextEncoder().encode(s));}
 function randStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return base64url(a);}
@@ -613,7 +613,7 @@ loadMail();loadUnreadCount();
 }catch(e){html(‘ms-body’,’<div class="empty">\u26a0\ufe0f ‘+e.message+’</div>’);}
 }
 
-// ── OUTLOOK ────────────────────────────────────────────────────
+// \u2500\u2500 OUTLOOK \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 async function loadMail(){
 const token=getSafeToken(‘ms_token’);
 if(!token){localStorage.removeItem(‘ms_token’);html(‘ms-btn’,’<button class="btn btn-blue" onclick="startMSLogin()">Sign In</button>’);html(‘ms-body’,’<div class="empty">Sign in to see your emails</div>’);return;}
@@ -642,7 +642,7 @@ const token=getSafeToken(‘ms_token’);if(!token)return;
 try{const r=await fetch(‘https://graph.microsoft.com/v1.0/me/mailFolders/inbox?$select=unreadItemCount’,{headers:{Authorization:’Bearer ’+token}});const d=await r.json();if(d.unreadItemCount!==undefined)html(‘stat-mail’,d.unreadItemCount);}catch(e){}
 }
 
-// ── GOOGLE CALENDAR ────────────────────────────────────────────
+// \u2500\u2500 GOOGLE CALENDAR \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function initGCal(){
 google.accounts.oauth2.initTokenClient({
 client_id:G_CLIENT_ID, scope:‘https://www.googleapis.com/auth/calendar’,
