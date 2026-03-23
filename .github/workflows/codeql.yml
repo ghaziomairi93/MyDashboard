@@ -1,11 +1,14 @@
 name: "CodeQL"
+
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   schedule:
+    # ‼️ Logic: Runs every Monday at 04:30 to catch new vulnerabilities
     - cron: '30 4 * * 1'
+
 jobs:
   analyze:
     name: Analyze
@@ -14,17 +17,32 @@ jobs:
       actions: read
       contents: read
       security-events: write
+
     strategy:
       fail-fast: false
       matrix:
+        # ‼️ Logic: Specifically targeting JS/TS for the Dashboard
         language: [ 'javascript-typescript' ]
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      # ‼️ STEP 1: FETCH SOURCE CODE
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ‼️ STEP 2: INITIALIZE CODEQL ENGINE
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          # ‼️ Logic: Using 'security-extended' for deeper API/Auth analysis
           queries: security-extended
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
+
+      # ‼️ STEP 3: AUTOBUILD (PRE-SCAN)
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # ‼️ STEP 4: EXECUTE ANALYSIS
+      - name: Perform Analysis
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
