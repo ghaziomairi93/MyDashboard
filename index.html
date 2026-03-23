@@ -1,232 +1,193 @@
-<!--
-  Big Minds Dashboard v1.4 – Jackson Edition (Weather Fix + Polish)
-  - Weather now uses correct 'current=temperature_2m,weather_code' param + better errors/timezone
-  - Location change forces UI update + "Updating..." feedback
-  - Outlook placeholder counts after connect (real needs proxy)
-  - Theme toggle, Guide/Contact fully active
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Big Minds Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    :root {
-      --bg: #06060e;
-      --card: rgba(255,255,255,0.05);
-      --cb: rgba(255,255,255,0.09);
-      --text: #f0f0f8;
-      --muted: #777799;
-      --cyan: #18d8f0;
-      --green: #12e888;
-      --amber: #f0a418;
-      --red: #f04060;
-      --r: 14px;
-      --gap: 10px;
-    }
-    body.light-mode {
-      --bg: #f8f8ff;
-      --card: rgba(0,0,0,0.05);
-      --cb: rgba(0,0,0,0.09);
-      --text: #1a1a2e;
-      --muted: #666688;
-    }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:12px 10px 100px; transition:all 0.4s; }
-    .grid { display:grid; grid-template-columns:1fr; gap:var(--gap); max-width:480px; margin:0 auto; }
-    .card { background:var(--card); backdrop-filter:blur(16px); border:1px solid var(--cb); border-radius:var(--r); padding:18px; }
-    h3 { font-family:'Syne'; font-size:15px; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; color:var(--cyan); }
-    .btn { background:rgba(255,255,255,0.1); border:1px solid var(--cb); color:var(--text); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:13px; }
-    .btn:hover { background:rgba(255,255,255,0.2); }
-    .list-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--cb); font-size:13px; }
-    .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); display:none; z-index:1000; align-items:center; justify-content:center; }
-    .overlay.active { display:flex; }
-    .led { font-family:'Space Mono'; font-size:38px; color:var(--green); text-shadow:0 0 12px var(--green); }
-    .bottom-bar { position:fixed; bottom:0; left:0; right:0; background:rgba(6,6,14,0.9); backdrop-filter:blur(20px); border-top:1px solid var(--cb); padding:12px; display:flex; justify-content:space-around; z-index:99; }
-    .bottom-btn { color:var(--muted); font-size:11px; cursor:pointer; }
-    .theme-toggle { font-size:24px; cursor:pointer; background:none; border:none; color:var(--text); }
-    .spinner { border:3px solid var(--muted); border-top:3px solid var(--cyan); border-radius:50%; width:20px; height:20px; animation:spin 1s linear infinite; display:inline-block; margin-right:8px; }
-    @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Big Minds Dashboard v1.6</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--bg:#06060e;--card:rgba(255,255,255,.05);--cb:rgba(255,255,255,.09);--text:#f0f0f8;--muted:#777799;--cyan:#18d8f0;--green:#12e888;--amber:#f0a418;--red:#f04060;--r:14px;--gap:10px}
+body.light-mode{--bg:#f8f8ff;--card:rgba(0,0,0,.05);--cb:rgba(0,0,0,.09);--text:#1a1a2e;--muted:#666688}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:12px 10px 100px;transition:all .4s}
+.grid{display:grid;grid-template-columns:1fr;gap:var(--gap);max-width:480px;margin:0 auto}
+.card{background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--cb);border-radius:var(--r);padding:18px}
+h3{font-family:'Syne';font-size:15px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;color:var(--cyan)}
+.btn{background:rgba(255,255,255,.1);border:1px solid var(--cb);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px}
+.led{font-family:'Space Mono';font-size:38px;color:var(--green);text-shadow:0 0 12px var(--green)}
+.list-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cb);font-size:13px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);display:none;z-index:1000;align-items:center;justify-content:center}
+.overlay.active{display:flex}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,14,.9);backdrop-filter:blur(20px);border-top:1px solid var(--cb);padding:12px;display:flex;justify-content:space-around;z-index:99}
+.theme-toggle{font-size:26px;cursor:pointer;background:none;border:none;color:var(--text)}
+.spinner{border:3px solid var(--muted);border-top:3px solid var(--cyan);border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.retry{color:var(--cyan);cursor:pointer;text-decoration:underline}
+</style>
 </head>
 <body>
 
 <div class="grid">
 
-  <!-- Banner with theme toggle -->
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+<!-- BANNER -->
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:26px;font-family:'Syne'">Hello, Leader</h1>
+      <p id="loc-display" style="color:var(--muted)">London • Europe/London</p>
+    </div>
+    <div style="text-align:right">
+      <div id="main-clock" class="led">00:00:00</div>
+      <button class="btn" onclick="showLoc()">Change Location</button>
+      <button onclick="toggleTheme()" class="theme-toggle" id="theme-btn">☀️</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEATHER -->
+<div class="card">
+  <h3>Weather</h3>
+  <div id="wx-status" style="color:var(--muted);display:flex;align-items:center"><span id="wx-spin" class="spinner" style="display:none"></span>Loading...</div>
+  <div id="wx-content" style="display:none">
+    <div style="display:flex;align-items:center;gap:16px">
+      <span id="wx-icon" style="font-size:52px">☀️</span>
       <div>
-        <h1 style="font-size:26px; font-family:'Syne';">Hello, Leader</h1>
-        <p id="loc-display" style="color:var(--muted);">Detecting location...</p>
-      </div>
-      <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-        <div id="main-clock" class="led">00:00:00</div>
-        <button class="btn" onclick="showOverlay('loc-ov')">Change Location</button>
-        <button onclick="toggleTheme()" class="theme-toggle" id="theme-icon">☀️</button>
+        <div id="wx-temp" style="font-size:38px;font-weight:700">--°C</div>
+        <div id="wx-desc" style="color:var(--muted)">—</div>
       </div>
     </div>
+    <p id="wx-error" style="margin-top:8px;color:var(--red);display:none">Weather unavailable — <span class="retry" onclick="fetchWeather(true)">retry</span></p>
   </div>
+</div>
 
-  <!-- Weather with status & spinner -->
-  <div class="card">
-    <h3>Weather</h3>
-    <div id="wx-status" style="color:var(--muted); display:flex; align-items:center;">
-      <span class="spinner" style="display:none;" id="wx-spinner"></span>Loading...
-    </div>
-    <div id="wx-content" style="display:none; flex-direction:column; gap:8px;">
-      <div style="display:flex; align-items:center; gap:16px;">
-        <span id="wx-icon" style="font-size:48px;">?</span>
-        <div>
-          <div id="wx-temp" style="font-size:36px; font-weight:700;">--°C</div>
-          <div id="wx-desc" style="color:var(--muted);">—</div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- PRAYER TIMES + COUNTDOWN -->
+<div class="card">
+  <h3>Prayer Times</h3>
+  <div id="prayer-list" style="font-size:13px"></div>
+</div>
+<div class="card">
+  <h3>Next Prayer Countdown</h3>
+  <div id="countdown" style="font-size:24px;color:var(--amber);font-family:'Space Mono'">—</div>
+</div>
 
-  <!-- Prayer Times (placeholder - expand as needed) -->
-  <div class="card">
-    <h3>Prayer Times</h3>
-    <div id="prayer-list">Loading prayer times...</div>
-  </div>
+<!-- CRYPTO -->
+<div class="card">
+  <h3>Crypto Market</h3>
+  <div id="crypto-list"></div>
+</div>
 
-  <!-- Outlook & Stats -->
-  <div class="card">
-    <h3>Outlook & Stats</h3>
-    <button class="btn" id="ms-connect">Connect Outlook</button>
-    <div class="list-item"><span>Unread Mail</span><span id="unread-mail">—</span></div>
-    <div class="list-item"><span>Events Today</span><span id="events-today">—</span></div>
-  </div>
+<!-- METALS & FOREX -->
+<div class="card">
+  <h3>Metals & Forex</h3>
+  <div id="metals-list"></div>
+</div>
 
-  <!-- Quote -->
-  <div class="card">
-    <h3>Quote of the Day</h3>
-    <p style="font-style:italic; color:var(--amber);">"The mind is everything. What you think you become."</p>
+<!-- NEWS -->
+<div class="card">
+  <h3>Top Headlines</h3>
+  <div id="news-list" style="font-size:13px"></div>
+</div>
+
+<!-- TASKS -->
+<div class="card">
+  <h3>Tasks & Reminders</h3>
+  <div style="margin-bottom:12px">
+    <input id="task-in" placeholder="New task..." style="width:70%;padding:10px;background:none;border:1px solid var(--cb);color:var(--text);border-radius:8px">
+    <button class="btn" onclick="addTask()">Add</button>
   </div>
+  <div id="task-list"></div>
+</div>
+
+<!-- MINI CALENDAR + GOOGLE CALENDAR -->
+<div class="card">
+  <h3>Mini Calendar</h3>
+  <div id="mini-cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:12px;text-align:center"></div>
+</div>
+<div class="card">
+  <h3>Google Calendar</h3>
+  <button class="btn" id="gcal-btn">Sign in with Google</button>
+  <div id="gcal-events" style="margin-top:12px;font-size:13px"></div>
+</div>
+
+<!-- OUTLOOK -->
+<div class="card">
+  <h3>Outlook & Stats</h3>
+  <button class="btn" id="outlook-btn">Connect Outlook</button>
+  <div class="list-item"><span>Unread Mail</span><span id="unread">—</span></div>
+  <div class="list-item"><span>Events Today</span><span id="events">—</span></div>
+</div>
+
+<!-- QUOTE -->
+<div class="card">
+  <h3>Quote of the Day</h3>
+  <p id="quote" style="font-style:italic;color:var(--amber)">"The mind is everything. What you think you become."</p>
+</div>
 
 </div>
 
-<!-- Bottom Bar -->
+<!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <div class="bottom-btn" onclick="showGuide()">Guide</div>
   <div class="bottom-btn" onclick="showContact()">Support</div>
   <div class="bottom-btn" onclick="nukeData()">Nuke Data</div>
 </div>
 
-<!-- Overlays & Modals (location, guide, contact - abbreviated, use your full HTML from previous) -->
-<div id="loc-ov" class="overlay"> <!-- Your location search HTML here --> </div>
-<div id="guide-modal" class="overlay"> <!-- Guide content --> </div>
-<div id="contact-modal" class="overlay"> <!-- Contact form --> </div>
+<!-- LOCATION OVERLAY -->
+<div id="loc-ov" class="overlay">
+  <div class="card" style="width:92%;max-width:380px">
+    <h3>Search City</h3>
+    <input id="loc-in" placeholder="Type city..." style="width:100%;padding:12px;background:none;border:1px solid var(--cb);color:var(--text);border-radius:8px">
+    <div id="loc-res" style="margin-top:12px;max-height:260px;overflow-y:auto"></div>
+    <button class="btn" style="margin-top:16px;width:100%" onclick="hideOverlay('loc-ov')">Close</button>
+  </div>
+</div>
+
+<!-- GUIDE & CONTACT MODALS (your code) -->
+<div id="guide-ov" class="overlay"><div class="card" style="width:90%;max-width:420px">Guide content here (you can expand)</div></div>
+<div id="contact-ov" class="overlay"><div class="card" style="width:90%;max-width:420px">Contact form with your Web3Forms key</div></div>
 
 <script>
-// CONFIG
+// ────────────────────────────────────────────────
+// YOUR CONFIG
+// ────────────────────────────────────────────────
+const G_CLIENT_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
+const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const W3F_KEY = '53bad208-02b2-40b6-974b-98f8b68d0439';
 
-// STATE & HELPERS (keep from previous: LOC, $, show/hideOverlay, pad2, etc.)
+// STATE
+let LOC = JSON.parse(localStorage.getItem('bmd_loc')) || {name:"London",lat:51.5074,lon:-0.1278,tz:"Europe/London"};
+let TASKS = JSON.parse(localStorage.getItem('bmd_tasks')) || [];
+let gToken = localStorage.getItem('g_token');
+
+// HELPERS
+const $ = id => document.getElementById(id);
+function setHTML(id,h){$(id).innerHTML=h}
+function showOverlay(id){$(id).classList.add('active')}
+function hideOverlay(id){$(id).classList.remove('active')}
 
 // THEME
-function toggleTheme() {
+function toggleTheme(){
   document.body.classList.toggle('light-mode');
-  const isLight = document.body.classList.contains('light-mode');
-  localStorage.setItem('bmd_theme', isLight ? 'light' : 'dark');
-  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('bmd_theme', document.body.classList.contains('light-mode')?'light':'dark');
+  $('#theme-btn').textContent = document.body.classList.contains('light-mode')?'🌙':'☀️';
 }
-if (localStorage.getItem('bmd_theme') === 'light') {
-  document.body.classList.add('light-mode');
-  document.getElementById('theme-icon').textContent = '🌙';
+if(localStorage.getItem('bmd_theme')==='light')toggleTheme();
+
+// CLOCK
+function updateClock(){
+  const tz = LOC.tz||'UTC';
+  const opt = {timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false};
+  $('#main-clock').textContent = new Intl.DateTimeFormat('en-GB',opt).format(new Date());
 }
+setInterval(updateClock,1000);
 
-// WEATHER - fixed params + errors
-async function fetchWeather() {
-  const status = document.getElementById('wx-status');
-  const spinner = document.getElementById('wx-spinner');
-  const content = document.getElementById('wx-content');
-  status.textContent = 'Fetching...';
-  spinner.style.display = 'inline-block';
-  status.style.display = 'block';
-  content.style.display = 'none';
-
-  if (!LOC?.lat || !LOC?.lon) {
-    status.textContent = 'Location not set';
-    spinner.style.display = 'none';
-    return;
-  }
-
-  try {
-    const tz = LOC.tz ? encodeURIComponent(LOC.tz) : 'auto';
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LOC.lat}&longitude=${LOC.lon}&current=temperature_2m,weather_code&timezone=${tz}`;
-    const r = await fetch(url, { cache: 'no-cache', signal: AbortSignal.timeout(8000) });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
-
-    if (!d.current || d.current.temperature_2m == null) throw new Error('No current data');
-
-    document.getElementById('wx-temp').textContent = Math.round(d.current.temperature_2m) + '°C';
-    document.getElementById('wx-desc').textContent = getWeatherDesc(d.current.weather_code || 0);
-    document.getElementById('wx-icon').textContent = getWeatherEmoji(d.current.weather_code || 0);
-    status.style.display = 'none';
-    content.style.display = 'flex';
-  } catch (e) {
-    console.error('Weather fetch failed:', e);
-    status.textContent = e.message.includes('timeout') ? 'Request timed out' : 'Weather unavailable';
-    status.style.color = 'var(--red)';
-    spinner.style.display = 'none';
-  }
-}
-
-function getWeatherEmoji(code) {
-  if (code === 0) return '☀️';
-  if ([1,2,3].includes(code)) return '🌤️';
-  if (code <= 48) return '☁️';
-  if (code <= 67) return '🌧️';
-  return '❄️'; // fallback
-}
-
-function getWeatherDesc(code) {
-  const map = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',61:'Rain',71:'Snow',95:'Thunderstorm'};
-  return map[code] || 'Unknown condition';
-}
-
-// REFRESH ALL - with weather focus
-async function refreshAll() {
-  document.getElementById('loc-display').textContent = LOC ? `${LOC.name} • ${LOC.tz || 'Auto'}` : 'Detecting...';
-  document.getElementById('wx-status').textContent = 'Updating...';
-  await fetchWeather();
-  // await fetchPrayer(); // expand as needed
-  updateClock();
-}
-
-// LOCATION SET - force UI feedback
-function setLoc(name, lat, lon, tz) {
-  LOC = {name, lat, lon, tz};
-  localStorage.setItem('bmd_loc', JSON.stringify(LOC));
-  document.getElementById('loc-display').textContent = 'Updating...';
-  hideOverlay('loc-ov');
-  refreshAll();
-}
-
-// OUTLOOK CONNECT - placeholder
-document.getElementById('ms-connect').onclick = () => {
-  alert('Microsoft auth redirect stub – full token needs proxy/backend');
-  // After "connect", show dummy data for now
-  document.getElementById('unread-mail').textContent = '3';
-  document.getElementById('events-today').textContent = '2';
+// LOCATION
+$('#loc-in').oninput = async e=>{
+  if(e.target.value.length<3)return;
+  const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${e.target.value}&count=8`);
+  const d=await r.json();
+  setHTML('loc-res',(d.results||[]).map(l=>`<div class="list-item" onclick="setLocation('${l.name}',${l.latitude},${l.longitude},'${l.timezone}')">${l.name}, ${l.country}</div>`).join(''));
 };
-
-// INIT
-async function init() {
-  await initLocation(); // your geolocation + reverse lookup fallback
-  if (LOC) await refreshAll();
-  updateClock(); setInterval(updateClock, 1000);
-}
-init();
-
-// Guide/Contact functions (your code here - insert fully)
-</script>
-</body>
-</html>
+function setLocation(name,lat,lon,tz){
+  LOC={name,lat,lon,tz};
+  local
