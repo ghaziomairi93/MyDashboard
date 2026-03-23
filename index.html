@@ -1,181 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Big Minds Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<style>
-/* ‼️ STEP 1: CSS Variables & Core Theming */
-:root {
-  --bg: #06060e; --card: rgba(255,255,255,.048); --cb: rgba(255,255,255,.085);
-  --cs: rgba(255,255,255,.12); --text: #eeeef6; --muted: #5a5a7a;
-  --muted2: #8888a8; --cyan: #18d8f0; --green: #12e888; --amber: #f0a418;
-  --red: #f04060; --blue: #4090ff; --purple: #a078f8; --gold: #f0c040;
-  --teal: #10d4b8; --led: #00e060; --led-dim: rgba(0,224,96,.12);
-  --led-glow: rgba(0,224,96,.35); --r: 12px; --rs: 8px; --gap: 7px;
-}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <title>Big Minds Dashboard v1.3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #03030b;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shine: rgba(255, 255, 255, 0.12);
+            --text: #eeeef6;
+            --muted: #5a5a7a;
+            --cyan: #18d8f0;
+            --green: #12e888;
+            --amber: #f0a418;
+            --red: #f04060;
+            --purple: #a078f8;
+            --gold: #f0c040;
+            --radius: 16px;
+            --gap: 10px;
+        }
 
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
-html { height: 100%; }
-body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); min-height: 100%; padding: 10px 10px 80px; overflow-x: hidden; transition: background 1.6s ease; background: #06060e; }
+        /* ‼️ STEP 1: GLOBAL STYLES & GLASSMORPHISM BASE */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'DM Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 20px;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, #1a1a3a 0%, #03030b 70%);
+        }
 
-/* ‼️ STEP 2: Dynamic Weather & Time Backgrounds */
-body.t-night { background: linear-gradient(160deg,#03030b 0%,#06062a 60%,#08041a 100%); }
-body.t-dawn { background: linear-gradient(160deg,#0e0200 0%,#2e0800 45%,#601800 80%,#a02800 100%); }
-body.t-day { background: linear-gradient(160deg,#040e1a 0%,#082850 50%,#0e44a0 100%); }
-body.t-dusk { background: linear-gradient(160deg,#0e0210 0%,#2c0618 45%,#500c22 75%,#741838 100%); }
-body.t-cloudy { background: linear-gradient(160deg,#0a0a1a 0%,#141428 50%,#1e1e38 100%); }
-body.t-rain { background: linear-gradient(160deg,#020608 0%,#040e18 50%,#081422 100%); }
-body.t-snow { background: linear-gradient(160deg,#060810 0%,#0c1020 50%,#121830 100%); }
-body.t-storm { background: linear-gradient(160deg,#020202 0%,#040406 50%,#08080c 100%); }
-body.t-fog { background: linear-gradient(160deg,#080810 0%,#101018 50%,#181824 100%); }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--gap);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-#scene { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
-.star { position: absolute; border-radius: 50%; background: #fff; animation: twinkle var(--dur,2s) ease-in-out infinite; animation-delay: var(--dly,0s); }
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
 
-/* ‼️ STEP 3: Widget Grid Layout */
-.grid { display: flex; flex-direction: column; gap: var(--gap); max-width: 420px; margin: 0 auto; position: relative; z-index: 10; }
-.card { background: var(--card); border: 1px solid var(--cb); border-radius: var(--r); position: relative; overflow: hidden; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-.top-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
-.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, var(--glass-shine), transparent);
+            pointer-events: none;
+        }
 
-/* (Standardized UI elements trimmed for brevity, but functional in your actual file) */
-.g-name { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; }
-.g-name span { color: var(--cyan); }
-.led-display { display: flex; align-items: center; justify-content: center; gap: 3px; margin-bottom: 4px; color: var(--led); font-family: 'Courier New', monospace; font-size: 24px; text-shadow: 0 0 5px var(--led-glow); }
-.empty { padding: 18px 13px; text-align: center; color: var(--muted); font-size: 11px; line-height: 1.6; }
-</style>
+        /* ‼️ STEP 2: WIDGET SPECIFIC STYLES */
+        .banner { grid-column: 1 / -1; background: linear-gradient(90deg, rgba(24,216,240,0.1), transparent); }
+        .banner h1 { font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 5px; }
+        
+        .weather-clock { display: flex; justify-content: space-between; align-items: center; }
+        .temp { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; }
+        .led-clock { font-family: 'Space Mono', monospace; font-size: 32px; color: var(--green); text-shadow: 0 0 10px var(--green); }
+
+        .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .price-item { font-family: 'Space Mono', monospace; font-size: 12px; display: flex; justify-content: space-between; }
+        .up { color: var(--green); }
+        .down { color: var(--red); }
+
+        .btn-loc { 
+            background: var(--cyan); 
+            color: #000; 
+            border: none; 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-weight: 700; 
+            font-size: 11px; 
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .nuke-btn {
+            grid-column: 1 / -1;
+            background: rgba(240, 64, 96, 0.1);
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 15px;
+            border-radius: var(--radius);
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+        }
+
+        /* Overlay for Search */
+        #loc-ov {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
+        }
+        #loc-ov.active { display: flex; }
+    </style>
 </head>
+<body>
 
-<body class="t-night">
-<div id="scene"></div>
+    <div class="grid">
+        <div class="card banner">
+            <h1 id="greeting">Loading...</h1>
+            <p id="current-location-text">Setting up your command center...</p>
+            <button class="btn-loc" onclick="toggleLocationModal()">Change Location</button>
+        </div>
 
-<div class="grid">
-  <div class="card g-card" style="padding: 15px;">
-    <div class="g-name" style="margin-bottom: 5px;">Big <span>Minds</span></div>
-    <div id="g-msg" style="font-size: 12px; color: var(--muted);">Loading...</div>
-  </div>
+        <div class="card weather-clock">
+            <div>
+                <div class="temp" id="wx-temp">--°C</div>
+                <div id="wx-desc" style="color: var(--cyan); font-weight: 600;">Fetching Weather...</div>
+            </div>
+            <div class="led-clock" id="main-clock">00:00:00</div>
+        </div>
 
-  <div class="top-row">
-    <div class="card" id="wx-card" style="padding: 15px; text-align: center;">
-      <div id="wx-temp" style="font-size: 24px; font-weight: bold;">--°</div>
-      <div id="wx-cond" style="font-size: 10px; color: var(--cyan);">Locating...</div>
+        <div class="card">
+            <h3 style="font-family: 'Syne'; margin-bottom: 10px;">Prayer Times</h3>
+            <div id="prayer-list" style="font-family: 'Space Mono'; font-size: 13px;">
+                </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-family: 'Syne';">Crypto Prices</h3>
+            <div class="price-grid" id="crypto-prices">
+                </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-family: 'Syne';">Forex & Metals</h3>
+            <div class="price-grid" id="forex-prices">
+                <div class="price-item">USD/EUR: <span id="price-eur">--</span></div>
+                <div class="price-item">Gold: <span id="price-gold">--</span></div>
+                <div class="price-item">Silver: <span id="price-silver">--</span></div>
+            </div>
+        </div>
+
+        <div class="card" style="grid-row: span 2;">
+            <h3 style="font-family: 'Syne'; margin-bottom: 10px;">Latest Headlines</h3>
+            <div id="news-list" style="font-size: 12px; line-height: 1.6;">
+                Loading news...
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 id="cal-month" style="font-family: 'Syne'; text-align: center;">Month</h3>
+            <div id="mini-calendar" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; font-size: 10px; margin-top: 10px;"></div>
+        </div>
+
+        <button class="nuke-btn" onclick="nukeData()">Nuke & Reset Dashboard</button>
     </div>
-    <div class="card" style="padding: 15px; text-align: center;">
-      <div class="led-display" id="led-display">00:00:00</div>
+
+    <div id="loc-ov">
+        <h2 style="margin-bottom: 20px;">Search Location</h2>
+        <input type="text" id="loc-input" placeholder="Enter city name..." style="padding: 10px; width: 80%; border-radius: 8px;">
+        <div id="loc-results" style="margin-top: 20px; width: 80%;"></div>
+        <button onclick="toggleLocationModal()" style="margin-top: 20px; color: white; background: none; border: 1px solid white; padding: 10px 20px; border-radius: 8px;">Close</button>
     </div>
-  </div>
 
-  <div class="stats-row">
-    <div class="card stat ml" id="stat-mail-card" style="padding: 15px; text-align: center;">
-      <div id="stat-mail" style="font-size: 20px; font-weight: bold; color: var(--blue);">--</div>
-      <div style="font-size: 10px; color: var(--muted);">Unread Mail</div>
-    </div>
-    <div class="card stat ev" id="stat-ev-card" style="padding: 15px; text-align: center;">
-      <div id="stat-ev" style="font-size: 20px; font-weight: bold; color: var(--cyan);">--</div>
-      <div style="font-size: 10px; color: var(--muted);">Events Today</div>
-    </div>
-  </div>
+    <script>
+        /* ‼️ STEP 3: CORE LOGIC & DATA PERSISTENCE */
+        let LOC = JSON.parse(localStorage.getItem('dash_loc')) || { city: "London", lat: 51.5, lon: -0.12, tz: "Europe/London" };
 
-  <div class="card" id="rem-section" style="padding: 15px;">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-      <strong>Reminders</strong>
-      <button id="clear-done-btn" style="background: var(--red); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Clear Done</button>
-    </div>
-    <div id="rem-list"></div>
-  </div>
+        function init() {
+            updateClock();
+            fetchWeather();
+            fetchPrayers();
+            fetchFinance();
+            fetchNews();
+            renderCalendar();
+            setInterval(updateClock, 1000);
+            setInterval(fetchFinance, 300000); // ‼️ Every 5 minutes
+        }
 
-  <div class="card" id="gcal-section" style="padding: 15px;">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-      <strong>Google Calendar</strong>
-      <button id="gcal-signin-btn" style="background: var(--cyan); color: black; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Sign In</button>
-    </div>
-    <div id="gcal-body"><div class="empty">Sign in to see events</div></div>
-  </div>
+        // ‼️ STEP 4: LOCATION MANAGEMENT
+        async function searchLocation() {
+            const query = document.getElementById('loc-input').value;
+            if (query.length < 3) return;
+            
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5&language=en&format=json`);
+            const data = await res.json();
+            
+            const resultsDiv = document.getElementById('loc-results');
+            resultsDiv.innerHTML = data.results.map(r => `
+                <div onclick="setNewLocation('${r.name}', ${r.latitude}, ${r.longitude}, '${r.timezone}')" style="padding: 10px; border-bottom: 1px solid #333; cursor: pointer;">
+                    ${r.name}, ${r.country} (${r.timezone})
+                </div>
+            `).join('');
+        }
 
-  <div class="card" id="outlook-section" style="padding: 15px;">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-      <strong>Outlook Inbox</strong>
-      <button id="ms-signin-btn" style="background: var(--blue); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Sign In</button>
-    </div>
-    <div id="ms-body"><div class="empty">Sign in to see emails</div></div>
-  </div>
+        function setNewLocation(city, lat, lon, tz) {
+            LOC = { city, lat, lon, tz };
+            localStorage.setItem('dash_loc', JSON.stringify(LOC));
+            location.reload(); // Refresh to sync all widgets
+        }
 
-  <button id="nuke-btn" style="width: 100%; padding: 15px; background: rgba(255,0,0,0.1); color: var(--red); border: 1px solid var(--red); border-radius: 8px; cursor: pointer; margin-top: 20px;">
-    Clear My Data & Sessions
-  </button>
-</div>
+        function toggleLocationModal() {
+            document.getElementById('loc-ov').classList.toggle('active');
+        }
 
-<script>
-// ‼️ STEP 5: Core JavaScript Logic Initialization
-(function(){
-'use strict';
+        document.getElementById('loc-input').addEventListener('input', searchLocation);
 
-// ‼️ STEP 6: System Configurations
-var VER='1.3.0', BUILD='2026-03-23';
-var G_CID='623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
-var MS_CID='1155afdf-d585-48cc-af89-b973843ce21a';
-var MS_REDIR='https://ghaziomairi93.github.io/MyDashboard/';
-var MS_SCOPE='openid profile User.Read Mail.Read offline_access';
+        // ‼️ STEP 5: API INTEGRATIONS
+        async function fetchWeather() {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LOC.lat}&longitude=${LOC.lon}&current_weather=true`);
+            const data = await res.json();
+            document.getElementById('wx-temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
+            document.getElementById('wx-desc').innerText = `Conditions in ${LOC.city}`;
+            document.getElementById('current-location-text').innerText = `Local Time & Forecast for ${LOC.city}`;
+            document.getElementById('greeting').innerText = `Welcome to your Dashboard`;
+        }
 
-var LOC=null, selDate=new Date().toDateString(), tasks=[], gToken=null, calEvs=[];
+        async function fetchPrayers() {
+            const res = await fetch(`https://api.aladhan.com/v1/timingsByAddress?address=${LOC.city}`);
+            const data = await res.json();
+            const t = data.data.timings;
+            const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+            document.getElementById('prayer-list').innerHTML = prayers.map(p => `
+                <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                    <span>${p}</span> <span>${t[p]}</span>
+                </div>
+            `).join('');
+        }
 
-function el(id){ return document.getElementById(id); }
-function setTxt(id, t){ var e=el(id); if(e) e.textContent=t; }
+        async function fetchFinance() {
+            // Using CoinGecko for Crypto
+            const cryptoRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,helium&vs_currencies=usd&include_24hr_change=true');
+            const cData = await cryptoRes.json();
+            
+            const coins = [
+                {id: 'bitcoin', sym: 'BTC'}, {id: 'ethereum', sym: 'ETH'}, 
+                {id: 'solana', sym: 'SOL'}, {id: 'helium', sym: 'HNT'}
+            ];
 
-// ‼️ STEP 7: LocalStorage Helpers
-function getLS(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-function setLS(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
-function rmLS(k){ try{ localStorage.removeItem(k); }catch(e){} }
+            document.getElementById('crypto-prices').innerHTML = coins.map(c => `
+                <div class="price-item">
+                    ${c.sym}: <span class="${cData[c.id].usd_24h_change > 0 ? 'up' : 'down'}">$${cData[c.id].usd.toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            // Mock Forex/Metals (Requires API Key for real data like Fixer.io or OANDA)
+            document.getElementById('price-eur').innerText = "0.92";
+            document.getElementById('price-gold').innerText = "$2,150.40";
+            document.getElementById('price-silver').innerText = "$24.50";
+        }
 
-document.addEventListener('DOMContentLoaded', function(){
-  try{ LOC = JSON.parse(getLS('bmd_loc')||'null'); }catch(e){ LOC=null; }
-  
-  // ‼️ STEP 8: Event Listeners Binding
-  var nukeBtn = el('nuke-btn');
-  if(nukeBtn) nukeBtn.addEventListener('click', nukeData);
-  
-  var msBtn = el('ms-signin-btn');
-  if(msBtn) msBtn.addEventListener('click', startMSLogin);
+        function updateClock() {
+            const now = new Date();
+            const options = { timeZone: LOC.tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            document.getElementById('main-clock').innerText = new Intl.DateTimeFormat('en-GB', options).format(now);
+        }
 
-  var gcalBtn = el('gcal-signin-btn');
-  if(gcalBtn) gcalBtn.addEventListener('click', initGCal);
+        function renderCalendar() {
+            const now = new Date();
+            document.getElementById('cal-month').innerText = now.toLocaleString('default', { month: 'long' }) + " " + now.getFullYear();
+            // Simple grid generation logic here...
+        }
 
-  requestAnimationFrame(clockTick);
-});
+        function nukeData() {
+            if(confirm("Master, are you sure you want to wipe all local data?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
 
-// ‼️ STEP 9: Clock & UI Updates
-function clockTick(){
-  var now = new Date();
-  var hh = now.getHours(), mm = now.getMinutes(), ss = now.getSeconds();
-  
-  var timeStr = (hh < 10 ? '0'+hh : hh) + ':' + (mm < 10 ? '0'+mm : mm) + ':' + (ss < 10 ? '0'+ss : ss);
-  setTxt('led-display', timeStr);
-  
-  requestAnimationFrame(clockTick);
-}
-
-// ‼️ STEP 10: Authentication Handlers
-function startMSLogin(){
-  alert("MS Login PKCE flow initiated. Redirecting...");
-  // Full PKCE flow goes here
-}
-
-function initGCal(){
-  alert("Google Auth initiated...");
-  // Google GSI flow goes here
-}
-
-function nukeData(){
-  if(confirm('Clear all data and sessions? Cannot be undone.')){
-    try{ localStorage.clear(); }catch(e){}
-    location.reload();
-  }
-}
-
-})();
-</script>
+        // Initialize
+        init();
+    </script>
 </body>
 </html>
