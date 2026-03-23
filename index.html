@@ -1,0 +1,467 @@
+<!--
+  ================================================================
+  BIG MINDS DASHBOARD
+  ================================================================
+  Version   : 1.0.0
+  Released  : 2026-03-23
+  Author    : Ghazi Omairi
+  Repo      : github.com/ghaziomairi93/MyDashboard
+  Live      : ghaziomairi93.github.io/MyDashboard/
+  ----------------------------------------------------------------
+  RELEASE NOTES v1.0.0 — Initial Release
+  ----------------------------------------------------------------
+  · Full dashboard: 14 widgets in one clean release
+  · Single shared location: drives weather, clock, greeting,
+    prayer times, calendar timezone, and weather theme
+  · Weather theme: background changes with time + condition
+  · Crypto: BTC, ETH, SOL, HNT — CoinGecko, 5min refresh
+  · Forex + Metals: USD/EUR, Gold, Silver — 5min refresh
+  · Prayer times: Fajr, Dhuhr, Asr, Maghrib, Isha via Aladhan
+  · News: top 5 headlines via NYT RSS
+  · Mini calendar: tap any day to sync all widgets
+  · Google Calendar: OAuth, read/create/delete
+  · Outlook: PKCE OAuth, 15 unread emails
+  · 3-file architecture: index.html + main.js + style.css
+  ================================================================
+-->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title id="page-title">Big Minds Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="t-night">
+
+<!-- Weather scene layer (stars, moon, rain, etc.) -->
+
+<div id="scene"></div>
+
+<div class="grid">
+
+  <!-- ── 1. GREETING ───────────────────────────────────── -->
+
+  <div class="card greeting">
+    <div class="g-eye">Welcome back</div>
+    <div class="g-name">Big <span>Minds</span></div>
+    <div class="g-row">
+      <div class="g-sub" id="greeting-msg">Loading...</div>
+      <button class="loc-btn" onclick="openSearch()">
+        <span id="loc-btn-label">&#128205; Set Location</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 2. WEATHER + CLOCK ─────────────────────────────── -->
+
+  <div class="top-row">
+    <div class="card weather-card" onclick="openSearch()">
+      <div class="w-top">
+        <div>
+          <div class="w-temp" id="w-temp">--&deg;</div>
+          <div class="w-cond" id="w-cond">Tap to set location</div>
+        </div>
+        <div class="w-icon-big" id="w-icon">&#127777;</div>
+      </div>
+      <div class="w-city" id="w-city">Choose Location</div>
+    </div>
+    <div class="card clock-card">
+      <div class="c-hms" id="c-hms">00:00:00</div>
+      <div class="c-ms"  id="c-ms">00</div>
+      <div class="c-meta" id="c-meta">Set location for timezone</div>
+    </div>
+  </div>
+
+  <!-- ── 3. STATS ───────────────────────────────────────── -->
+
+  <div class="stats-row">
+    <div class="card stat-card mail"   onclick="document.getElementById('outlook-card').scrollIntoView({behavior:'smooth'})">
+      <div class="s-num" id="stat-mail">&mdash;</div>
+      <div class="s-lbl">Unread Mail</div>
+    </div>
+    <div class="card stat-card events" onclick="document.getElementById('gcal-card').scrollIntoView({behavior:'smooth'})">
+      <div class="s-num" id="stat-events">&mdash;</div>
+      <div class="s-lbl">Events Today</div>
+    </div>
+  </div>
+
+  <!-- ── 4. CRYPTO ─────────────────────────────────────── -->
+
+  <div class="card">
+    <div class="w-head">
+      <div class="w-title">&#128176; Crypto Prices</div>
+      <div class="w-right">
+        <span class="w-meta" id="crypto-ts"></span>
+        <button class="btn-icon" onclick="loadCrypto()" title="Refresh">&#8635;</button>
+      </div>
+    </div>
+    <div class="crypto-grid">
+      <div class="c-item">
+        <div class="c-left"><div class="c-dot" style="background:#f7931a"></div><div><div class="c-sym">BTC</div><div class="c-name">Bitcoin</div></div></div>
+        <div class="c-right"><div class="c-price" id="cp-px-BTC">--</div><div class="c-change" id="cp-ch-BTC">--</div></div>
+      </div>
+      <div class="c-item">
+        <div class="c-left"><div class="c-dot" style="background:#627eea"></div><div><div class="c-sym">ETH</div><div class="c-name">Ethereum</div></div></div>
+        <div class="c-right"><div class="c-price" id="cp-px-ETH">--</div><div class="c-change" id="cp-ch-ETH">--</div></div>
+      </div>
+      <div class="c-item">
+        <div class="c-left"><div class="c-dot" style="background:#9945ff"></div><div><div class="c-sym">SOL</div><div class="c-name">Solana</div></div></div>
+        <div class="c-right"><div class="c-price" id="cp-px-SOL">--</div><div class="c-change" id="cp-ch-SOL">--</div></div>
+      </div>
+      <div class="c-item">
+        <div class="c-left"><div class="c-dot" style="background:#474dff"></div><div><div class="c-sym">HNT</div><div class="c-name">Helium</div></div></div>
+        <div class="c-right"><div class="c-price" id="cp-px-HNT">--</div><div class="c-change" id="cp-ch-HNT">--</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. FOREX + METALS ──────────────────────────────── -->
+
+  <div class="card">
+    <div class="w-head">
+      <div class="w-title">&#128178; Forex &amp; Metals</div>
+      <div class="w-right">
+        <span class="w-meta" id="forex-ts"></span>
+        <button class="btn-icon" onclick="loadForex()" title="Refresh">&#8635;</button>
+      </div>
+    </div>
+    <div class="fx-grid">
+      <div class="fx-item"><div class="fx-lbl">USD / EUR</div><div class="fx-val" id="fx-eur">--</div><div class="fx-sub">1 USD in EUR</div></div>
+      <div class="fx-item"><div class="fx-lbl">Gold XAU</div><div class="fx-val" id="fx-gold">--</div><div class="fx-sub">per troy oz</div></div>
+      <div class="fx-item"><div class="fx-lbl">Silver XAG</div><div class="fx-val" id="fx-silver">--</div><div class="fx-sub">per troy oz</div></div>
+    </div>
+  </div>
+
+  <!-- ── 6 + 7. COUNTDOWN + TASKS ──────────────────────── -->
+
+  <div class="mid-row">
+    <div class="card cd-card">
+      <div class="cd-lbl">&#9203; Countdown</div>
+      <div id="cd-area" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center">
+        <div style="font-size:11px;color:var(--muted)">No event set</div>
+      </div>
+      <button id="cd-btn" class="btn btn-amber" style="width:100%;margin-top:6px" onclick="openCDModal()">&#65291; Add Event</button>
+    </div>
+    <div class="card tasks-card" onclick="document.getElementById('rem-section').scrollIntoView({behavior:'smooth'})">
+      <div class="t-num" id="tasks-count">0</div>
+      <div class="t-lbl">Uncompleted<br>Tasks Today</div>
+    </div>
+  </div>
+
+  <!-- ── 8. QUOTE ───────────────────────────────────────── -->
+
+  <div class="card quote-card" onclick="newQuote()">
+    <div class="q-head">
+      <span class="q-tag">Wisdom</span>
+      <button class="q-btn" onclick="event.stopPropagation();newQuote()">&#8635;</button>
+    </div>
+    <div class="q-text"   id="q-text">Loading...</div>
+    <div class="q-author" id="q-author"></div>
+  </div>
+
+  <!-- ── 9. PRAYER TIMES ────────────────────────────────── -->
+
+  <div class="card">
+    <div class="w-head">
+      <div class="w-title">&#9728;&#65039; Prayer Times</div>
+      <div class="w-right">
+        <button class="loc-btn" style="font-size:9px;padding:3px 8px" onclick="openSearch()">&#128205; Change Location</button>
+      </div>
+    </div>
+    <div class="prayer-grid" id="prayer-grid">
+      <div class="p-item"><div class="p-name">Fajr</div><div class="p-time">--:--</div></div>
+      <div class="p-item"><div class="p-name">Dhuhr</div><div class="p-time">--:--</div></div>
+      <div class="p-item"><div class="p-name">Asr</div><div class="p-time">--:--</div></div>
+      <div class="p-item"><div class="p-name">Maghrib</div><div class="p-time">--:--</div></div>
+      <div class="p-item"><div class="p-name">Isha</div><div class="p-time">--:--</div></div>
+      <div class="p-item"><div class="p-name" style="font-size:11px">&#128205;</div><div class="p-time" style="font-size:9px;color:var(--muted)">Set location</div></div>
+    </div>
+  </div>
+
+  <!-- ── 10. NEWS ───────────────────────────────────────── -->
+
+  <div class="card">
+    <div class="w-head">
+      <div class="w-title">&#128240; Headlines</div>
+      <button class="btn-icon" onclick="loadNews()" title="Refresh">&#8635;</button>
+    </div>
+    <div id="news-list"><div class="empty">Loading headlines...</div></div>
+  </div>
+
+  <!-- ── 11. MINI CALENDAR ──────────────────────────────── -->
+
+  <div class="card">
+    <div class="mc-head">
+      <button class="mc-nav" onclick="mcPrev()">&#8249;</button>
+      <div class="mc-month" id="mc-month"></div>
+      <button class="mc-nav" onclick="mcNext()">&#8250;</button>
+    </div>
+    <div class="mc-grid">
+      <div class="mc-dow-row">
+        <div class="mc-dow">Su</div><div class="mc-dow">Mo</div><div class="mc-dow">Tu</div>
+        <div class="mc-dow">We</div><div class="mc-dow">Th</div><div class="mc-dow">Fr</div>
+        <div class="mc-dow">Sa</div>
+      </div>
+      <div class="mc-days" id="mc-days"></div>
+    </div>
+  </div>
+
+  <!-- ── 12. REMINDERS ─────────────────────────────────── -->
+
+  <div class="card" id="rem-section">
+    <div class="card-head">
+      <span class="c-title">&#128276; Reminders</span>
+      <div class="c-right">
+        <button class="btn btn-red" onclick="clearDone()">Clear Done</button>
+        <button class="btn-plus" onclick="openRemModal()">+</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input type="date" id="rem-date-picker" onchange="onRemDatePick(this.value)">
+      <input type="time" id="rem-time-picker">
+    </div>
+    <div class="day-bar" id="rem-day-bar"></div>
+    <div id="rem-list"></div>
+  </div>
+
+  <!-- ── 13. GOOGLE CALENDAR ───────────────────────────── -->
+
+  <div class="card" id="gcal-card">
+    <div class="card-head">
+      <div class="c-title">
+        <svg width="18" height="18" viewBox="0 0 48 48" fill="none" style="flex-shrink:0;border-radius:3px">
+          <rect width="48" height="48" fill="white"/>
+          <rect x="6"  y="6"  width="24" height="12" fill="#EA4335"/>
+          <rect x="30" y="6"  width="12" height="12" fill="#34A853"/>
+          <rect x="6"  y="18" width="12" height="12" fill="white"/>
+          <rect x="18" y="18" width="12" height="12" fill="white"/>
+          <rect x="30" y="18" width="12" height="12" fill="#34A853"/>
+          <rect x="6"  y="30" width="12" height="12" rx="2" fill="#FBBC04"/>
+          <rect x="18" y="30" width="12" height="12" fill="white"/>
+          <rect x="30" y="30" width="12" height="12" rx="2" fill="#1A73E8"/>
+          <text x="24" y="32" font-family="Arial" font-size="12" font-weight="bold" fill="#1A73E8" text-anchor="middle">31</text>
+          <line x1="18" y1="6"  x2="18" y2="42" stroke="white" stroke-width="1.5"/>
+          <line x1="6"  y1="18" x2="42" y2="18" stroke="white" stroke-width="1.5"/>
+          <line x1="6"  y1="30" x2="42" y2="30" stroke="white" stroke-width="1.5"/>
+          <rect x="14" y="2" width="4" height="8" rx="2" fill="#EA4335"/>
+          <rect x="30" y="2" width="4" height="8" rx="2" fill="#34A853"/>
+        </svg>
+        Google Calendar
+      </div>
+      <div class="c-right">
+        <div id="gcal-add-btn"></div>
+        <div id="gcal-btn"><button class="btn btn-blue" onclick="initGCal()">Sign In</button></div>
+      </div>
+    </div>
+    <div class="toolbar"><input type="date" id="cal-date-picker" onchange="onCalDatePick(this.value)"></div>
+    <div class="day-bar" id="cal-day-bar"></div>
+    <div id="gcal-body"><div class="empty">Sign in to see your events</div></div>
+  </div>
+
+  <!-- ── 14. OUTLOOK ───────────────────────────────────── -->
+
+  <div class="card" id="outlook-card">
+    <div class="card-head">
+      <div class="c-title">
+        <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0">
+          <defs><linearGradient id="ol" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#5BB8FF"/><stop offset="100%" stop-color="#2060E8"/></linearGradient></defs>
+          <rect width="48" height="48" rx="9" fill="url(#ol)"/>
+          <path d="M24 11L38 21v16H10V21z" fill="rgba(255,255,255,.18)"/>
+          <path d="M24 11L10 21l14 8 14-8z" fill="white" opacity=".94"/>
+          <path d="M16 31l8 5 8-5" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity=".78"/>
+        </svg>
+        Outlook Inbox
+      </div>
+      <div id="ms-btn"><button class="btn btn-blue" onclick="startMSLogin()">Sign In</button></div>
+    </div>
+    <div id="ms-body"><div class="empty">Sign in to see your emails</div></div>
+  </div>
+
+  <!-- ── BOTTOM BAR ────────────────────────────────────── -->
+
+  <div class="bottom-bar">
+    <button class="bb-btn" onclick="showGuide()">&#128218; Guide</button>
+    <button class="bb-btn" onclick="showContact()">&#128172; Support</button>
+    <button class="bb-btn" onclick="showCL()">&#128203; Updates</button>
+  </div>
+  <button class="nuke-btn" onclick="nukeData()">&#128465; Clear My Data &amp; Sessions</button>
+  <div class="v-stamp" id="version-stamp" onclick="showCL()"></div>
+
+</div><!-- /grid -->
+
+<!-- ================================================================
+     MODALS
+================================================================ -->
+
+<!-- LOCATION SEARCH -->
+
+<div class="search-ov" id="search-ov">
+  <div class="s-title">&#128205; Choose Location</div>
+  <input type="text" class="s-inp" id="search-inp" placeholder="Search any city, town or country worldwide...">
+  <div class="s-results" id="search-results">
+    <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">Start typing to search worldwide</div>
+  </div>
+  <div class="s-cancel" onclick="closeSearch()">&#10005; Cancel</div>
+</div>
+
+<!-- ADD REMINDER -->
+
+<div class="overlay" id="rem-modal">
+  <div class="modal">
+    <div class="m-title">&#128276; Add Task</div>
+    <div class="m-sub">For <span id="rem-date-lbl" style="color:var(--cyan)"></span></div>
+    <input type="text" class="m-inp" id="rem-inp" placeholder="What do you need to do?" onkeydown="if(event.key==='Enter')confirmRem()" style="margin-bottom:14px">
+    <div class="m-row">
+      <button class="m-cancel" onclick="closeRemModal()">Cancel</button>
+      <button class="m-ok"     onclick="confirmRem()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CALENDAR EVENT -->
+
+<div class="overlay" id="add-cal-modal">
+  <div class="modal">
+    <div class="m-title">&#128197; New Event</div>
+    <div class="m-sub">Saves to Google Calendar</div>
+    <span class="m-lbl">Title</span>
+    <input type="text" class="m-inp" id="new-ev-title" placeholder="e.g. Team Meeting">
+    <div class="m-two">
+      <div><span class="m-lbl">Date</span><input type="date" class="m-inp" id="new-ev-date" style="margin-bottom:0"></div>
+      <div><span class="m-lbl">Time</span><input type="time" class="m-inp" id="new-ev-time" style="margin-bottom:0"></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin:6px 0 10px;text-align:center">Default duration: 30 min</div>
+    <div class="confirm-note" id="cal-note"></div>
+    <div class="m-row">
+      <button class="m-cancel" onclick="closeAddCalModal()">Cancel</button>
+      <button class="m-ok"     onclick="confirmAddCal()">&#10003; Add Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+
+<div class="overlay" id="cd-modal">
+  <div class="modal">
+    <div class="m-title">&#9203; Countdown Event</div>
+    <div class="m-sub">Name it, pick a date and optional time</div>
+    <span class="m-lbl">Event Name</span>
+    <input type="text" class="m-inp" id="cd-name" placeholder="e.g. My Birthday">
+    <div class="m-two">
+      <div><span class="m-lbl">Date</span><input type="date" class="m-inp" id="cd-date" style="margin-bottom:0"></div>
+      <div><span class="m-lbl">Time <span style="opacity:.5">(opt)</span></span><input type="time" class="m-inp" id="cd-time" style="margin-bottom:0"></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin:6px 0 11px;text-align:center">Leave time blank to count to midnight</div>
+    <div class="m-row">
+      <button class="m-cancel" onclick="closeCDModal()">Cancel</button>
+      <button class="m-ok"     onclick="startCD()">&#9654; Start</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+
+<div class="overlay" id="contact-modal">
+  <div class="modal">
+    <div class="m-title">&#128172; Contact Support</div>
+    <div class="m-sub">We&rsquo;ll reply within 24&ndash;48 hours</div>
+    <input type="text"  class="m-inp" id="contact-name"  placeholder="Your name">
+    <input type="email" class="m-inp" id="contact-email" placeholder="Your email">
+    <textarea class="m-ta" id="contact-msg" placeholder="Describe your issue..."></textarea>
+    <div id="contact-status" class="m-status"></div>
+    <div class="m-row">
+      <button class="m-cancel" onclick="hideContact()">Cancel</button>
+      <button class="m-ok"     onclick="submitContact()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER GUIDE -->
+
+<div class="page-ov" id="guide-modal">
+  <div class="page-head">
+    <span class="page-head-title">&#128218; User Guide</span>
+    <button class="page-close" onclick="hideGuide()">&#10005; Close</button>
+  </div>
+  <div class="guide-block"><h3>&#128205; Location <span class="badge-tip">Shared by all widgets</span></h3><ul>
+    <li>One location drives everything — weather, clock, greeting, prayer times, calendar timezone, and background theme</li>
+    <li>Tap the <strong>Set Location</strong> button in the greeting or the <strong>Change Location</strong> button on any widget</li>
+    <li>Search any city, town, or country worldwide</li>
+    <li>Location saved locally and persists across visits</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#127782; Weather + &#9201; Clock</h3><ul>
+    <li>Weather from Open-Meteo using your saved location</li>
+    <li>Clock synced to your location&rsquo;s timezone, milliseconds shown</li>
+    <li>Background theme changes with time-of-day and weather condition</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128176; Crypto <span class="badge-new">Live</span></h3><ul>
+    <li>BTC, ETH, SOL, HNT via CoinGecko free API</li>
+    <li>24h price change shown — green up, red down</li>
+    <li>Auto-refreshes every 5 minutes. Tap &#8635; to refresh now</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128178; Forex &amp; Metals <span class="badge-new">Live</span></h3><ul>
+    <li>USD/EUR rate, Gold and Silver per troy oz</li>
+    <li>Auto-refreshes every 5 minutes. Tap &#8635; to refresh now</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#9728;&#65039; Prayer Times</h3><ul>
+    <li>Fajr, Dhuhr, Asr, Maghrib, Isha via Aladhan API</li>
+    <li>Next upcoming prayer is highlighted in teal</li>
+    <li>Requires location to be set</li>
+    <li>Tap Change Location to update</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128240; Headlines</h3><ul>
+    <li>Top 5 news headlines from NYT RSS</li>
+    <li>Tap any headline to open the full article</li>
+    <li>Tap &#8635; to refresh</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128197; Mini Calendar</h3><ul>
+    <li>Tap any day to sync Reminders and Google Calendar to that date</li>
+    <li>Use &#8249; &#8250; to navigate months</li>
+    <li>Today highlighted in purple, selected day in cyan</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128276; Reminders</h3><ul>
+    <li>Date/time picker sets due date and time</li>
+    <li>Tap + to add a task, checkbox marks done, &#128465; deletes it</li>
+    <li>Clear Done removes all completed tasks at once</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128197; Google Calendar</h3><ul>
+    <li>Sign In connects your Google account via OAuth</li>
+    <li>Date picker + 7-day bar to navigate</li>
+    <li>+ Add creates events in your Google Calendar</li>
+    <li>Tap an event to open Google Calendar app (iOS) or web</li>
+    <li>&#128465; deletes event from server immediately</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#9993; Outlook Inbox</h3><ul>
+    <li>Sign In redirects to Microsoft login</li>
+    <li>Shows 15 most recent unread emails</li>
+    <li>Tap email to open in native mail app on iOS</li>
+    <li>Session persists across page refreshes</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128465; Clear My Data</h3><ul>
+    <li>Clears all tasks, location, countdown, sessions, and cached data</li>
+    <li>Cannot be undone</li>
+  </ul></div>
+  <button onclick="hideGuide()" style="background:rgba(24,216,240,.12);color:var(--cyan);border:1px solid rgba(24,216,240,.28);padding:11px;border-radius:var(--rs);font-weight:700;width:100%;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;margin-top:4px">Got it!</button>
+  <div style="height:20px"></div>
+</div>
+
+<!-- CHANGELOG -->
+
+<div class="page-ov" id="cl-modal">
+  <div class="page-head">
+    <span class="page-head-title">&#128203; Changelog</span>
+    <button class="page-close" onclick="hideCL()">&#10005; Close</button>
+  </div>
+  <div id="cl-body"></div>
+  <div style="height:18px"></div>
+</div>
+
+<script src="main.js"></script>
+
+</body>
+</html>
