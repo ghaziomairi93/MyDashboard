@@ -1,97 +1,401 @@
+<!--
+  ================================================================
+  BIG MINDS DASHBOARD
+  ================================================================
+  Version   : 2.5.0
+  Released  : 2026-03-23 · 07:39 UTC
+  Author    : Ghazi Omairi
+  Repo      : github.com/ghaziomairi93/MyDashboard
+  Live      : ghaziomairi93.github.io/MyDashboard/
+  ----------------------------------------------------------------
+  RELEASE NOTES — v2.5.0
+  ----------------------------------------------------------------
+  · Split into 3-file architecture: index.html + main.js + style.css
+  · Fixed: hour+1 overflow in Add Event modal (clamped to max 23)
+  · Fixed: resize handler now passes correct weatherType to renderScene()
+  · Fixed: applyTheme() strips all t-* classes before applying new one
+  · style.css: all CSS extracted, tokenised, formatted for readability
+  · main.js: all JS extracted, APP config at top, feature flags added
+  · CHANGELOG.md replaces CHANGELOG_v2.2.0.md — full history included
+  · README.md updated to reflect 3-file structure and v2.5.0
+  ----------------------------------------------------------------
+  PREVIOUS — v2.4.0
+  ----------------------------------------------------------------
+  · Layout tightened — max-width 430px, compact mobile padding
+  · Google Calendar SVG icon rebuilt — no render artefacts
+  · City search: event-listener-based, supports all special characters
+  · Greeting reads from location timezone (activeTZ) not device time
+  · Weather theme + particle engine scoping bug fixed
+  ================================================================
+-->
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Big Minds Dashboard v1.3</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title id="page-title">Big Minds Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body>
-    <!-- ‼️ STEP 1: MASSIVE SVG ASSET LIBRARY (50+ ICONS) -->
-    <svg style="display:none;">
-        <symbol id="icon-google" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/></symbol>
-        <symbol id="icon-outlook" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0L1.5 3.5v17L12 24l10.5-3.5v-17L12 0z"/></symbol>
-        <symbol id="icon-mail" viewBox="0 0 24 24"><path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></symbol>
-        <symbol id="icon-cal" viewBox="0 0 24 24"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></symbol>
-        <!-- ... [Remaining 40+ SVG Symbols Restored here] ... -->
-    </svg>
+<body class="t-night">
 
-    <div class="app-shell">
-        <!-- ‼️ STEP 2: HEADER & SYSTEM STATUS -->
-        <header class="main-header">
-            <div class="branding">
-                <h1 id="greeting">Good Evening</h1>
-                <div class="tag-row">
-                    <span class="badge">v1.3.0-STABLE</span>
-                    <span id="uptime">UP: 04:22:10</span>
-                </div>
-            </div>
-            <div class="live-metrics">
-                <div id="bat-display" class="metric-pill" onclick="handleIOSBattery()">🔋 --%</div>
-                <div id="clock-main" class="led-font">00:00:00</div>
-            </div>
-        </header>
+<div id="particle-layer"></div>
 
-        <!-- ‼️ STEP 3: STATS BAR WITH SMOOTH SCROLL ANCHORS -->
-        <div class="stats-grid">
-            <div class="stat-card" onclick="scrollToWidget('mail-node')">
-                <span class="s-label">Unread Mail</span>
-                <span id="unread-count" class="s-value">--</span>
-            </div>
-            <div class="stat-card" onclick="scrollToWidget('cal-node')">
-                <span class="s-label">Events Today</span>
-                <span id="events-today" class="s-value">--</span>
-            </div>
-            <div class="stat-card" onclick="scrollToWidget('task-node')">
-                <span class="s-label">Open Tasks</span>
-                <span id="task-count" class="s-value">0</span>
-            </div>
-        </div>
+<div class="dashboard-grid">
 
-        <main class="dashboard-content">
-            <!-- ‼️ STEP 4: WEATHER & LOCATION -->
-            <section class="widget weather-hero" onclick="fetchWeather()">
-                <div class="w-info">
-                    <div id="temp-big">--°C</div>
-                    <div id="w-desc">Loading Weather...</div>
-                </div>
-                <div id="w-location">Ingolstadt, DE</div>
-            </section>
+  <!-- GREETING -->
 
-            <!-- ‼️ STEP 5: CALENDAR WITH DAY-BAR FILTERING -->
-            <section class="widget" id="cal-node">
-                <div id="day-bar" class="day-selector"></div>
-                <div id="event-list" class="list-container"></div>
-                <button class="btn-app" onclick="openNativeApp('calendar')">Open Calendar App</button>
-            </section>
+  <div class="greeting-banner">
+    <div class="g-eyebrow">Welcome back</div>
+    <div class="g-name">Big <span>Minds</span></div>
+    <div class="g-msg" id="greeting-msg">Loading...</div>
+  </div>
 
-            <!-- ‼️ STEP 6: REMINDERS & TASK LOGIC -->
-            <section class="widget" id="task-node">
-                <div class="w-header">
-                    <h3>Reminders</h3>
-                    <button class="nuke-small" onclick="clearCompleted()">Clear Done</button>
-                </div>
-                <div id="reminders-list" class="list-container"></div>
-                <div class="input-row">
-                    <input type="text" id="task-in" placeholder="New task...">
-                    <button onclick="addTask()">ADD</button>
-                </div>
-            </section>
+  <!-- ROW 1: Weather + Clock -->
 
-            <!-- ‼️ STEP 7: SYSTEM AUTH & PRIVACY -->
-            <section class="widget auth-pane" id="mail-node">
-                <div class="auth-buttons">
-                    <button class="btn-g" onclick="authGoogle()">Sync Google</button>
-                    <button class="btn-ms" onclick="authOutlook()">Sync Outlook</button>
-                </div>
-                <form id="support-form" onsubmit="sendAnonymousSupport(event)">
-                    <input type="text" name="msg" placeholder="Anonymous Support..." required>
-                    <button type="submit">Send</button>
-                </form>
-                <button class="nuke-btn" onclick="nukeStorage()">NUKE ALL DATA</button>
-            </section>
-        </main>
+  <div class="top-row">
+    <div class="widget weather-widget" onclick="toggleSearch()">
+      <div id="w-content">
+        <div class="w-hint">Tap to search</div>
+        <div class="temp-big">--&deg;</div>
+      </div>
+      <div class="w-city" id="w-city">Choose Location</div>
     </div>
-    <script src="main.js"></script>
+    <div class="clock-widget">
+      <div class="led-main" id="digi-hms">00:00:00</div>
+      <div class="led-ms"   id="digi-ms">00</div>
+      <div class="clock-meta" id="c-meta">-- &middot; --</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+
+  <div class="row-split">
+    <div class="stat-box mail-box"  onclick="scrollToId('outlook-section')">
+      <div class="stat-num" id="stat-mail">&mdash;</div>
+      <div class="stat-lbl">Unread Mail</div>
+    </div>
+    <div class="stat-box event-box" onclick="scrollToId('cal-section')">
+      <div class="stat-num" id="stat-events">&mdash;</div>
+      <div class="stat-lbl">Events Today</div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Countdown + Tasks -->
+
+  <table style="width:100%;border-collapse:separate;border-spacing:8px 0;table-layout:fixed">
+    <tr>
+      <td style="width:50%;vertical-align:top;padding:0">
+        <div class="countdown-widget" id="countdown-widget">
+          <div class="cd-label">&#9203; Countdown</div>
+          <div id="cd-display-area" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;text-align:center">No event set</div>
+          </div>
+          <button class="cd-add-btn" onclick="openCDModal()">&#65291; Add Event</button>
+        </div>
+      </td>
+      <td style="width:50%;vertical-align:top;padding:0">
+        <div class="tasks-widget" onclick="scrollToId('rem-section')">
+          <div class="tasks-count" id="tasks-count">0</div>
+          <div class="tasks-label">Uncompleted<br>Tasks Today</div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- QUOTE -->
+
+  <div class="quote-widget" onclick="fetchQuote()">
+    <div class="quote-header">
+      <span class="quote-tag">Wisdom</span>
+      <button class="quote-refresh" onclick="event.stopPropagation();fetchQuote()">&#8635;</button>
+    </div>
+    <div class="quote-text"   id="quote-text">Loading wisdom...</div>
+    <div class="quote-author" id="quote-author"></div>
+  </div>
+
+  <!-- REMINDERS -->
+
+  <div class="card" id="rem-section">
+    <div class="card-head">
+      <span class="card-title">&#128276; Reminders</span>
+      <div class="card-head-right">
+        <button class="btn-clear" onclick="clearDoneTasks()">Clear Done</button>
+        <button onclick="openReminderModal()"
+          style="background:none;border:none;color:var(--cyan);font-size:22px;font-weight:bold;cursor:pointer;line-height:1;padding:0 2px">+</button>
+      </div>
+    </div>
+    <div class="toolbar-row">
+      <input type="date" id="rem-date-picker" onchange="onRemDatePick(this.value)">
+      <input type="time" id="rem-time-picker">
+    </div>
+    <div class="day-bar" id="rem-day-bar"></div>
+    <div id="rem-list"></div>
+  </div>
+
+  <!-- GOOGLE CALENDAR -->
+
+  <div class="card" id="cal-section">
+    <div class="card-head">
+      <div class="card-title">
+        <!-- Google Calendar icon: accurate quadrant layout -->
+        <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"
+             style="flex-shrink:0;border-radius:4px">
+          <rect width="48" height="48" fill="white"/>
+          <rect x="6"  y="6"  width="24" height="12" fill="#EA4335"/>
+          <rect x="30" y="6"  width="12" height="12" fill="#34A853"/>
+          <rect x="6"  y="18" width="12" height="12" fill="white"/>
+          <rect x="18" y="18" width="12" height="12" fill="white"/>
+          <rect x="30" y="18" width="12" height="12" fill="#34A853"/>
+          <rect x="6"  y="30" width="12" height="12" rx="2" fill="#FBBC04"/>
+          <rect x="18" y="30" width="12" height="12" fill="white"/>
+          <rect x="30" y="30" width="12" height="12" rx="2" fill="#1A73E8"/>
+          <text x="24" y="32" font-family="Arial,Helvetica,sans-serif" font-size="12"
+                font-weight="bold" fill="#1A73E8" text-anchor="middle">31</text>
+          <line x1="18" y1="6"  x2="18" y2="42" stroke="white" stroke-width="1.5"/>
+          <line x1="6"  y1="18" x2="42" y2="18" stroke="white" stroke-width="1.5"/>
+          <line x1="6"  y1="30" x2="42" y2="30" stroke="white" stroke-width="1.5"/>
+          <rect x="14" y="2" width="4" height="8" rx="2" fill="#EA4335"/>
+          <rect x="30" y="2" width="4" height="8" rx="2" fill="#34A853"/>
+        </svg>
+        Google Calendar
+      </div>
+      <div class="card-head-right">
+        <button class="btn-add" id="add-event-btn" onclick="openAddCalModal()" style="display:none">+ Add</button>
+        <div id="google-head-btn">
+          <button class="btn-sign" onclick="initGoogle()">Sign In</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-row">
+      <input type="date" id="cal-date-picker" onchange="onCalDatePick(this.value)">
+    </div>
+    <div class="day-bar" id="cal-day-bar"></div>
+    <div id="google-body"><div class="empty">Sign in to see your events</div></div>
+  </div>
+
+  <!-- OUTLOOK -->
+
+  <div class="card" id="outlook-section">
+    <div class="card-head">
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+          <defs>
+            <linearGradient id="ol1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#5BB8FF"/>
+              <stop offset="100%" stop-color="#2060E8"/>
+            </linearGradient>
+          </defs>
+          <rect width="48" height="48" rx="10" fill="url(#ol1)"/>
+          <path d="M24 11L38 21v16H10V21z" fill="rgba(255,255,255,.18)"/>
+          <path d="M24 11L10 21l14 8 14-8z" fill="white" opacity=".94"/>
+          <path d="M16 31l8 5 8-5" fill="none" stroke="white" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" opacity=".78"/>
+        </svg>
+        Outlook Inbox
+      </div>
+      <div id="ms-head-btn">
+        <button class="btn-sign" onclick="startMSLogin()">Sign In</button>
+      </div>
+    </div>
+    <div id="ms-body"><div class="empty">Sign in to see your emails</div></div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+
+  <div class="bottom-bar">
+    <button class="bottom-btn" onclick="showGuide()">&#128218; Guide</button>
+    <button class="bottom-btn" onclick="showContact()">&#128172; Support</button>
+    <button class="bottom-btn" onclick="showChangelog()">&#128203; Updates</button>
+  </div>
+  <button class="btn-nuke" onclick="nukeData()">&#128465; Clear My Data and Sessions</button>
+  <div class="version-tag" id="version-tag" onclick="showChangelog()"></div>
+
+</div><!-- /dashboard-grid -->
+
+<!-- ================================================================
+     MODALS
+================================================================ -->
+
+<!-- ADD CAL EVENT -->
+
+<div class="modal-overlay" id="add-cal-modal">
+  <div class="modal-card">
+    <div class="modal-title">&#128197; New Event</div>
+    <div class="modal-sub">Saves directly to Google Calendar</div>
+    <span class="modal-label">Event Title</span>
+    <input type="text" class="modal-input" id="new-ev-title" placeholder="e.g. Team Meeting">
+    <div class="two-col">
+      <div>
+        <span class="modal-label">Date</span>
+        <input type="date" class="modal-input" id="new-ev-date" style="margin-bottom:0">
+      </div>
+      <div>
+        <span class="modal-label">Start Time</span>
+        <input type="time" class="modal-input" id="new-ev-time" style="margin-bottom:0">
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin:6px 0 10px;text-align:center">Default duration: 30 min</div>
+    <div class="add-cal-confirm-msg" id="add-cal-confirm-msg"></div>
+    <div class="modal-btn-row">
+      <button class="modal-cancel"  onclick="closeAddCalModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmAddCalEvent()">&#10003; Add Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- REMINDER -->
+
+<div class="modal-overlay" id="reminder-modal">
+  <div class="modal-card">
+    <div class="modal-title">&#128276; Add Task</div>
+    <div class="modal-sub">For <span id="reminder-date-label" style="color:var(--cyan)"></span></div>
+    <input type="text" class="modal-input" id="reminder-input"
+           placeholder="What do you need to do?"
+           onkeydown="if(event.key==='Enter')confirmReminder()"
+           style="margin-bottom:14px">
+    <div class="modal-btn-row">
+      <button class="modal-cancel"  onclick="closeReminderModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmReminder()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH — results injected by JS via addEventListener, no inline onclick -->
+
+<div class="search-modal" id="search-modal">
+  <div class="search-title">&#128205; Choose Location</div>
+  <input type="text" class="search-input" id="search-input"
+         placeholder="Search any city, town or country...">
+  <div class="search-results" id="search-results">
+    <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">
+      Start typing to search worldwide
+    </div>
+  </div>
+  <div class="search-cancel" onclick="toggleSearch()">&#10005; Cancel</div>
+</div>
+
+<!-- COUNTDOWN -->
+
+<div class="modal-overlay" id="cd-modal">
+  <div class="modal-card">
+    <div class="modal-title">&#9203; Countdown Event</div>
+    <div class="modal-sub">Name it, pick a date and optional time</div>
+    <span class="modal-label">Event Name</span>
+    <input type="text" class="modal-input" id="cd-name" placeholder="e.g. My Birthday">
+    <div class="two-col">
+      <div>
+        <span class="modal-label">Date</span>
+        <input type="date" class="modal-input" id="cd-date" style="margin-bottom:0">
+      </div>
+      <div>
+        <span class="modal-label">Time <span style="opacity:.5">(opt)</span></span>
+        <input type="time" class="modal-input" id="cd-time" style="margin-bottom:0">
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin:6px 0 12px;text-align:center">
+      Leave time blank to count to midnight
+    </div>
+    <div class="modal-btn-row">
+      <button class="modal-cancel"  onclick="closeCDModal()">Cancel</button>
+      <button class="modal-confirm" onclick="startCountdown()">&#9654; Start</button>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDE -->
+
+<div class="full-modal" id="guide-modal">
+  <div class="full-modal-sticky">
+    <span class="full-modal-title">&#128218; User Guide</span>
+    <button class="modal-close-btn" onclick="hideGuide()">&#10005; Close</button>
+  </div>
+  <div class="guide-block"><h3>&#127782; Weather <span class="guide-tag tag-tip">Top Left</span></h3><ul>
+    <li>Tap to search any city, town or country worldwide</li>
+    <li>Real-time temperature and condition via Open-Meteo</li>
+    <li>Background theme changes with time-of-day &amp; weather</li>
+    <li>Night: stars + moon &nbsp;|&nbsp; Day: sun + sky &nbsp;|&nbsp; Rain: drops &nbsp;|&nbsp; Snow: flakes &nbsp;|&nbsp; Storm: lightning</li>
+    <li>Location saved locally and persists across visits</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#9203; Live Clock</h3><ul>
+    <li>Synced to your chosen city&rsquo;s timezone</li>
+    <li>Milliseconds shown for precision</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128202; Stats</h3><ul>
+    <li>Tap Unread Mail &rarr; jumps to Outlook inbox</li>
+    <li>Tap Events Today &rarr; jumps to Google Calendar</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#9203; Countdown <span class="guide-tag tag-new">New</span></h3><ul>
+    <li>Tap + Add Event &mdash; enter name, date, optional time</li>
+    <li>Under 24h: live HH:MM:SS &nbsp;|&nbsp; Over 24h: Days + Hours</li>
+    <li>Tap &#9998; Change Event to edit</li>
+    <li>Persists locally across visits</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128161; Wisdom Quote</h3><ul>
+    <li>Tap or &#8635; for a new random quote</li>
+    <li>Saved locally and persists across visits</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128276; Reminders</h3><ul>
+    <li>Date/time picker sets due date</li>
+    <li>+ opens Add Task modal, checkbox marks done, &#128465; deletes</li>
+    <li>Clear Done removes all completed tasks</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128197; Google Calendar</h3><ul>
+    <li>Sign In connects your Google account</li>
+    <li>Date picker + 7-day bar to navigate days</li>
+    <li>+ Add creates events directly in Google Calendar</li>
+    <li>Tap event &rarr; opens Google Calendar app on iOS</li>
+    <li>&#128465; deletes event from server immediately</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#9993; Outlook Inbox</h3><ul>
+    <li>Sign In &rarr; Microsoft login &rarr; shows 15 unread emails</li>
+    <li>Tap email &rarr; opens native mail app on iOS</li>
+    <li>Session persists across page refreshes</li>
+  </ul></div>
+  <div class="guide-block"><h3>&#128465; Clear My Data</h3><ul>
+    <li>Tap &rarr; confirm &rarr; clears everything including sessions</li>
+  </ul></div>
+  <button onclick="hideGuide()"
+    style="background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,207,240,.3);
+           padding:12px;border-radius:var(--rs);font-weight:700;width:100%;cursor:pointer;
+           font-family:'DM Sans',sans-serif;font-size:13px;margin-top:4px">Got it!</button>
+  <div style="height:20px"></div>
+</div>
+
+<!-- CONTACT -->
+
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal-card">
+    <div class="modal-title">&#128172; Contact Support</div>
+    <div class="modal-sub">We&rsquo;ll reply within 24&ndash;48 hours</div>
+    <input type="text"  class="modal-input" id="contact-name"  placeholder="Your name">
+    <input type="email" class="modal-input" id="contact-email" placeholder="Your email">
+    <textarea class="modal-textarea" id="contact-msg"
+              placeholder="Describe your question or issue..."></textarea>
+    <div id="contact-status"
+         style="font-size:11px;margin-bottom:8px;min-height:14px;text-align:center;color:var(--muted)"></div>
+    <div class="modal-btn-row">
+      <button class="modal-cancel"  onclick="hideContact()">Cancel</button>
+      <button class="modal-confirm" onclick="submitContact()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGELOG -->
+
+<div class="full-modal" id="changelog-modal">
+  <div class="full-modal-sticky">
+    <span class="full-modal-title">&#128203; Changelog</span>
+    <button class="modal-close-btn" onclick="hideChangelog()">&#10005; Close</button>
+  </div>
+  <div id="changelog-body"></div><!-- populated by buildChangelog() in main.js -->
+  <div style="height:18px"></div>
+</div>
+
+<script src="main.js"></script>
+
 </body>
 </html>
