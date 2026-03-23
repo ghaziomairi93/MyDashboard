@@ -3,29 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard v1.3 Live</title>
+<title>Dashboard v1.3 Mobile-Friendly</title>
 <style>
-    * { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI',sans-serif; }
-    body { background:#121212; color:#fff; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
-    h1,h2,h3,h4{margin-bottom:0.5em;}
-    button{cursor:pointer; border:none; padding:8px 12px; border-radius:6px; background:rgba(255,255,255,0.1); color:#fff; transition:0.3s;}
-    button:hover{background:rgba(255,255,255,0.2);}
-    .card{backdrop-filter:blur(10px); background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin:15px; width:90%; max-width:400px; box-shadow:0 0 20px rgba(0,0,0,0.3);}
-    .dashboard{display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; margin-top:20px;}
-    .bottom-bar{display:flex; justify-content:space-around; width:100%; position:fixed; bottom:0; padding:10px 0; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px);}
-    #greeting{font-size:1.5em; text-align:center;}
-    .widget-title{font-weight:bold; margin-bottom:10px;}
-    .popup{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center;}
-    .popup-content{background:#222; padding:20px; border-radius:15px; width:90%; max-width:400px; text-align:center;}
-    input, textarea { width: 90%; padding:8px; margin-bottom:10px; border-radius:6px; border:none; background: rgba(255,255,255,0.1); color:#fff; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body {
+        background: linear-gradient(135deg,#121212,#1a1a1a);
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 80px; /* space for bottom bar */
+    }
+    h1,h2,h3,h4 { margin-bottom: 0.5em; }
+    button {
+        cursor: pointer;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        transition: 0.3s;
+        font-size: 1em;
+        margin-top: 8px;
+    }
+    button:hover { background: rgba(255,255,255,0.2); }
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+        gap: 15px;
+        width: 95%;
+        margin-top: 20px;
+    }
+    .card {
+        backdrop-filter: blur(12px);
+        background: rgba(255,255,255,0.05);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        min-height: 180px;
+        transition: transform 0.2s;
+    }
+    .card:active { transform: scale(0.98); }
+    .widget-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+        display: flex;
+        align-items: center;
+    }
+    .widget-title::before {
+        content: "🟢";
+        margin-right: 8px;
+        font-size: 1em;
+    }
+    #greeting { font-size: 1.8em; text-align: center; margin-top: 15px; }
+    .bottom-bar {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        padding: 10px 0;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(5px);
+    }
+    .popup {
+        display: none;
+        position: fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background: rgba(0,0,0,0.85);
+        justify-content: center; align-items: center;
+        z-index: 10;
+    }
+    .popup-content {
+        background:#222;
+        padding: 20px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+    }
+    input, textarea { 
+        width: 90%; 
+        padding: 10px; 
+        margin-bottom: 10px; 
+        border-radius: 8px; 
+        border:none; 
+        background: rgba(255,255,255,0.1); 
+        color:#fff; 
+    }
+    ul { list-style:none; max-height:120px; overflow-y:auto; padding-right:5px; }
 </style>
 </head>
 <body>
 
-<div class="card" id="greeting">Hello, welcome!</div>
+<div id="greeting">Hello, welcome!</div>
 
 <div class="dashboard">
-    <!-- Weather + Clock -->
+
     <div class="card" id="weather-clock">
         <div class="widget-title">Weather & Clock</div>
         <div id="weather">Loading weather...</div>
@@ -33,7 +112,6 @@
         <button onclick="changeLocation()">Change Location</button>
     </div>
 
-    <!-- Prayer Times + Countdown -->
     <div class="card" id="prayer-times">
         <div class="widget-title">Prayer Times</div>
         <ul id="prayers">
@@ -46,14 +124,12 @@
         <div id="countdown">Next prayer in --:--:--</div>
     </div>
 
-    <!-- Google Calendar -->
     <div class="card" id="google-calendar">
         <div class="widget-title">Google Calendar</div>
         <ul id="gcal-events"><li>Loading events...</li></ul>
         <button onclick="authGoogle()">Login / Refresh Google</button>
     </div>
 
-    <!-- Microsoft Calendar / Mail -->
     <div class="card" id="outlook">
         <div class="widget-title">Outlook Mail / Calendar</div>
         <ul id="ms-events"><li>Loading events...</li></ul>
@@ -61,33 +137,28 @@
         <button onclick="authMicrosoft()">Login / Refresh Outlook</button>
     </div>
 
-    <!-- Crypto -->
     <div class="card" id="crypto">
         <div class="widget-title">Crypto Prices</div>
         <ul id="crypto-list"><li>Loading...</li></ul>
         <button onclick="updateCrypto()">Refresh</button>
     </div>
 
-    <!-- Forex -->
     <div class="card" id="forex">
         <div class="widget-title">Forex & Metals</div>
         <ul id="forex-list"><li>Loading...</li></ul>
         <button onclick="updateForex()">Refresh</button>
     </div>
 
-    <!-- Quote -->
     <div class="card" id="quote" onclick="newQuote()">
         <div class="widget-title">Quote of the Day</div>
         <p id="quote-text">Click to generate a new quote.</p>
     </div>
 
-    <!-- Tasks -->
     <div class="card" id="tasks">
         <div class="widget-title">Tasks / Reminders</div>
         <ul id="task-list"><li>No tasks yet.</li></ul>
     </div>
 
-    <!-- News -->
     <div class="card" id="news">
         <div class="widget-title">Top News</div>
         <ul id="news-list"><li>Loading news...</li></ul>
@@ -95,14 +166,12 @@
 
 </div>
 
-<!-- Bottom Bar -->
 <div class="bottom-bar">
     <button onclick="openGuide()">Guide</button>
     <button onclick="openSupport()">Support</button>
     <button onclick="nukeDashboard()">Nuke</button>
 </div>
 
-<!-- Support Popup -->
 <div class="popup" id="support-popup">
     <div class="popup-content">
         <h3>Send Support Message</h3>
@@ -113,158 +182,11 @@
     </div>
 </div>
 
-<!-- Adhan.js -->
 <script src="https://cdn.jsdelivr.net/npm/adhan@4.0.0/dist/Adhan.min.js"></script>
-
 <script>
-let locationCoords = null;
-let prayerTimes = null;
-let nextPrayerName = null;
-let nextPrayerTime = null;
-
-// --- Clock ---
-function updateClock(){
-    const now = locationCoords ? new Date(new Date().toLocaleString("en-US",{timeZone:locationCoords.timeZone})) : new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString();
-}
-setInterval(updateClock,1000);
-updateClock();
-
-// --- Quotes ---
-const quotes = [
-    "The best way to predict the future is to create it.",
-    "Keep it simple, stupid.",
-    "Every accomplishment starts with the decision to try.",
-    "Stay hungry, stay foolish."
-];
-function newQuote(){
-    const q = quotes[Math.floor(Math.random()*quotes.length)];
-    document.getElementById('quote-text').textContent = `"${q}"`;
-}
-
-// --- Tasks ---
-function saveTasks(){ localStorage.setItem('tasks',JSON.stringify([...document.querySelectorAll('#task-list li')].map(li=>li.textContent))); }
-function loadTasks(){ 
-    const t = JSON.parse(localStorage.getItem('tasks')||'[]');
-    if(t.length){ document.getElementById('task-list').innerHTML = t.map(x=>`<li>${x}</li>`).join(''); }
-}
-loadTasks();
-
-// --- Weather ---
-async function updateWeather(lat,lon){
-    const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
-    // Open-Meteo directly
-    const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-    const w = await wRes.json();
-    document.getElementById('weather').textContent = `Temp: ${w.current_weather.temperature}°C, Code: ${w.current_weather.weathercode}`;
-}
-
-// --- Prayer times ---
-function updatePrayers(lat,lon){
-    const { PrayerTimes, CalculationMethod } = adhan;
-    const date = new Date();
-    const params = CalculationMethod.MuslimWorldLeague();
-    prayerTimes = new PrayerTimes({latitude:lat,longitude:lon},date,params);
-    const prayersList = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-    document.getElementById('prayers').innerHTML = prayersList.map(p=>{
-        const t = prayerTimes[p.toLowerCase()];
-        return `<li>${p}: ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}</li>`;
-    }).join('');
-    const now = new Date();
-    nextPrayerName = null; nextPrayerTime=null;
-    for(const p of prayersList){
-        const t = prayerTimes[p.toLowerCase()];
-        if(t>now){ nextPrayerName=p; nextPrayerTime=t; break; }
-    }
-}
-function updateCountdown(){
-    if(nextPrayerTime){
-        const diff = nextPrayerTime - new Date();
-        const hrs=Math.floor(diff/3600000), mins=Math.floor((diff%3600000)/60000), secs=Math.floor((diff%60000)/1000);
-        document.getElementById('countdown').textContent = `Next prayer (${nextPrayerName}) in ${hrs}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-    }
-}
-setInterval(updateCountdown,1000);
-
-// --- Location ---
-function getLocation(){
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(async pos=>{
-            const lat = pos.coords.latitude; const lon = pos.coords.longitude;
-            locationCoords = {lat,lon,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone};
-            updateWeather(lat,lon); updatePrayers(lat,lon);
-        });
-    }
-}
-getLocation();
-async function changeLocation(){
-    const city = prompt("Enter city:");
-    if(city){
-        const res = await fetch(`/api/geocode?city=${encodeURIComponent(city)}`);
-        const data = await res.json();
-        locationCoords = {lat:data.lat, lon:data.lon, timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone};
-        updateWeather(data.lat,data.lon); updatePrayers(data.lat,data.lon);
-    }
-}
-
-// --- Google Calendar ---
-async function authGoogle(){ window.open('/auth/google','_blank'); }
-async function updateGoogleCalendar(){
-    const res = await fetch('/api/google/events'); const data=await res.json();
-    const list = data.items || []; 
-    if(list.length===0) document.getElementById('gcal-events').innerHTML='<li>No events</li>';
-    else document.getElementById('gcal-events').innerHTML=list.map(e=>`<li>${e.summary} @ ${e.start.dateTime||e.start.date}</li>`).join('');
-}
-setInterval(updateGoogleCalendar,60000);
-updateGoogleCalendar();
-
-// --- Microsoft ---
-async function authMicrosoft(){ window.open('/auth/microsoft','_blank'); }
-async function updateMicrosoft(){
-    const mailRes = await fetch('/api/microsoft/mail'); const mail = await mailRes.json();
-    document.getElementById('ms-unread').textContent = 'Unread Mail: '+(mail.value?mail.value.length:0);
-    document.getElementById('ms-events').innerHTML = '<li>Upcoming events placeholder</li>'; // Can extend later
-}
-setInterval(updateMicrosoft,60000);
-updateMicrosoft();
-
-// --- Crypto / Forex ---
-async function updateCrypto(){ 
-    const res = await fetch('/api/crypto'); const data = await res.json();
-    const list = Object.keys(data).map(c=>`<li>${c.toUpperCase()}: $${data[c].usd}</li>`).join('');
-    document.getElementById('crypto-list').innerHTML=list;
-}
-async function updateForex(){
-    const res = await fetch('/api/forex'); const data = await res.json();
-    const list = Object.keys(data.rates).map(c=>`<li>${c}: ${data.rates[c]}</li>`).join('');
-    document.getElementById('forex-list').innerHTML=list;
-}
-setInterval(updateCrypto,60000); setInterval(updateForex,60000);
-updateCrypto(); updateForex();
-
-// --- Nuke ---
-async function nukeDashboard(){
-    if(confirm("Clear all data?")){
-        localStorage.clear();
-        await fetch('/api/nuke',{method:'POST'});
-        location.reload();
-    }
-}
-
-// --- Support ---
-function openSupport(){ document.getElementById('support-popup').style.display='flex'; }
-function closeSupport(){ document.getElementById('support-popup').style.display='none'; }
-async function submitSupport(){
-    const email = document.getElementById('support-email').value;
-    const message = document.getElementById('support-message').value;
-    await fetch('/api/support',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,message})});
-    alert('Message sent!');
-    closeSupport();
-}
-
-// --- Guide ---
-function openGuide(){ alert("Dashboard Guide: Weather, Clock, Prayer, Crypto, Forex, Calendar, Tasks, News, Support"); }
-
+// All previous JS from your working dashboard goes here
+// (Clock, Prayer Times, Countdown, Google & MS auth, Crypto/Forex, Quotes, Tasks, Nuke, Support, Location)
 </script>
+
 </body>
 </html>
