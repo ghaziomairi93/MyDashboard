@@ -1,325 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal Command Center</title>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
-
-<style>
-body { margin:0; font-family: Arial; background:#0a0a0a; color:#fff; }
-.container { padding:15px; max-width:600px; margin:auto; }
-.card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding:15px; border-radius:15px; margin-bottom:15px; }
-.green { color:#00ff9c; }
-button { padding:8px; border:none; border-radius:8px; background:#00ff9c; color:#000; cursor:pointer; }
-input, textarea { padding:8px; width:100%; margin-top:5px; border-radius:8px; border:none; }
-ul { padding-left:20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omni-Dashboard v1.3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --neon-green: #00ff9c; }
+        body { background: radial-gradient(circle at top, #1a1a2e, #0f0f1a); color: white; font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
+        .neon-text { color: var(--neon-green); text-shadow: 0 0 10px rgba(0, 255, 156, 0.3); }
+        .nuke-btn { background: rgba(255, 50, 50, 0.2); border: 1px solid rgba(255, 50, 50, 0.5); }
+        input, button { transition: all 0.2s ease; }
+        .scroll-hide::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body>
+<body class="p-4 pb-24">
 
-<div class="container">
+    <header class="max-w-4xl mx-auto mb-6 flex justify-between items-end">
+        <div>
+            <h1 id="live-clock" class="text-5xl font-bold neon-text leading-none">00:00:00</h1>
+            <p id="live-date" class="text-sm opacity-60 mt-2 neon-text uppercase tracking-widest">Loading Date...</p>
+        </div>
+        <div class="text-right">
+            <div class="flex items-center gap-2 justify-end mb-1">
+                <i data-lucide="map-pin" class="w-4 h-4 text-white"></i>
+                <input id="city-input" type="text" placeholder="Enter City..." class="bg-transparent border-b border-white/20 outline-none text-right w-32 focus:border-emerald-400">
+            </div>
+            <p id="current-location" class="text-xs opacity-50">Detecting location...</p>
+        </div>
+    </header>
 
-<!-- LOCATION -->
-<div class="card">
-<h3>Location</h3>
-<input id="cityInput" placeholder="Enter city">
-<button onclick="setCity()">Set</button>
-<p id="locationDisplay"></p>
-</div>
+    <main class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <section class="glass p-5 flex flex-col justify-between">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="font-bold flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4"></i> Prayers</h3>
+                <span id="next-prayer-countdown" class="text-xs font-mono bg-emerald-500/20 px-2 py-1 rounded text-emerald-400">--:--:--</span>
+            </div>
+            <div id="prayer-list" class="space-y-2 text-sm">
+                </div>
+        </section>
 
-<!-- CLOCK -->
-<div class="card">
-<h1 class="green" id="clock"></h1>
-<p id="date"></p>
-</div>
+        <section class="glass p-5">
+            <h3 class="font-bold mb-4 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4"></i> Overview</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white/5 p-3 rounded-xl">
+                    <p class="text-[10px] uppercase opacity-50">Mail</p>
+                    <p id="mail-count" class="text-xl font-bold neon-text">0</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-xl">
+                    <p class="text-[10px] uppercase opacity-50">Events</p>
+                    <p id="event-count" class="text-xl font-bold neon-text">0</p>
+                </div>
+            </div>
+        </section>
 
-<!-- WEATHER -->
-<div class="card">
-<h3>Weather</h3>
-<p id="weather"></p>
-</div>
+        <section class="glass p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold flex items-center gap-2"><i data-lucide="bitcoin" class="w-4 h-4"></i> Crypto</h3>
+                <button onclick="fetchCrypto()" class="hover:rotate-180 transition-transform"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
+            </div>
+            <div id="crypto-list" class="space-y-3">
+                </div>
+        </section>
 
-<!-- PRAYER -->
-<div class="card">
-<h3>Prayer Times</h3>
-<div id="prayers"></div>
-<p class="green" id="nextPrayer"></p>
-</div>
+        <section class="glass p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4"></i> Markets</h3>
+                <button onclick="fetchMarkets()" class="hover:rotate-180 transition-transform"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
+            </div>
+            <div id="market-list" class="space-y-3">
+                </div>
+        </section>
 
-<!-- CRYPTO & FOREX/METALS -->
-<div class="card">
-<h3>Markets</h3>
-<div id="crypto"></div>
-<button onclick="loadCrypto()">Refresh Crypto</button>
-<div id="forexMetals"></div>
-<button onclick="loadForexMetals()">Refresh Forex & Metals</button>
-</div>
+        <section class="glass p-5">
+            <h3 class="font-bold mb-3">Tasks</h3>
+            <div class="flex gap-2 mb-3">
+                <input id="task-input" type="text" class="bg-white/10 rounded-lg px-3 py-1 text-sm flex-1 outline-none focus:ring-1 ring-emerald-400">
+                <button onclick="addTask()" class="bg-emerald-500 text-black p-1 px-3 rounded-lg font-bold">+</button>
+            </div>
+            <div id="task-list" class="space-y-2 h-32 overflow-y-auto scroll-hide"></div>
+        </section>
 
-<!-- TASKS -->
-<div class="card">
-<h3>Tasks</h3>
-<input id="taskInput">
-<button onclick="addTask()">Add</button>
-<ul id="tasks"></ul>
-</div>
+        <section class="glass p-5 flex flex-col justify-center items-center text-center">
+            <div id="event-container">
+                <p class="text-[10px] uppercase opacity-50 mb-1">Target Event</p>
+                <h4 id="event-title" class="font-bold mb-2">No Event Set</h4>
+                <p id="event-timer" class="text-2xl font-mono neon-text">00d 00h 00m</p>
+                <button onclick="setEventPrompt()" class="mt-3 text-[10px] underline opacity-40 hover:opacity-100">Configure Event</button>
+            </div>
+        </section>
 
-<!-- EVENT -->
-<div class="card">
-<h3>Event Countdown</h3>
-<input type="datetime-local" id="eventDate">
-<button onclick="setEvent()">Set Event</button>
-<p id="countdown"></p>
-</div>
+    </main>
 
-<!-- QUOTE -->
-<div class="card" onclick="loadQuote()">
-<h3>Quote</h3>
-<p id="quote">Tap to load</p>
-</div>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md glass p-4 flex justify-around items-center shadow-2xl">
+        <button onclick="toggleSupport()" class="flex flex-col items-center opacity-60 hover:opacity-100">
+            <i data-lucide="help-circle" class="w-5 h-5"></i><span class="text-[8px] mt-1 uppercase">Support</span>
+        </button>
+        <button onclick="window.location.reload()" class="flex flex-col items-center opacity-60 hover:opacity-100">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[8px] mt-1 uppercase">Updates</span>
+        </button>
+        <button onclick="nukeSystem()" class="flex flex-col items-center text-red-400 hover:text-red-500">
+            <i data-lucide="zap" class="w-5 h-5"></i><span class="text-[8px] mt-1 uppercase">Nuke</span>
+        </button>
+    </nav>
 
-<!-- NEWS -->
-<div class="card">
-<h3>News</h3>
-<ul id="news"></ul>
-</div>
+    <div id="support-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-6 z-50 backdrop-blur-md">
+        <div class="glass w-full max-w-sm p-6 relative">
+            <button onclick="toggleSupport()" class="absolute top-4 right-4"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <h2 class="text-xl font-bold mb-4">Support</h2>
+            <form action="https://api.web3forms.com/submit" method="POST" class="space-y-4">
+                <input type="hidden" name="access_key" value="53bad208-02b2-40b6-974b-98f8b68d0439">
+                <input type="text" name="name" placeholder="Name" class="w-full bg-white/5 p-3 rounded-xl outline-none" required>
+                <textarea name="message" placeholder="Issue or Feedback" class="w-full bg-white/5 p-3 rounded-xl outline-none h-32" required></textarea>
+                <button type="submit" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl">Send Report</button>
+            </form>
+        </div>
+    </div>
 
-<!-- GOOGLE CALENDAR -->
-<div class="card">
-<h3>Google Calendar</h3>
-<div id="googleSignIn"></div>
-<ul id="googleEvents"></ul>
-</div>
+    <script>
+        // ‼️ CONFIGURATION & API KEYS
+        const G_ID = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
+        const MS_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
+        
+        // ‼️ STATE MANAGEMENT
+        let state = {
+            city: localStorage.getItem('city') || 'London',
+            lat: 51.5074,
+            lon: -0.1278,
+            prayers: {},
+            tasks: JSON.parse(localStorage.getItem('tasks')) || [],
+            event: JSON.parse(localStorage.getItem('event')) || null
+        };
 
-<!-- OUTLOOK CALENDAR -->
-<div class="card">
-<h3>Outlook Calendar</h3>
-<button onclick="loginMS()">Sign In</button>
-<ul id="msEvents"></ul>
-</div>
+        // ‼️ CORE ENGINE
+        function init() {
+            lucide.createIcons();
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Initial Data Fetch
+            fetchLocation();
+            fetchCrypto();
+            fetchMarkets();
+            renderTasks();
+            renderEvent();
+        }
 
-<!-- SUPPORT -->
-<div class="card">
-<h3>Support</h3>
-<input id="email" placeholder="Email (optional)">
-<textarea id="message" placeholder="Message"></textarea>
-<button onclick="sendSupport()">Send</button>
-</div>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour12: false });
+            document.getElementById('live-date').innerText = now.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short' });
+            if (state.prayers.Fajr) updatePrayerCountdown();
+            if (state.event) updateEventTimer();
+        }
 
-<!-- NUKE -->
-<div class="card">
-<button onclick="nuke()">☢️ Nuke Everything</button>
-</div>
+        // 📍 LOCATION & PRAYER
+        async function fetchLocation() {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${state.city}`);
+            const data = await res.json();
+            if (data[0]) {
+                state.lat = data[0].lat;
+                state.lon = data[0].lon;
+                document.getElementById('current-location').innerText = data[0].display_name.split(',')[0];
+                fetchPrayers();
+            }
+        }
 
-</div>
+        async function fetchPrayers() {
+            const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${state.lat}&longitude=${state.lon}&method=2`);
+            const data = await res.json();
+            state.prayers = data.data.timings;
+            renderPrayers();
+        }
 
-<script>
-// --- KEYS ---
-const G_CLIENT_ID  = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
-const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
-const W3F_KEY      = '53bad208-02b2-40b6-974b-98f8b68d0439';
+        function renderPrayers() {
+            const list = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+            document.getElementById('prayer-list').innerHTML = list.map(p => `
+                <div class="flex justify-between items-center">
+                    <span class="opacity-60">${p}</span>
+                    <span class="font-mono neon-text">${state.prayers[p]}</span>
+                </div>
+            `).join('');
+        }
 
-// --- LOCATION ---
-let lat=0, lon=0, cityName="";
-function setCity(){
-  let city=document.getElementById("cityInput").value;
-  localStorage.setItem("city", city);
-  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`)
-  .then(r=>r.json())
-  .then(d=>{
-    lat=d.results[0].latitude;
-    lon=d.results[0].longitude;
-    cityName=d.results[0].name;
-    document.getElementById("locationDisplay").innerText=cityName;
-    loadWeather();
-    loadPrayers();
-  });
-}
+        function updatePrayerCountdown() {
+            const now = new Date();
+            const times = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(p => {
+                const [h, m] = state.prayers[p].split(':');
+                const d = new Date();
+                d.setHours(h, m, 0);
+                return { name: p, time: d };
+            });
 
-// --- CLOCK ---
-setInterval(()=>{
-  let now=new Date();
-  document.getElementById("clock").innerText=now.toLocaleTimeString();
-  document.getElementById("date").innerText=now.toDateString();
-  updateNextPrayerCountdown();
-},1000);
+            let next = times.find(t => t.time > now) || { ...times[0], time: new Date(times[0].time.getTime() + 86400000) };
+            const diff = next.time - now;
+            const h = Math.floor(diff/3600000);
+            const m = Math.floor((diff%3600000)/60000);
+            const s = Math.floor((diff%60000)/1000);
+            document.getElementById('next-prayer-countdown').innerText = `NEXT: ${next.name} · ${h}h ${m}m ${s}s`;
+        }
 
-// --- WEATHER ---
-function loadWeather(){
- fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
- .then(r=>r.json())
- .then(d=>{ document.getElementById("weather").innerText=`${d.current_weather.temperature}°C, wind ${d.current_weather.windspeed} km/h`; });
-}
+        // 💰 FINANCIALS
+        async function fetchCrypto() {
+            const coins = ['bitcoin', 'ethereum', 'helium', 'ripple', 'binancecoin', 'magatrump'];
+            const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(',')}&vs_currencies=usd&include_24hr_change=true`);
+            const data = await res.json();
+            
+            const mapping = { bitcoin:'BTC', ethereum:'ETH', helium:'HNT', ripple:'XRP', binancecoin:'BNB', magatrump:'TRUMP' };
+            
+            document.getElementById('crypto-list').innerHTML = Object.keys(data).map(key => `
+                <div class="flex justify-between text-sm">
+                    <span class="font-bold">${mapping[key]}</span>
+                    <div class="text-right">
+                        <p class="neon-text font-mono">$${data[key].usd.toLocaleString()}</p>
+                        <p class="text-[9px] ${data[key].usd_24h_change >= 0 ? 'text-emerald-400' : 'text-red-400'}">
+                            ${data[key].usd_24h_change.toFixed(2)}%
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-// --- PRAYER TIMES (AlAdhan API) ---
-let prayerTimes={};
-let nextPrayerName="";
-let nextPrayerTime=null;
+        async function fetchMarkets() {
+            // Forex
+            const fxRes = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
+            const fxData = await fxRes.json();
+            
+            // Metals (Simulated/Public Proxy as most require keys, using placeholder logic for demo)
+            const metals = { gold: 64.12, silver: 0.78 }; 
 
-function loadPrayers(){
- if(!lat || !lon) return;
- fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`)
- .then(r=>r.json())
- .then(d=>{
-   prayerTimes=d.data.timings;
-   let html="";
-   for(let p in prayerTimes){ html+=`<p>${p}: ${prayerTimes[p]}</p>`; }
-   document.getElementById("prayers").innerHTML=html;
-   updateNextPrayer();
- });
-}
+            document.getElementById('market-list').innerHTML = `
+                <div class="flex justify-between text-sm">
+                    <span>EUR/USD</span>
+                    <span class="neon-text font-mono">${fxData.rates.USD}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span>GOLD (g)</span>
+                    <span class="neon-text font-mono">$${metals.gold}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span>SILVER (g)</span>
+                    <span class="neon-text font-mono">$${metals.silver}</span>
+                </div>
+            `;
+        }
 
-function updateNextPrayer(){
- let now=new Date();
- nextPrayerTime=null; nextPrayerName="";
- for(let p in prayerTimes){
-   let [h,m]=prayerTimes[p].split(":").map(Number);
-   let t=new Date();
-   t.setHours(h, m,0,0);
-   if(t>now){ nextPrayerTime=t; nextPrayerName=p; break; }
- }
- if(!nextPrayerTime){
-   let [h,m]=prayerTimes["Fajr"].split(":").map(Number);
-   nextPrayerTime=new Date(new Date().getTime()+24*3600*1000);
-   nextPrayerTime.setHours(h,m,0,0);
-   nextPrayerName="Fajr";
- }
-}
+        // ✅ TASK MANAGEMENT
+        function addTask() {
+            const input = document.getElementById('task-input');
+            if (!input.value) return;
+            state.tasks.push({ id: Date.now(), text: input.value });
+            input.value = '';
+            saveAndRenderTasks();
+        }
 
-function updateNextPrayerCountdown(){
- if(!nextPrayerTime) return;
- let diff=nextPrayerTime-new Date();
- if(diff<0) { updateNextPrayer(); diff=nextPrayerTime-new Date(); }
- let h=Math.floor(diff/3600000);
- let m=Math.floor(diff/60000)%60;
- let s=Math.floor(diff/1000)%60;
- document.getElementById("nextPrayer").innerText=`Next: ${nextPrayerName} in ${h}h ${m}m ${s}s`;
-}
+        function removeTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveAndRenderTasks();
+        }
 
-// --- CRYPTO ---
-function loadCrypto(){
- fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,hnt,xrp,binancecoin,trumpcoin&vs_currencies=usd")
- .then(r=>r.json())
- .then(d=>{
-  document.getElementById("crypto").innerHTML=
-   `BTC: <span class="green">$${d.bitcoin.usd}</span><br>
-    ETH: <span class="green">$${d.ethereum.usd}</span><br>
-    HNT: <span class="green">$${d.hnt.usd}</span><br>
-    XRP: <span class="green">$${d.xrp.usd}</span><br>
-    BNB: <span class="green">$${d.binancecoin.usd}</span><br>
-    TRUMP: <span class="green">$${d.trumpcoin.usd}</span>`;
- });
-}
+        function saveAndRenderTasks() {
+            localStorage.setItem('tasks', JSON.stringify(state.tasks));
+            renderTasks();
+        }
 
-// --- FOREX & METALS ---
-function loadForexMetals(){
- // Forex EUR/USD
- fetch("https://api.frankfurter.app/latest?from=EUR&to=USD")
- .then(r=>r.json())
- .then(d=>{
-   let eurusd=d.rates.USD;
-   // Metals: Gold and Silver from Metals-API (replace with public endpoint if needed)
-   let goldPrice=60.5; // placeholder per gram
-   let silverPrice=0.75; // placeholder per gram
-   document.getElementById("forexMetals").innerHTML=
-    `EUR/USD: <span class="green">${eurusd.toFixed(4)}</span><br>
-     Gold (g): <span class="green">${goldPrice}</span><br>
-     Silver (g): <span class="green">${silverPrice}</span>`;
- });
-}
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = state.tasks.map(t => `
+                <div class="flex justify-between items-center bg-white/5 p-2 rounded-lg text-xs group">
+                    <span>${t.text}</span>
+                    <button onclick="removeTask(${t.id})" class="opacity-0 group-hover:opacity-100 text-red-400">×</button>
+                </div>
+            `).join('');
+        }
 
-// Only fetch on page load
-loadCrypto();
-loadForexMetals();
+        // ⏳ EVENT COUNTDOWN
+        function setEventPrompt() {
+            const name = prompt("Event Name:");
+            const date = prompt("Date (YYYY-MM-DD HH:MM):");
+            if (name && date) {
+                state.event = { name, date: new Date(date).getTime() };
+                localStorage.setItem('event', JSON.stringify(state.event));
+                renderEvent();
+            }
+        }
 
-// --- TASKS ---
-function addTask(){
- let t=document.getElementById("taskInput").value;
- let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
- tasks.push(t);
- localStorage.setItem("tasks",JSON.stringify(tasks));
- renderTasks();
-}
-function renderTasks(){
- let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
- document.getElementById("tasks").innerHTML=tasks.map(t=>`<li>${t}</li>`).join("");
-}
-renderTasks();
+        function renderEvent() {
+            if (state.event) {
+                document.getElementById('event-title').innerText = state.event.name;
+            }
+        }
 
-// --- EVENT ---
-function setEvent(){ 
- let d=document.getElementById("eventDate").value; 
- localStorage.setItem("event",d); 
-}
-setInterval(()=>{
- let e=localStorage.getItem("event"); if(!e)return;
- let diff=new Date(e)-new Date();
- if(diff<0) document.getElementById("countdown").innerText="Event passed";
- else {
-  let h=Math.floor(diff/3600000);
-  let m=Math.floor(diff/60000)%60;
-  let s=Math.floor(diff/1000)%60;
-  document.getElementById("countdown").innerText=`${h}h ${m}m ${s}s`;
- }
-},1000);
+        function updateEventTimer() {
+            const diff = state.event.date - new Date().getTime();
+            if (diff < 0) {
+                document.getElementById('event-timer').innerText = "COMPLETED";
+                return;
+            }
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            document.getElementById('event-timer').innerText = `${d}d ${h}h ${m}m`;
+        }
 
-// --- QUOTE ---
-function loadQuote(){
- fetch("https://api.quotable.io/random")
- .then(r=>r.json())
- .then(d=>{ document.getElementById("quote").innerText=d.content; });
-}
+        // ☢️ UTILS
+        function nukeSystem() {
+            if (confirm("Erase all data and reset dashboard?")) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        }
 
-// --- NEWS ---
-fetch("https://api.rss2json.com/v1/api.json?rss_url=https://rss.cnn.com/rss/edition.rss")
-.then(r=>r.json())
-.then(d=>{
- document.getElementById("news").innerHTML=d.items.slice(0,5).map(n=>`<li>${n.title}</li>`).join("");
-});
+        function toggleSupport() {
+            const el = document.getElementById('support-modal');
+            el.classList.toggle('hidden');
+            el.classList.toggle('flex');
+        }
 
-// --- GOOGLE CALENDAR ---
-let googleToken=null;
-function initGoogle() {
-  google.accounts.id.initialize({ client_id:G_CLIENT_ID, callback: handleGoogleCredential });
-  google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme:"outline", size:"large" });
-  google.accounts.id.prompt();
-}
-function handleGoogleCredential(response){ googleToken=response.credential; fetchGoogleCalendar(); }
-function fetchGoogleCalendar(){
-  if(!googleToken) return;
-  fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=5&orderBy=startTime&singleEvents=true", { headers:{ Authorization:"Bearer "+googleToken } })
-  .then(r=>r.json())
-  .then(d=>{
-    document.getElementById("googleEvents").innerHTML=d.items.map(e=>`<li>${e.summary} (${new Date(e.start.dateTime||e.start.date).toLocaleString()})</li>`).join("");
-  });
-}
-window.onload = initGoogle;
+        document.getElementById('city-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                state.city = e.target.value;
+                localStorage.setItem('city', state.city);
+                fetchLocation();
+            }
+        });
 
-// --- OUTLOOK CALENDAR ---
-const msalConfig={ auth:{ clientId:MS_CLIENT_ID, redirectUri:window.location.href } };
-const msalInstance=new msal.PublicClientApplication(msalConfig);
-function loginMS(){
- msalInstance.loginPopup({ scopes:["Calendars.Read"] }).then(resp=>fetchMSCalendar(resp.accessToken));
-}
-function fetchMSCalendar(token){
- fetch("https://graph.microsoft.com/v1.0/me/events?$top=5&$orderby=start/dateTime",{ headers:{ Authorization:"Bearer "+token } })
- .then(r=>r.json())
- .then(d=>{ document.getElementById("msEvents").innerHTML=d.value.map(e=>`<li>${e.subject} (${new Date(e.start.dateTime).toLocaleString()})</li>`).join(""); });
-}
-
-// --- SUPPORT ---
-function sendSupport(){
- const email=document.getElementById("email").value;
- const message=document.getElementById("message").value;
- fetch("https://api.web3forms.com/submit",{ method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ access_key:W3F_KEY,email,message,subject:"Dashboard Support" }) })
- .then(r=>r.json()).then(d=>alert("Message sent!")).catch(e=>alert("Error sending message"));
-}
-
-// --- NUKE ---
-function nuke(){ localStorage.clear(); location.reload(); }
-
-</script>
+        init();
+    </script>
 </body>
 </html>
