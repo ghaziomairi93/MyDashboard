@@ -3,274 +3,254 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Dashboard v1.4</title>
+<title>Personal Command Center</title>
 
 <style>
-:root{
---bg:#0c0f14;
---card:rgba(255,255,255,0.05);
---border:rgba(255,255,255,0.08);
---accent:#00ff9c;
+body {
+  margin:0;
+  font-family: Arial;
+  background:#0a0a0a;
+  color:#fff;
 }
 
-body{
-margin:0;
-font-family:-apple-system,system-ui;
-background:linear-gradient(135deg,#0c0f14,#141b25);
-color:#e8e8e8;
+.container {
+  padding:15px;
 }
 
-.dashboard{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:14px;
-padding:14px;
+.card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:15px;
 }
 
-.card{
-background:var(--card);
-border:1px solid var(--border);
-border-radius:16px;
-padding:16px;
-backdrop-filter:blur(12px);
+.green { color:#00ff9c; }
+
+button {
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#00ff9c;
+  color:#000;
 }
 
-.title{margin-bottom:10px;opacity:0.8;font-weight:600;}
-.value{color:var(--accent);font-weight:600;}
-
-ul{list-style:none;padding:0;margin:0;}
-li{display:flex;justify-content:space-between;padding:6px 0;}
-
-button{
-width:100%;
-margin-top:10px;
-padding:10px;
-border:none;
-border-radius:10px;
-background:rgba(255,255,255,0.1);
-color:white;
+input {
+  padding:8px;
+  width:100%;
+  margin-top:5px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="dashboard">
+<div class="container">
 
+<!-- LOCATION -->
 <div class="card">
-<div class="title">Weather & Time</div>
-<div id="weather">--</div>
-<div id="clock" class="value">--</div>
-<button onclick="changeLocation()">Change Location</button>
+<h3>Location</h3>
+<input id="cityInput" placeholder="Enter city">
+<button onclick="setCity()">Set</button>
+<p id="locationDisplay"></p>
 </div>
 
+<!-- CLOCK -->
 <div class="card">
-<div class="title">Prayer Times</div>
-<ul id="prayers"></ul>
+<h1 class="green" id="clock"></h1>
+<p id="date"></p>
 </div>
 
+<!-- WEATHER -->
 <div class="card">
-<div class="title">Next Prayer</div>
-<div id="nextPrayer" class="value">--</div>
+<h3>Weather</h3>
+<p id="weather"></p>
 </div>
 
+<!-- PRAYER -->
 <div class="card">
-<div class="title">Crypto</div>
-<ul id="crypto"></ul>
+<h3>Prayer Times</h3>
+<div id="prayers"></div>
+<p class="green" id="nextPrayer"></p>
 </div>
 
+<!-- CRYPTO -->
 <div class="card">
-<div class="title">Forex & Metals</div>
-<ul id="forex"></ul>
+<h3>Crypto</h3>
+<div id="crypto"></div>
+<button onclick="loadCrypto()">Refresh</button>
 </div>
 
+<!-- TASKS -->
 <div class="card">
-<div class="title">Tasks</div>
+<h3>Tasks</h3>
+<input id="taskInput">
+<button onclick="addTask()">Add</button>
 <ul id="tasks"></ul>
-<button onclick="addTask()">Add Task</button>
 </div>
 
+<!-- EVENT -->
 <div class="card">
-<div class="title">Event Countdown</div>
-<div id="eventCountdown">No event</div>
-<button onclick="setEvent()" id="eventBtn">＋ Create Event</button>
+<h3>Event Countdown</h3>
+<input type="datetime-local" id="eventDate">
+<button onclick="setEvent()">Set Event</button>
+<p id="countdown"></p>
 </div>
 
-<div class="card" onclick="newQuote()">
-<div class="title">Quote</div>
-<div id="quote">Tap to change quote</div>
+<!-- QUOTE -->
+<div class="card" onclick="loadQuote()">
+<h3>Quote</h3>
+<p id="quote">Tap to load</p>
 </div>
 
+<!-- NEWS -->
 <div class="card">
-<div class="title">News</div>
+<h3>News</h3>
 <ul id="news"></ul>
 </div>
 
+<!-- SUPPORT -->
 <div class="card">
-<div class="title">Support</div>
+<h3>Support</h3>
 <input id="email" placeholder="Email (optional)">
-<textarea id="msg" placeholder="Message"></textarea>
+<textarea id="message" placeholder="Message"></textarea>
 <button onclick="sendSupport()">Send</button>
 </div>
 
+<!-- NUKE -->
 <div class="card">
-<div class="title">System</div>
-<button onclick="nuke()">NUKE</button>
+<button onclick="nuke()">☢️ Nuke Everything</button>
 </div>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/adhan@4.0.0/dist/Adhan.min.js"></script>
 
 <script>
 
-// STATE
-let state = JSON.parse(localStorage.getItem("state")) || {
-lat:48.78, lon:11.43, timezone:"UTC"
-};
+let lat=0, lon=0;
 
-// SAVE
-function save(){ localStorage.setItem("state",JSON.stringify(state)); }
+// LOCATION
+function setCity() {
+  let city = document.getElementById("cityInput").value;
+  localStorage.setItem("city", city);
+
+  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`)
+  .then(r=>r.json())
+  .then(d=>{
+    lat=d.results[0].latitude;
+    lon=d.results[0].longitude;
+    document.getElementById("locationDisplay").innerText=city;
+    loadWeather();
+    loadPrayers();
+  });
+}
 
 // CLOCK
 setInterval(()=>{
-document.getElementById("clock").innerText =
-new Date().toLocaleTimeString("en-US",{timeZone:state.timezone});
+  let now = new Date();
+  document.getElementById("clock").innerText=now.toLocaleTimeString();
+  document.getElementById("date").innerText=now.toDateString();
 },1000);
-
-// LOCATION
-async function changeLocation(){
-const city=prompt("City");
-const d=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`).then(r=>r.json());
-state.lat=d[0].lat; state.lon=d[0].lon;
-
-const tz=await fetch(`https://api.bigdatacloud.net/data/timezone-by-location?latitude=${state.lat}&longitude=${state.lon}`).then(r=>r.json());
-state.timezone=tz.timeZoneId;
-
-save(); init();
-}
 
 // WEATHER
-async function weather(){
-const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&current_weather=true`).then(r=>r.json());
-document.getElementById("weather").innerText=d.current_weather.temperature+"°C";
+function loadWeather(){
+ fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+ .then(r=>r.json())
+ .then(d=>{
+  document.getElementById("weather").innerText=
+   d.current_weather.temperature+"°C";
+ });
 }
 
-// PRAYER
-let pt;
-function prayers(){
-const params=adhan.CalculationMethod.MuslimWorldLeague();
-pt=new adhan.PrayerTimes({latitude:state.lat,longitude:state.lon},new Date(),params);
+// PRAYER (basic placeholder calc)
+function loadPrayers(){
+  let now=new Date();
+  let prayers={
+    Fajr:"05:00",
+    Dhuhr:"12:30",
+    Asr:"16:00",
+    Maghrib:"19:00",
+    Isha:"21:00"
+  };
 
-document.getElementById("prayers").innerHTML=["fajr","dhuhr","asr","maghrib","isha"]
-.map(p=>{
-const t=pt[p];
-return `<li>${p.toUpperCase()} <span class="value">${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}</span></li>`;
-}).join("");
+  let html="";
+  for(let p in prayers){
+    html+=`<p>${p}: ${prayers[p]}</p>`;
+  }
+  document.getElementById("prayers").innerHTML=html;
 }
-
-// NEXT PRAYER
-setInterval(()=>{
-if(!pt) return;
-const now=new Date();
-for(let p of ["fajr","dhuhr","asr","maghrib","isha"]){
-if(pt[p]>now){
-const diff=pt[p]-now;
-const h=Math.floor(diff/3600000);
-const m=Math.floor((diff%3600000)/60000);
-document.getElementById("nextPrayer").innerText=`Next: ${p.toUpperCase()} · ${h}h ${m}m`;
-break;
-}
-}
-},1000);
 
 // CRYPTO
-async function crypto(){
-const d=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,helium,ripple&vs_currencies=usd').then(r=>r.json());
-document.getElementById("crypto").innerHTML=Object.entries(d)
-.map(([k,v])=>`<li>${k.toUpperCase()} <span class="value">$${v.usd}</span></li>`).join("");
+function loadCrypto(){
+ fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
+ .then(r=>r.json())
+ .then(d=>{
+  document.getElementById("crypto").innerHTML=
+   `BTC: <span class="green">$${d.bitcoin.usd}</span><br>
+    ETH: <span class="green">$${d.ethereum.usd}</span>`;
+ });
 }
-
-// FOREX
-async function forex(){
-const fx=await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR').then(r=>r.json());
-document.getElementById("forex").innerHTML=`<li>EUR/USD <span class="value">${fx.rates.EUR}</span></li>`;
-}
+setInterval(loadCrypto,30000);
+loadCrypto();
 
 // TASKS
 function addTask(){
-const t=prompt("Task");
-if(!t) return;
-let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
-tasks.push(t);
-localStorage.setItem("tasks",JSON.stringify(tasks));
-loadTasks();
+ let t=document.getElementById("taskInput").value;
+ let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
+ tasks.push(t);
+ localStorage.setItem("tasks",JSON.stringify(tasks));
+ renderTasks();
 }
-function loadTasks(){
-let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
-document.getElementById("tasks").innerHTML=tasks.map(t=>`<li>${t}</li>`).join("");
+function renderTasks(){
+ let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
+ let html="";
+ tasks.forEach(t=>html+=`<li>${t}</li>`);
+ document.getElementById("tasks").innerHTML=html;
 }
+renderTasks();
 
 // EVENT
 function setEvent(){
-const val=prompt("YYYY-MM-DD HH:MM");
-if(val) localStorage.setItem("event",val);
+ let d=document.getElementById("eventDate").value;
+ localStorage.setItem("event",d);
 }
 setInterval(()=>{
-const e=localStorage.getItem("event");
-if(!e){ document.getElementById("eventCountdown").innerText="No event"; return;}
-const diff=new Date(e)-new Date();
-const h=Math.floor(diff/3600000);
-const m=Math.floor((diff%3600000)/60000);
-document.getElementById("eventCountdown").innerText=`in ${h}h ${m}m`;
+ let e=localStorage.getItem("event");
+ if(!e)return;
+ let diff=new Date(e)-new Date();
+ document.getElementById("countdown").innerText=
+  Math.floor(diff/1000)+"s";
 },1000);
 
 // QUOTE
-function newQuote(){
-fetch('https://api.quotable.io/random').then(r=>r.json())
-.then(d=>document.getElementById("quote").innerText=d.content);
+function loadQuote(){
+ fetch("https://api.quotable.io/random")
+ .then(r=>r.json())
+ .then(d=>{
+  document.getElementById("quote").innerText=d.content;
+ });
 }
 
 // NEWS
-async function news(){
-const d=await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/rss.xml').then(r=>r.json());
-document.getElementById("news").innerHTML=d.items.slice(0,5)
-.map(n=>`<li>${n.title}</li>`).join("");
-}
+fetch("https://api.rss2json.com/v1/api.json?rss_url=https://rss.cnn.com/rss/edition.rss")
+.then(r=>r.json())
+.then(d=>{
+ let html="";
+ d.items.slice(0,5).forEach(n=>{
+  html+=`<li>${n.title}</li>`;
+ });
+ document.getElementById("news").innerHTML=html;
+});
 
 // SUPPORT
 function sendSupport(){
-fetch('https://api.web3forms.com/submit',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-access_key:'53bad208-02b2-40b6-974b-98f8b68d0439',
-email:document.getElementById("email").value,
-message:document.getElementById("msg").value
-})
-});
-alert("Sent");
+ alert("Connect Web3Forms here");
 }
 
 // NUKE
 function nuke(){
-localStorage.clear();
-location.reload();
+ localStorage.clear();
+ location.reload();
 }
-
-// INIT
-function init(){
-weather();
-prayers();
-crypto();
-forex();
-news();
-loadTasks();
-}
-
-init();
-setInterval(()=>{crypto(); forex();},30000);
 
 </script>
 
