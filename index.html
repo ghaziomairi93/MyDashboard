@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard v1.2 ELITE</title>
+
+<title>Dashboard v1.3 PRO</title>
 
 <style>
 :root{
---bg:#0b0f14;
+--bg:#0c0f14;
 --card:rgba(255,255,255,0.05);
 --border:rgba(255,255,255,0.08);
 --accent:#00ff9c;
@@ -16,7 +17,7 @@
 body{
 margin:0;
 font-family:-apple-system,system-ui;
-background:linear-gradient(135deg,#0b0f14,#141b25);
+background:linear-gradient(135deg,#0c0f14,#141b25);
 color:#e8e8e8;
 }
 
@@ -36,7 +37,7 @@ backdrop-filter:blur(14px);
 }
 
 .title{
-margin-bottom:12px;
+margin-bottom:10px;
 opacity:0.8;
 font-weight:600;
 }
@@ -47,17 +48,8 @@ font-size:1.4em;
 font-weight:600;
 }
 
-ul{
-list-style:none;
-padding:0;
-margin:0;
-}
-
-li{
-display:flex;
-justify-content:space-between;
-padding:6px 0;
-}
+ul{list-style:none;padding:0;margin:0;}
+li{display:flex;justify-content:space-between;padding:6px 0;}
 
 button{
 width:100%;
@@ -116,18 +108,24 @@ color:white;
 
 <script>
 
-// GLOBAL STATE
-let state={
+// STATE
+let state = JSON.parse(localStorage.getItem("state")) || {
 lat:48.78,
 lon:11.43,
-timezone:"auto"
+timezone:"UTC"
 };
 
-// TIMEZONE FETCH
+// SAVE STATE
+function saveState(){
+localStorage.setItem("state",JSON.stringify(state));
+}
+
+// TIMEZONE
 async function loadTimezone(){
 const res=await fetch(`https://api.bigdatacloud.net/data/timezone-by-location?latitude=${state.lat}&longitude=${state.lon}`);
 const data=await res.json();
 state.timezone=data.timeZoneId;
+saveState();
 }
 
 // CLOCK
@@ -158,14 +156,16 @@ return `<li>${p.toUpperCase()} <span class="value">${t.toLocaleTimeString([], {h
 
 // NEXT PRAYER
 function updateNextPrayer(){
+if(!prayerTimes) return;
 const now=new Date();
+
 for(let p of ["fajr","dhuhr","asr","maghrib","isha"]){
 if(prayerTimes[p]>now){
 const diff=prayerTimes[p]-now;
 const h=Math.floor(diff/3600000);
 const m=Math.floor((diff%3600000)/60000);
 document.getElementById("nextPrayer").innerText=`Next: ${p.toUpperCase()} · in ${h}h ${m}m`;
-break;
+return;
 }
 }
 }
@@ -174,6 +174,7 @@ setInterval(updateNextPrayer,1000);
 // CRYPTO
 async function loadCrypto(){
 const d=await fetch('/api/crypto').then(r=>r.json());
+
 const coins={
 BTC:d.bitcoin,
 ETH:d.ethereum,
@@ -181,7 +182,8 @@ SOL:d.solana,
 HNT:d.helium,
 XRP:d.ripple
 };
-document.getElementById("crypto").innerHTML=
+
+document.getElementById("crypto").innerHTML =
 Object.entries(coins).map(([k,v])=>{
 const c=v.usd_24h_change||0;
 const color=c>=0?'#00ff9c':'#ff4d4d';
@@ -204,7 +206,9 @@ document.getElementById("forex").innerHTML=`
 // EVENT
 function setEvent(){
 const val=prompt("YYYY-MM-DD HH:MM");
-if(val) localStorage.setItem("event",val);
+if(val){
+localStorage.setItem("event",val);
+}
 updateEvent();
 }
 
@@ -218,10 +222,19 @@ document.getElementById("eventCountdown").innerText="No event";
 return;
 }
 
-btn.innerText="Change Event";
 const diff=new Date(e)-new Date();
+
+if(diff<=0){
+document.getElementById("eventCountdown").innerText="Event passed";
+btn.innerText="Change Event";
+return;
+}
+
+btn.innerText="Change Event";
+
 const h=Math.floor(diff/3600000);
 const m=Math.floor((diff%3600000)/60000);
+
 document.getElementById("eventCountdown").innerText=`in ${h}h ${m}m`;
 }
 setInterval(updateEvent,1000);
@@ -229,13 +242,17 @@ setInterval(updateEvent,1000);
 // LOCATION
 async function changeLocation(){
 const city=prompt("Enter city");
+if(!city) return;
+
 const d=await fetch(`/api/geocode?city=${city}`).then(r=>r.json());
+
 state.lat=d.lat;
 state.lon=d.lon;
+
 await init();
 }
 
-// REFRESH SYSTEM
+// REFRESH LOOP
 async function refreshData(){
 await loadWeather();
 await loadCrypto();
@@ -248,9 +265,11 @@ await loadTimezone();
 loadPrayers();
 refreshData();
 updateEvent();
+saveState();
 }
 
 init();
+setInterval(refreshData,30000);
 
 </script>
 
