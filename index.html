@@ -70,47 +70,44 @@ body.t-fog{background:linear-gradient(160deg,#080810 0%,#101018 50%,#181824 100%
 .wx-city{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-top:5px;}
 .clk-card{padding:20px 16px 18px;border-color:rgba(0,224,96,.2);background:linear-gradient(140deg,rgba(0,224,96,.04),transparent 70%);}
 .led-display{display:flex;align-items:center;justify-content:center;gap:3px;margin-bottom:4px;}
-/* === ENLARGED & IMPROVED LED CLOCK === */
+/* === Balanced & Nice LED Clock Size === */
 .led-display {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;                    /* more space between digits */
+    gap: 5px;
     margin-bottom: 8px;
 }
 
 .led-digit {
     display: grid;
     grid-template-areas: "tl t tr" "ml . mr" "bl b br";
-    grid-template-columns: 13px 4px 13px;   /* ← Bigger width */
-    grid-template-rows: 13px 4px 13px;      /* ← Bigger height */
-    gap: 2px;
+    grid-template-columns: 9.5px 3px 9.5px;   /* Good balanced width */
+    grid-template-rows: 9.5px 3px 9.5px;      /* Good balanced height */
+    gap: 1.5px;
 }
 
 .seg.h {
-    height: 6.5px;      /* thicker horizontal segments */
+    height: 4.8px;        /* Thicker, clearer segments */
     width: 100%;
-    border-radius: 2px;
+    border-radius: 1.5px;
 }
 
 .seg.v {
-    width: 6.5px;       /* thicker vertical segments */
+    width: 4.8px;
     height: 100%;
-    border-radius: 2px;
+    border-radius: 1.5px;
 }
 
 .seg.on {
     background: var(--led);
-    box-shadow: 0 0 8px var(--led-glow), 0 0 16px rgba(0,224,96,.4); /* stronger glow */
+    box-shadow: 0 0 7px var(--led-glow), 0 0 14px rgba(0, 224, 96, 0.35);
 }
 
 .led-dot {
-    width: 5px;
-    height: 5px;
-    background: var(--led);
-    box-shadow: 0 0 8px var(--led-glow);
+    width: 4px;
+    height: 4px;
 }
-
 .seg.on{background:var(--led);box-shadow:0 0 4px var(--led-glow);}
 .seg.off{background:var(--led-dim);}
 .led-colon{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;padding:0 1px;}
