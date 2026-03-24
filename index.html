@@ -43,6 +43,8 @@ body.t-fog{background:linear-gradient(160deg,#080810 0%,#101018 50%,#181824 100%
 .sun{position:absolute;top:8%;right:12%;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,#fffa90,#ffc010 55%,#f08000);animation:spulse 3s ease-in-out infinite;}
 .cloud{position:absolute;border-radius:60px;background:rgba(150,160,190,.07);filter:blur(10px);}
 .lflash{position:fixed;inset:0;pointer-events:none;background:rgba(140,140,255,.12);animation:flash 7s ease-in-out infinite;z-index:3;}
+body{font-family:'Inter',sans-serif;background:#0F0F13;color:#F0EFE9;padding:15px;padding-bottom:100px;scroll-behavior:smooth}
+.dashboard-grid{display:flex;flex-direction:column;gap:12px}
 .fog-b{position:absolute;left:-14%;right:-14%;height:48px;border-radius:50%;background:rgba(160,165,195,.05);filter:blur(14px);animation:fogd 11s ease-in-out infinite alternate;}
 .rdrop{position:absolute;width:1.5px;border-radius:2px;background:linear-gradient(to bottom,transparent,rgba(120,190,255,.58));animation:rfall linear infinite;top:-80px;}
 .snow{position:absolute;border-radius:50%;background:rgba(210,225,255,.8);filter:blur(.3px);animation:sfall linear infinite;top:-18px;}
@@ -62,15 +64,6 @@ body.t-fog{background:linear-gradient(160deg,#080810 0%,#101018 50%,#181824 100%
 {COMMENTED OUT: Old .card rule + broken comment
 Reason: Replaced with pure black background version
 Date: 24 March 2026
-*/
-
-<!-- Old broken version - safely disabled -->
-<!--
-.card{background:var(--card);border:1px solid var(--cb);border-radius:var(--r);position:relative;overflow:hidden;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
-.card::after{content:'';position:absolute;top:0;left:18%;right:18%;height:1px;background:linear-gradient(90deg,transparent,var(--cs),transparent);pointer-events:none;}
--->
-
-<!-- New clean version for pure matte black -->
 .card {
     background: rgba(255, 255, 255, 0.035);     /* Slightly visible on #000000 */
     border: 1px solid rgba(255, 255, 255, 0.08);
