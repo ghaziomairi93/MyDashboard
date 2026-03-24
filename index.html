@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Personal Command Center</title>
 
-<!-- Google Identity -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- Microsoft MSAL -->
 <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
 <style>
@@ -51,11 +49,13 @@ ul { padding-left:20px; }
 <p class="green" id="nextPrayer"></p>
 </div>
 
-<!-- CRYPTO -->
+<!-- CRYPTO & FOREX/METALS -->
 <div class="card">
-<h3>Crypto & Forex/Metals</h3>
+<h3>Markets</h3>
 <div id="crypto"></div>
-<button onclick="loadCrypto()">Refresh</button>
+<button onclick="loadCrypto()">Refresh Crypto</button>
+<div id="forexMetals"></div>
+<button onclick="loadForexMetals()">Refresh Forex & Metals</button>
 </div>
 
 <!-- TASKS -->
@@ -116,70 +116,125 @@ ul { padding-left:20px; }
 </div>
 
 <script>
-// YOUR KEYS
+// --- KEYS ---
 const G_CLIENT_ID  = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
 const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
 const W3F_KEY      = '53bad208-02b2-40b6-974b-98f8b68d0439';
 
-// ----------------- LOCATION -----------------
-let lat=0, lon=0;
-
-function setCity() {
-  let city = document.getElementById("cityInput").value;
+// --- LOCATION ---
+let lat=0, lon=0, cityName="";
+function setCity(){
+  let city=document.getElementById("cityInput").value;
   localStorage.setItem("city", city);
-
   fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`)
   .then(r=>r.json())
   .then(d=>{
     lat=d.results[0].latitude;
     lon=d.results[0].longitude;
-    document.getElementById("locationDisplay").innerText=city;
+    cityName=d.results[0].name;
+    document.getElementById("locationDisplay").innerText=cityName;
     loadWeather();
     loadPrayers();
   });
 }
 
-// ----------------- CLOCK -----------------
+// --- CLOCK ---
 setInterval(()=>{
-  let now = new Date();
+  let now=new Date();
   document.getElementById("clock").innerText=now.toLocaleTimeString();
   document.getElementById("date").innerText=now.toDateString();
+  updateNextPrayerCountdown();
 },1000);
 
-// ----------------- WEATHER -----------------
+// --- WEATHER ---
 function loadWeather(){
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
  .then(r=>r.json())
+ .then(d=>{ document.getElementById("weather").innerText=`${d.current_weather.temperature}°C, wind ${d.current_weather.windspeed} km/h`; });
+}
+
+// --- PRAYER TIMES (AlAdhan API) ---
+let prayerTimes={};
+let nextPrayerName="";
+let nextPrayerTime=null;
+
+function loadPrayers(){
+ if(!lat || !lon) return;
+ fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`)
+ .then(r=>r.json())
  .then(d=>{
-  document.getElementById("weather").innerText=
-   d.current_weather.temperature+"°C, wind "+d.current_weather.windspeed+" km/h";
+   prayerTimes=d.data.timings;
+   let html="";
+   for(let p in prayerTimes){ html+=`<p>${p}: ${prayerTimes[p]}</p>`; }
+   document.getElementById("prayers").innerHTML=html;
+   updateNextPrayer();
  });
 }
 
-// ----------------- PRAYER (simple placeholder) -----------------
-function loadPrayers(){
-  let prayers={
-    Fajr:"05:00", Dhuhr:"12:30", Asr:"16:00", Maghrib:"19:00", Isha:"21:00"
-  };
-  let html="";
-  for(let p in prayers){ html+=`<p>${p}: ${prayers[p]}</p>`; }
-  document.getElementById("prayers").innerHTML=html;
+function updateNextPrayer(){
+ let now=new Date();
+ nextPrayerTime=null; nextPrayerName="";
+ for(let p in prayerTimes){
+   let [h,m]=prayerTimes[p].split(":").map(Number);
+   let t=new Date();
+   t.setHours(h, m,0,0);
+   if(t>now){ nextPrayerTime=t; nextPrayerName=p; break; }
+ }
+ if(!nextPrayerTime){
+   let [h,m]=prayerTimes["Fajr"].split(":").map(Number);
+   nextPrayerTime=new Date(new Date().getTime()+24*3600*1000);
+   nextPrayerTime.setHours(h,m,0,0);
+   nextPrayerName="Fajr";
+ }
 }
 
-// ----------------- CRYPTO -----------------
+function updateNextPrayerCountdown(){
+ if(!nextPrayerTime) return;
+ let diff=nextPrayerTime-new Date();
+ if(diff<0) { updateNextPrayer(); diff=nextPrayerTime-new Date(); }
+ let h=Math.floor(diff/3600000);
+ let m=Math.floor(diff/60000)%60;
+ let s=Math.floor(diff/1000)%60;
+ document.getElementById("nextPrayer").innerText=`Next: ${nextPrayerName} in ${h}h ${m}m ${s}s`;
+}
+
+// --- CRYPTO ---
 function loadCrypto(){
- fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
+ fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,hnt,xrp,binancecoin,trumpcoin&vs_currencies=usd")
  .then(r=>r.json())
  .then(d=>{
   document.getElementById("crypto").innerHTML=
    `BTC: <span class="green">$${d.bitcoin.usd}</span><br>
-    ETH: <span class="green">$${d.ethereum.usd}</span>`;
+    ETH: <span class="green">$${d.ethereum.usd}</span><br>
+    HNT: <span class="green">$${d.hnt.usd}</span><br>
+    XRP: <span class="green">$${d.xrp.usd}</span><br>
+    BNB: <span class="green">$${d.binancecoin.usd}</span><br>
+    TRUMP: <span class="green">$${d.trumpcoin.usd}</span>`;
  });
 }
-setInterval(loadCrypto,30000);
-loadCrypto();
 
-// ----------------- TASKS -----------------
+// --- FOREX & METALS ---
+function loadForexMetals(){
+ // Forex EUR/USD
+ fetch("https://api.frankfurter.app/latest?from=EUR&to=USD")
+ .then(r=>r.json())
+ .then(d=>{
+   let eurusd=d.rates.USD;
+   // Metals: Gold and Silver from Metals-API (replace with public endpoint if needed)
+   let goldPrice=60.5; // placeholder per gram
+   let silverPrice=0.75; // placeholder per gram
+   document.getElementById("forexMetals").innerHTML=
+    `EUR/USD: <span class="green">${eurusd.toFixed(4)}</span><br>
+     Gold (g): <span class="green">${goldPrice}</span><br>
+     Silver (g): <span class="green">${silverPrice}</span>`;
+ });
+}
+
+// Only fetch on page load
+loadCrypto();
+loadForexMetals();
+
+// --- TASKS ---
 function addTask(){
  let t=document.getElementById("taskInput").value;
  let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
@@ -189,105 +244,80 @@ function addTask(){
 }
 function renderTasks(){
  let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
- let html="";
- tasks.forEach(t=>html+=`<li>${t}</li>`);
- document.getElementById("tasks").innerHTML=html;
+ document.getElementById("tasks").innerHTML=tasks.map(t=>`<li>${t}</li>`).join("");
 }
 renderTasks();
 
-// ----------------- EVENT -----------------
+// --- EVENT ---
 function setEvent(){ 
  let d=document.getElementById("eventDate").value; 
  localStorage.setItem("event",d); 
 }
 setInterval(()=>{
- let e=localStorage.getItem("event");
- if(!e)return;
+ let e=localStorage.getItem("event"); if(!e)return;
  let diff=new Date(e)-new Date();
  if(diff<0) document.getElementById("countdown").innerText="Event passed";
- else document.getElementById("countdown").innerText=
-  Math.floor(diff/3600000)+"h "+Math.floor(diff/60000%60)+"m "+Math.floor(diff/1000%60)+"s";
+ else {
+  let h=Math.floor(diff/3600000);
+  let m=Math.floor(diff/60000)%60;
+  let s=Math.floor(diff/1000)%60;
+  document.getElementById("countdown").innerText=`${h}h ${m}m ${s}s`;
+ }
 },1000);
 
-// ----------------- QUOTE -----------------
+// --- QUOTE ---
 function loadQuote(){
  fetch("https://api.quotable.io/random")
  .then(r=>r.json())
  .then(d=>{ document.getElementById("quote").innerText=d.content; });
 }
 
-// ----------------- NEWS -----------------
+// --- NEWS ---
 fetch("https://api.rss2json.com/v1/api.json?rss_url=https://rss.cnn.com/rss/edition.rss")
 .then(r=>r.json())
 .then(d=>{
- let html="";
- d.items.slice(0,5).forEach(n=>html+=`<li>${n.title}</li>`);
- document.getElementById("news").innerHTML=html;
+ document.getElementById("news").innerHTML=d.items.slice(0,5).map(n=>`<li>${n.title}</li>`).join("");
 });
 
-// ----------------- GOOGLE CALENDAR -----------------
+// --- GOOGLE CALENDAR ---
 let googleToken=null;
 function initGoogle() {
-  google.accounts.id.initialize({
-    client_id:G_CLIENT_ID,
-    callback: handleGoogleCredential
-  });
+  google.accounts.id.initialize({ client_id:G_CLIENT_ID, callback: handleGoogleCredential });
   google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme:"outline", size:"large" });
   google.accounts.id.prompt();
 }
-function handleGoogleCredential(response){
-  googleToken=response.credential;
-  fetchGoogleCalendar();
-}
+function handleGoogleCredential(response){ googleToken=response.credential; fetchGoogleCalendar(); }
 function fetchGoogleCalendar(){
   if(!googleToken) return;
-  fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=5&orderBy=startTime&singleEvents=true", {
-    headers:{ Authorization:"Bearer "+googleToken }
-  })
+  fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=5&orderBy=startTime&singleEvents=true", { headers:{ Authorization:"Bearer "+googleToken } })
   .then(r=>r.json())
   .then(d=>{
-    let html="";
-    d.items.forEach(e=>{
-      html+=`<li>${e.summary} (${new Date(e.start.dateTime||e.start.date).toLocaleString()})</li>`;
-    });
-    document.getElementById("googleEvents").innerHTML=html;
+    document.getElementById("googleEvents").innerHTML=d.items.map(e=>`<li>${e.summary} (${new Date(e.start.dateTime||e.start.date).toLocaleString()})</li>`).join("");
   });
 }
 window.onload = initGoogle;
 
-// ----------------- OUTLOOK CALENDAR -----------------
-const msalConfig = { auth:{ clientId:MS_CLIENT_ID, redirectUri:window.location.href } };
-const msalInstance = new msal.PublicClientApplication(msalConfig);
+// --- OUTLOOK CALENDAR ---
+const msalConfig={ auth:{ clientId:MS_CLIENT_ID, redirectUri:window.location.href } };
+const msalInstance=new msal.PublicClientApplication(msalConfig);
 function loginMS(){
-  msalInstance.loginPopup({ scopes:["Calendars.Read"] }).then(resp=>{ fetchMSCalendar(resp.accessToken); });
+ msalInstance.loginPopup({ scopes:["Calendars.Read"] }).then(resp=>fetchMSCalendar(resp.accessToken));
 }
 function fetchMSCalendar(token){
-  fetch("https://graph.microsoft.com/v1.0/me/events?$top=5&$orderby=start/dateTime",{ headers:{ Authorization:"Bearer "+token } })
-  .then(r=>r.json())
-  .then(d=>{
-    let html="";
-    d.value.forEach(e=>{
-      html+=`<li>${e.subject} (${new Date(e.start.dateTime).toLocaleString()})</li>`;
-    });
-    document.getElementById("msEvents").innerHTML=html;
-  });
+ fetch("https://graph.microsoft.com/v1.0/me/events?$top=5&$orderby=start/dateTime",{ headers:{ Authorization:"Bearer "+token } })
+ .then(r=>r.json())
+ .then(d=>{ document.getElementById("msEvents").innerHTML=d.value.map(e=>`<li>${e.subject} (${new Date(e.start.dateTime).toLocaleString()})</li>`).join(""); });
 }
 
-// ----------------- SUPPORT (Web3Forms) -----------------
+// --- SUPPORT ---
 function sendSupport(){
-  const email=document.getElementById("email").value;
-  const message=document.getElementById("message").value;
-  fetch("https://api.web3forms.com/submit",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ access_key:W3F_KEY,email,message,subject:"Dashboard Support" })
-  })
-  .then(r=>r.json())
-  .then(d=>alert("Message sent!"))
-  .catch(e=>alert("Error sending message"));
+ const email=document.getElementById("email").value;
+ const message=document.getElementById("message").value;
+ fetch("https://api.web3forms.com/submit",{ method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ access_key:W3F_KEY,email,message,subject:"Dashboard Support" }) })
+ .then(r=>r.json()).then(d=>alert("Message sent!")).catch(e=>alert("Error sending message"));
 }
 
-// ----------------- NUKE -----------------
+// --- NUKE ---
 function nuke(){ localStorage.clear(); location.reload(); }
 
 </script>
