@@ -3,76 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Dashboard v1.1.0</title>
+<title>Dashboard v1.2 ELITE</title>
 
 <style>
 :root{
-    --bg:#0b0e13;
-    --card:rgba(255,255,255,0.05);
-    --border:rgba(255,255,255,0.08);
-    --accent:#00ff9c;
+--bg:#0b0f14;
+--card:rgba(255,255,255,0.05);
+--border:rgba(255,255,255,0.08);
+--accent:#00ff9c;
 }
 
 body{
-    margin:0;
-    font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-    background:linear-gradient(135deg,#0b0e13,#121722);
-    color:#e8e8e8;
+margin:0;
+font-family:-apple-system,system-ui;
+background:linear-gradient(135deg,#0b0f14,#141b25);
+color:#e8e8e8;
 }
 
-/* GRID */
 .dashboard{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:16px;
-    padding:16px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:16px;
+padding:16px;
 }
 
-/* CARD */
 .card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:18px;
-    backdrop-filter:blur(14px);
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:18px;
+backdrop-filter:blur(14px);
 }
 
-/* TITLE */
 .title{
-    font-size:1.1em;
-    margin-bottom:12px;
-    opacity:0.85;
+margin-bottom:12px;
+opacity:0.8;
+font-weight:600;
 }
 
-/* VALUE */
 .value{
-    color:var(--accent);
-    font-weight:600;
+color:var(--accent);
+font-size:1.4em;
+font-weight:600;
 }
 
-/* LIST */
 ul{
-    list-style:none;
-    padding:0;
-    margin:0;
+list-style:none;
+padding:0;
+margin:0;
 }
 
 li{
-    padding:6px 0;
-    display:flex;
-    justify-content:space-between;
+display:flex;
+justify-content:space-between;
+padding:6px 0;
 }
 
-/* BUTTON */
 button{
-    width:100%;
-    margin-top:12px;
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    background:rgba(255,255,255,0.1);
-    color:white;
+width:100%;
+margin-top:12px;
+padding:12px;
+border:none;
+border-radius:12px;
+background:rgba(255,255,255,0.1);
+color:white;
 }
 </style>
 </head>
@@ -81,45 +75,39 @@ button{
 
 <div class="dashboard">
 
-<!-- Weather -->
 <div class="card">
 <div class="title">Weather & Time</div>
 <div id="weather">--</div>
-<div id="clock" class="value">--:--</div>
+<div id="clock" class="value">--</div>
 <button onclick="changeLocation()">Change Location</button>
 </div>
 
-<!-- Prayer -->
 <div class="card">
 <div class="title">Prayer Times</div>
 <ul id="prayers"></ul>
 </div>
 
-<!-- Next Prayer -->
 <div class="card">
 <div class="title">Next Prayer</div>
 <div id="nextPrayer" class="value">--</div>
 </div>
 
-<!-- Crypto -->
 <div class="card">
 <div class="title">Crypto</div>
 <ul id="crypto"></ul>
-<button onclick="loadCrypto()">Refresh</button>
+<button onclick="refreshData()">Refresh</button>
 </div>
 
-<!-- Forex -->
 <div class="card">
 <div class="title">Forex & Metals</div>
 <ul id="forex"></ul>
-<button onclick="loadForex()">Refresh</button>
+<button onclick="refreshData()">Refresh</button>
 </div>
 
-<!-- Event -->
 <div class="card">
 <div class="title">Event Countdown</div>
 <div id="eventCountdown">No event</div>
-<button onclick="setEvent()" id="eventBtn">＋ Create Event</button>
+<button id="eventBtn" onclick="setEvent()">＋ Create Event</button>
 </div>
 
 </div>
@@ -128,126 +116,140 @@ button{
 
 <script>
 
-// LOCATION
-let lat=48.78, lon=11.43;
+// GLOBAL STATE
+let state={
+lat:48.78,
+lon:11.43,
+timezone:"auto"
+};
+
+// TIMEZONE FETCH
+async function loadTimezone(){
+const res=await fetch(`https://api.bigdatacloud.net/data/timezone-by-location?latitude=${state.lat}&longitude=${state.lon}`);
+const data=await res.json();
+state.timezone=data.timeZoneId;
+}
 
 // CLOCK
-setInterval(()=>{
-    document.getElementById("clock").innerText=new Date().toLocaleTimeString();
-},1000);
+function updateClock(){
+const now=new Date().toLocaleTimeString("en-US",{timeZone:state.timezone});
+document.getElementById("clock").innerText=now;
+}
+setInterval(updateClock,1000);
 
 // WEATHER
 async function loadWeather(){
-    const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`).then(r=>r.json());
-    document.getElementById("weather").innerText=`${d.current_weather.temperature}°C`;
+const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&current_weather=true`).then(r=>r.json());
+document.getElementById("weather").innerText=`${d.current_weather.temperature}°C`;
 }
 
 // PRAYER
 let prayerTimes;
 function loadPrayers(){
-    const params = adhan.CalculationMethod.MuslimWorldLeague();
-    prayerTimes = new adhan.PrayerTimes({latitude:lat,longitude:lon}, new Date(), params);
+const params=adhan.CalculationMethod.MuslimWorldLeague();
+prayerTimes=new adhan.PrayerTimes({latitude:state.lat,longitude:state.lon},new Date(),params);
 
-    const list=["fajr","dhuhr","asr","maghrib","isha"];
-    document.getElementById("prayers").innerHTML =
-        list.map(p=>{
-            const t=prayerTimes[p];
-            return `<li>${p.toUpperCase()} <span class="value">${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}</span></li>`;
-        }).join("");
+const list=["fajr","dhuhr","asr","maghrib","isha"];
+document.getElementById("prayers").innerHTML=list.map(p=>{
+const t=prayerTimes[p];
+return `<li>${p.toUpperCase()} <span class="value">${t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></li>`;
+}).join("");
 }
 
 // NEXT PRAYER
 function updateNextPrayer(){
-    const now=new Date();
-    for(let p of ["fajr","dhuhr","asr","maghrib","isha"]){
-        if(prayerTimes[p]>now){
-            const diff=prayerTimes[p]-now;
-            const h=Math.floor(diff/3600000);
-            const m=Math.floor((diff%3600000)/60000);
-            document.getElementById("nextPrayer").innerText=`Next: ${p.toUpperCase()} · in ${h}h ${m}m`;
-            break;
-        }
-    }
+const now=new Date();
+for(let p of ["fajr","dhuhr","asr","maghrib","isha"]){
+if(prayerTimes[p]>now){
+const diff=prayerTimes[p]-now;
+const h=Math.floor(diff/3600000);
+const m=Math.floor((diff%3600000)/60000);
+document.getElementById("nextPrayer").innerText=`Next: ${p.toUpperCase()} · in ${h}h ${m}m`;
+break;
+}
+}
 }
 setInterval(updateNextPrayer,1000);
 
 // CRYPTO
 async function loadCrypto(){
-    const d=await fetch('/api/crypto').then(r=>r.json());
-    const coins={
-        BTC:d.bitcoin,
-        ETH:d.ethereum,
-        SOL:d.solana,
-        HNT:d.helium,
-        XRP:d.ripple
-    };
-    document.getElementById("crypto").innerHTML =
-        Object.entries(coins).map(([k,v])=>{
-            const change=v.usd_24h_change?.toFixed(2) || 0;
-            const color=change>=0?'#00ff9c':'#ff4d4d';
-            return `<li>${k} <span class="value">$${v.usd} <span style="color:${color}">(${change}%)</span></span></li>`;
-        }).join("");
+const d=await fetch('/api/crypto').then(r=>r.json());
+const coins={
+BTC:d.bitcoin,
+ETH:d.ethereum,
+SOL:d.solana,
+HNT:d.helium,
+XRP:d.ripple
+};
+document.getElementById("crypto").innerHTML=
+Object.entries(coins).map(([k,v])=>{
+const c=v.usd_24h_change||0;
+const color=c>=0?'#00ff9c':'#ff4d4d';
+return `<li>${k} <span class="value">$${v.usd} <span style="color:${color}">(${c.toFixed(2)}%)</span></span></li>`;
+}).join("");
 }
-setInterval(loadCrypto,30000);
 
 // FOREX
 async function loadForex(){
-    const fx=await fetch('/api/forex').then(r=>r.json());
-    const eur=fx.rates.EUR;
+const fx=await fetch('/api/forex').then(r=>r.json());
+const metals=await fetch('https://api.metals.dev/v1/latest?api_key=demo&currency=USD&unit=g').then(r=>r.json());
 
-    const metals=await fetch('https://api.metals.dev/v1/latest?api_key=demo&currency=USD&unit=g').then(r=>r.json());
-
-    document.getElementById("forex").innerHTML=`
-        <li>EUR/USD <span class="value">${eur}</span></li>
-        <li>Gold/g <span class="value">${metals.metals.gold}</span></li>
-        <li>Silver/g <span class="value">${metals.metals.silver}</span></li>
-    `;
+document.getElementById("forex").innerHTML=`
+<li>EUR/USD <span class="value">${fx.rates.EUR}</span></li>
+<li>Gold/g <span class="value">${metals.metals.gold}</span></li>
+<li>Silver/g <span class="value">${metals.metals.silver}</span></li>
+`;
 }
-setInterval(loadForex,30000);
 
 // EVENT
 function setEvent(){
-    const val=prompt("YYYY-MM-DD HH:MM");
-    if(val){ localStorage.setItem("event",val); }
-    updateEvent();
+const val=prompt("YYYY-MM-DD HH:MM");
+if(val) localStorage.setItem("event",val);
+updateEvent();
 }
 
 function updateEvent(){
-    const e=localStorage.getItem("event");
-    const btn=document.getElementById("eventBtn");
+const e=localStorage.getItem("event");
+const btn=document.getElementById("eventBtn");
 
-    if(!e){
-        btn.innerText="＋ Create Event";
-        document.getElementById("eventCountdown").innerText="No event";
-        return;
-    }
+if(!e){
+btn.innerText="＋ Create Event";
+document.getElementById("eventCountdown").innerText="No event";
+return;
+}
 
-    btn.innerText="Change Event";
-
-    const diff=new Date(e)-new Date();
-    const h=Math.floor(diff/3600000);
-    const m=Math.floor((diff%3600000)/60000);
-
-    document.getElementById("eventCountdown").innerText=`in ${h}h ${m}m`;
+btn.innerText="Change Event";
+const diff=new Date(e)-new Date();
+const h=Math.floor(diff/3600000);
+const m=Math.floor((diff%3600000)/60000);
+document.getElementById("eventCountdown").innerText=`in ${h}h ${m}m`;
 }
 setInterval(updateEvent,1000);
 
 // LOCATION
 async function changeLocation(){
-    const city=prompt("Enter city");
-    const d=await fetch(`/api/geocode?city=${city}`).then(r=>r.json());
-    lat=d.lat; lon=d.lon;
-    init();
+const city=prompt("Enter city");
+const d=await fetch(`/api/geocode?city=${city}`).then(r=>r.json());
+state.lat=d.lat;
+state.lon=d.lon;
+await init();
+}
+
+// REFRESH SYSTEM
+async function refreshData(){
+await loadWeather();
+await loadCrypto();
+await loadForex();
 }
 
 // INIT
-function init(){
-    loadWeather();
-    loadPrayers();
-    loadCrypto();
-    loadForex();
-    updateEvent();
+async function init(){
+await loadTimezone();
+loadPrayers();
+refreshData();
+updateEvent();
 }
+
 init();
 
 </script>
