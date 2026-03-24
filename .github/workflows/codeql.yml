@@ -37,9 +37,7 @@ jobs:
           # ‼️ Logic: Using 'security-extended' for deeper API/Auth analysis
           queries: security-extended
 
-      # ‼️ STEP 3: AUTOBUILD (PRE-SCAN)
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      # 🔥 REMOVED: Autobuild step (not needed for single-file HTML + inline JS)
 
       # ‼️ STEP 4: EXECUTE ANALYSIS
       - name: Perform Analysis
