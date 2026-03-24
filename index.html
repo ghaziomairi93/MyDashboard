@@ -5,44 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Personal Command Center</title>
 
+<!-- Google Identity -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Microsoft MSAL -->
+<script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+
 <style>
-body {
-  margin:0;
-  font-family: Arial;
-  background:#0a0a0a;
-  color:#fff;
-}
-
-.container {
-  padding:15px;
-}
-
-.card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(10px);
-  padding:15px;
-  border-radius:15px;
-  margin-bottom:15px;
-}
-
+body { margin:0; font-family: Arial; background:#0a0a0a; color:#fff; }
+.container { padding:15px; max-width:600px; margin:auto; }
+.card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding:15px; border-radius:15px; margin-bottom:15px; }
 .green { color:#00ff9c; }
-
-button {
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  background:#00ff9c;
-  color:#000;
-}
-
-input {
-  padding:8px;
-  width:100%;
-  margin-top:5px;
-}
+button { padding:8px; border:none; border-radius:8px; background:#00ff9c; color:#000; cursor:pointer; }
+input, textarea { padding:8px; width:100%; margin-top:5px; border-radius:8px; border:none; }
+ul { padding-left:20px; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -76,7 +53,7 @@ input {
 
 <!-- CRYPTO -->
 <div class="card">
-<h3>Crypto</h3>
+<h3>Crypto & Forex/Metals</h3>
 <div id="crypto"></div>
 <button onclick="loadCrypto()">Refresh</button>
 </div>
@@ -109,6 +86,20 @@ input {
 <ul id="news"></ul>
 </div>
 
+<!-- GOOGLE CALENDAR -->
+<div class="card">
+<h3>Google Calendar</h3>
+<div id="googleSignIn"></div>
+<ul id="googleEvents"></ul>
+</div>
+
+<!-- OUTLOOK CALENDAR -->
+<div class="card">
+<h3>Outlook Calendar</h3>
+<button onclick="loginMS()">Sign In</button>
+<ul id="msEvents"></ul>
+</div>
+
 <!-- SUPPORT -->
 <div class="card">
 <h3>Support</h3>
@@ -125,10 +116,14 @@ input {
 </div>
 
 <script>
+// YOUR KEYS
+const G_CLIENT_ID  = '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com';
+const MS_CLIENT_ID = '1155afdf-d585-48cc-af89-b973843ce21a';
+const W3F_KEY      = '53bad208-02b2-40b6-974b-98f8b68d0439';
 
+// ----------------- LOCATION -----------------
 let lat=0, lon=0;
 
-// LOCATION
 function setCity() {
   let city = document.getElementById("cityInput").value;
   localStorage.setItem("city", city);
@@ -144,42 +139,34 @@ function setCity() {
   });
 }
 
-// CLOCK
+// ----------------- CLOCK -----------------
 setInterval(()=>{
   let now = new Date();
   document.getElementById("clock").innerText=now.toLocaleTimeString();
   document.getElementById("date").innerText=now.toDateString();
 },1000);
 
-// WEATHER
+// ----------------- WEATHER -----------------
 function loadWeather(){
  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
  .then(r=>r.json())
  .then(d=>{
   document.getElementById("weather").innerText=
-   d.current_weather.temperature+"°C";
+   d.current_weather.temperature+"°C, wind "+d.current_weather.windspeed+" km/h";
  });
 }
 
-// PRAYER (basic placeholder calc)
+// ----------------- PRAYER (simple placeholder) -----------------
 function loadPrayers(){
-  let now=new Date();
   let prayers={
-    Fajr:"05:00",
-    Dhuhr:"12:30",
-    Asr:"16:00",
-    Maghrib:"19:00",
-    Isha:"21:00"
+    Fajr:"05:00", Dhuhr:"12:30", Asr:"16:00", Maghrib:"19:00", Isha:"21:00"
   };
-
   let html="";
-  for(let p in prayers){
-    html+=`<p>${p}: ${prayers[p]}</p>`;
-  }
+  for(let p in prayers){ html+=`<p>${p}: ${prayers[p]}</p>`; }
   document.getElementById("prayers").innerHTML=html;
 }
 
-// CRYPTO
+// ----------------- CRYPTO -----------------
 function loadCrypto(){
  fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
  .then(r=>r.json())
@@ -192,7 +179,7 @@ function loadCrypto(){
 setInterval(loadCrypto,30000);
 loadCrypto();
 
-// TASKS
+// ----------------- TASKS -----------------
 function addTask(){
  let t=document.getElementById("taskInput").value;
  let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
@@ -208,51 +195,101 @@ function renderTasks(){
 }
 renderTasks();
 
-// EVENT
-function setEvent(){
- let d=document.getElementById("eventDate").value;
- localStorage.setItem("event",d);
+// ----------------- EVENT -----------------
+function setEvent(){ 
+ let d=document.getElementById("eventDate").value; 
+ localStorage.setItem("event",d); 
 }
 setInterval(()=>{
  let e=localStorage.getItem("event");
  if(!e)return;
  let diff=new Date(e)-new Date();
- document.getElementById("countdown").innerText=
-  Math.floor(diff/1000)+"s";
+ if(diff<0) document.getElementById("countdown").innerText="Event passed";
+ else document.getElementById("countdown").innerText=
+  Math.floor(diff/3600000)+"h "+Math.floor(diff/60000%60)+"m "+Math.floor(diff/1000%60)+"s";
 },1000);
 
-// QUOTE
+// ----------------- QUOTE -----------------
 function loadQuote(){
  fetch("https://api.quotable.io/random")
  .then(r=>r.json())
- .then(d=>{
-  document.getElementById("quote").innerText=d.content;
- });
+ .then(d=>{ document.getElementById("quote").innerText=d.content; });
 }
 
-// NEWS
+// ----------------- NEWS -----------------
 fetch("https://api.rss2json.com/v1/api.json?rss_url=https://rss.cnn.com/rss/edition.rss")
 .then(r=>r.json())
 .then(d=>{
  let html="";
- d.items.slice(0,5).forEach(n=>{
-  html+=`<li>${n.title}</li>`;
- });
+ d.items.slice(0,5).forEach(n=>html+=`<li>${n.title}</li>`);
  document.getElementById("news").innerHTML=html;
 });
 
-// SUPPORT
-function sendSupport(){
- alert("Connect Web3Forms here");
+// ----------------- GOOGLE CALENDAR -----------------
+let googleToken=null;
+function initGoogle() {
+  google.accounts.id.initialize({
+    client_id:G_CLIENT_ID,
+    callback: handleGoogleCredential
+  });
+  google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme:"outline", size:"large" });
+  google.accounts.id.prompt();
+}
+function handleGoogleCredential(response){
+  googleToken=response.credential;
+  fetchGoogleCalendar();
+}
+function fetchGoogleCalendar(){
+  if(!googleToken) return;
+  fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=5&orderBy=startTime&singleEvents=true", {
+    headers:{ Authorization:"Bearer "+googleToken }
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    let html="";
+    d.items.forEach(e=>{
+      html+=`<li>${e.summary} (${new Date(e.start.dateTime||e.start.date).toLocaleString()})</li>`;
+    });
+    document.getElementById("googleEvents").innerHTML=html;
+  });
+}
+window.onload = initGoogle;
+
+// ----------------- OUTLOOK CALENDAR -----------------
+const msalConfig = { auth:{ clientId:MS_CLIENT_ID, redirectUri:window.location.href } };
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+function loginMS(){
+  msalInstance.loginPopup({ scopes:["Calendars.Read"] }).then(resp=>{ fetchMSCalendar(resp.accessToken); });
+}
+function fetchMSCalendar(token){
+  fetch("https://graph.microsoft.com/v1.0/me/events?$top=5&$orderby=start/dateTime",{ headers:{ Authorization:"Bearer "+token } })
+  .then(r=>r.json())
+  .then(d=>{
+    let html="";
+    d.value.forEach(e=>{
+      html+=`<li>${e.subject} (${new Date(e.start.dateTime).toLocaleString()})</li>`;
+    });
+    document.getElementById("msEvents").innerHTML=html;
+  });
 }
 
-// NUKE
-function nuke(){
- localStorage.clear();
- location.reload();
+// ----------------- SUPPORT (Web3Forms) -----------------
+function sendSupport(){
+  const email=document.getElementById("email").value;
+  const message=document.getElementById("message").value;
+  fetch("https://api.web3forms.com/submit",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ access_key:W3F_KEY,email,message,subject:"Dashboard Support" })
+  })
+  .then(r=>r.json())
+  .then(d=>alert("Message sent!"))
+  .catch(e=>alert("Error sending message"));
 }
+
+// ----------------- NUKE -----------------
+function nuke(){ localStorage.clear(); location.reload(); }
 
 </script>
-
 </body>
 </html>
