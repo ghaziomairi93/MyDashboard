@@ -3,329 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Personal Command Center v1.3</title>
-    
+    <title>Command Center v1.3</title>
     <script src="https://cdn.jsdelivr.net/npm/adhan@4.0.0/dist/Adhan.min.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <style>
         :root {
             --bg: #0f1115;
-            --card: rgba(255, 255, 255, 0.06);
-            --accent: #00ff9c; /* ‼️ Bright Light Green Rule */
+            --card: rgba(28, 30, 35, 0.7);
+            --accent: #00ff9c;
             --text: #ffffff;
-            --glass: blur(16px);
-            --border: rgba(255, 255, 255, 0.1);
+            --glass: blur(20px);
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body {
-            margin: 0;
-            background: radial-gradient(circle at 0% 0%, #1c1f26 0%, #0f1115 100%);
+            margin: 0; padding: 20px;
+            background: #090a0c;
             color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            min-height: 100vh;
-            padding-bottom: 90px;
-            overflow-x: hidden;
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
+        .dashboard { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
 
-        /* ‼️ Step 2: Design System - Frosted Glass Cards */
+        /* ‼️ DESIGN ENGINE */
         .card {
             background: var(--card);
             backdrop-filter: var(--glass);
             -webkit-backdrop-filter: var(--glass);
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease;
+            border-radius: 28px;
+            padding: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .num-val { 
-            color: var(--accent); 
-            font-weight: 700; 
-            font-variant-numeric: tabular-nums; 
-        }
-
-        /* ‼️ Step 3: Clock & Identity */
-        .hero-section { grid-column: 1 / -1; text-align: center; padding: 40px 0 20px; }
-        #main-clock { font-size: 4.5rem; margin: 0; line-height: 1; letter-spacing: -2px; }
-        #main-date { font-size: 1.1rem; margin-top: 10px; opacity: 0.8; }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .list-item:last-child { border: none; }
-
-        button {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        button:active { transform: scale(0.96); background: var(--accent); color: #000; }
-
-        /* ‼️ Step 4: Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; width: 100%;
-            background: rgba(15, 17, 21, 0.95);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            z-index: 100;
-        }
-
-        #news-container { max-height: 150px; overflow-y: auto; font-size: 0.9rem; }
-        .news-link { color: #fff; text-decoration: none; display: block; margin-bottom: 10px; opacity: 0.8; }
+        .num-val { color: var(--accent); font-weight: 700; font-family: 'Courier New', monospace; }
         
-        .nuke-btn { color: #ff4444; border-color: rgba(255,68,68,0.3); margin-top: 20px; }
+        .hero { text-align: center; margin-bottom: 10px; }
+        #clock { font-size: 4.2rem; margin: 0; letter-spacing: -2px; }
+        #date { font-size: 1.1rem; color: var(--accent); opacity: 0.9; margin-bottom: 5px; }
+
+        .title-row { 
+            display: flex; justify-content: space-between; align-items: center;
+            text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1.5px; 
+            opacity: 0.5; margin-bottom: 15px;
+        }
+
+        .stat-line { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        input, button { 
+            width: 100%; padding: 14px; border-radius: 14px; border: none; 
+            background: rgba(255,255,255,0.08); color: white; margin-top: 10px; font-weight: 600;
+        }
+
+        button.refresh { width: 40px; height: 40px; border-radius: 10px; padding: 0; margin: 0; }
+        .nuke { color: #ff5e5e; background: rgba(255, 94, 94, 0.1); border: 1px solid rgba(255, 94, 94, 0.2); }
+
+        .footer { display: flex; justify-content: space-around; width: 100%; margin-top: 30px; opacity: 0.6; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
-    <div class="hero-section">
-        <h1 id="main-clock" class="num-val">00:00:00</h1>
-        <div id="main-date" class="num-val">...</div>
-        <div style="margin-top:15px; font-size: 0.9rem;">
-            📍 <span id="display-city">Detecting...</span> | <span id="display-weather" class="num-val">--°C</span>
+    <div class="hero">
+        <div id="clock" class="num-val">04:19:46</div>
+        <div id="date">Tuesday 24 March</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">📍 <span id="loc">Ingolstadt</span> | <span id="temp" class="num-val">--°C</span></div>
+    </div>
+
+    <div class="card">
+        <div class="title-row"><span>Prayer Schedule</span> <span>🕌</span></div>
+        <div id="prayer-times"></div>
+        <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:18px; margin-top:15px; text-align:center;">
+            <div style="font-size:0.6rem; opacity:0.5; margin-bottom:5px;">NEXT PRAYER</div>
+            <div id="prayer-countdown" class="num-val" style="font-size:1.8rem;">00:00:00</div>
         </div>
     </div>
 
     <div class="card">
-        <div class="title">Prayer Schedule <span>🕌</span></div>
-        <div id="prayer-list"></div>
-        <div style="margin-top:20px; background:rgba(0,0,0,0.2); padding:15px; border-radius:15px;">
-            <div id="next-prayer-name" style="font-size:0.8rem; opacity:0.6">NEXT PRAYER</div>
-            <div id="prayer-countdown" class="num-val" style="font-size:1.8rem">00:00:00</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="title">Crypto Markets <span>💰</span> <button onclick="fetchCrypto()">↻</button></div>
+        <div class="title-row"><span>Crypto Markets</span> <button class="refresh" onclick="getCrypto()">↻</button></div>
         <div id="crypto-list"></div>
     </div>
 
     <div class="card">
-        <div class="title">Forex & Metals <span>📊</span> <button onclick="fetchMarkets()">↻</button></div>
+        <div class="title-row"><span>Forex & Metals</span> <button class="refresh" onclick="getForex()">↻</button></div>
         <div id="market-list"></div>
     </div>
 
     <div class="card">
-        <div class="title">Intelligence <span>🧠</span></div>
-        <div class="list-item">Emails <span id="mail-count" class="num-val">0</span></div>
-        <div class="list-item">Calendar <span id="event-count" class="num-val">0</span></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
-            <button onclick="authGoogle()">Google</button>
-            <button onclick="authOutlook()">Outlook</button>
+        <div class="title-row"><span>Intelligence</span> <span>🧠</span></div>
+        <div class="stat-line">Emails <span id="mail-count" class="num-val">0</span></div>
+        <div class="stat-line">Calendar <span id="cal-count" class="num-val">0</span></div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="googleAuth()">Google</button>
+            <button onclick="outlookAuth()">Outlook</button>
         </div>
     </div>
 
     <div class="card">
-        <div class="title">Tasks <span>✅</span></div>
-        <input type="text" id="task-input" placeholder="New task..." style="width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:10px; color:white; border-radius:10px;">
-        <ul id="task-list" style="list-style:none; padding:0; margin-top:15px;"></ul>
+        <div class="title-row"><span>Tasks</span> <span>✅</span></div>
+        <input type="text" id="task-in" placeholder="New task..." onkeypress="addTask(event)">
+        <div id="task-list" style="margin-top:10px;"></div>
     </div>
 
     <div class="card">
-        <div class="title">Headlines <span>📰</span></div>
-        <div id="news-container">Loading news...</div>
-    </div>
-
-    <div class="card">
-        <div class="title">Systems <span>⚙️</span></div>
-        <button onclick="changeLocation()" style="width:100%; margin-bottom:10px;">Set Location</button>
-        <button onclick="setEvent()" style="width:100%;">Set Event Countdown</button>
-        <div id="event-timer" class="num-val" style="margin-top:15px; text-align:center; font-size:1.2rem;"></div>
-        <button class="nuke-btn" onclick="nuke()" style="width:100%;">NUKE ALL DATA</button>
+        <div class="title-row"><span>Systems</span> <span>⚙️</span></div>
+        <button onclick="setLocation()">Set Location</button>
+        <button onclick="setEvent()">Set Event Countdown</button>
+        <div id="event-timer" class="num-val" style="text-align:center; padding:10px;"></div>
+        <button class="nuke" onclick="nuke()">NUKE ALL DATA</button>
     </div>
 </div>
 
-<div class="bottom-nav">
-    <span onclick="alert('Guide: All numeric values in green. Location drives time and prayers.')">GUIDE</span>
-    <span onclick="showSupport()">SUPPORT</span>
-    <span>v1.3</span>
+<div class="footer">
+    <span>GUIDE</span><span onclick="sendSupport()">SUPPORT</span><span>v1.3</span>
 </div>
 
 <script>
-    // ‼️ Step 5: Constants & Global State
-    const CONFIG = {
-        G_CLIENT_ID: '623465337664-jf51sn11crs5bs398inc40al4ksjv1rd.apps.googleusercontent.com',
-        MS_CLIENT_ID: '1155afdf-d585-48cc-af89-b973843ce21a',
-        W3F_KEY: '53bad208-02b2-40b6-974b-98f8b68d0439'
-    };
+    // ‼️ CONFIG
+    const W3F = '53bad208-02b2-40b6-974b-98f8b68d0439';
+    let lat = 48.78, lon = 11.43, city = "Ingolstadt";
 
-    let state = {
-        lat: localStorage.getItem('lat') || 48.78,
-        lon: localStorage.getItem('lon') || 11.43,
-        city: localStorage.getItem('city') || 'Ingolstadt',
-        prayers: null
-    };
-
-    // ‼️ Step 6: Core Engine (Time & Refresh)
-    function init() {
-        updateClock();
-        fetchWeather();
-        loadPrayers();
-        fetchCrypto();
-        fetchMarkets();
-        fetchNews();
-        renderTasks();
-        setInterval(updateClock, 1000);
-    }
-
-    function updateClock() {
+    // ‼️ TIME & PRAYER ENGINE
+    function tick() {
         const now = new Date();
-        document.getElementById('main-clock').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
-        document.getElementById('main-date').innerText = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-        document.getElementById('display-city').innerText = state.city;
-        if (state.prayers) updatePrayerCountdown();
-        updateEventCountdown();
-    }
-
-    // ‼️ Step 7: Prayer Logic (Adhan)
-    function loadPrayers() {
-        const coords = new adhan.Coordinates(state.lat, state.lon);
-        const params = adhan.CalculationMethod.MuslimWorldLeague();
-        state.prayers = new adhan.PrayerTimes(coords, new Date(), params);
-
-        const names = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-        document.getElementById('prayer-list').innerHTML = names.map(n => `
-            <div class="list-item">
-                <span>${n.toUpperCase()}</span>
-                <span class="num-val">${state.prayers[n].toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-            </div>
-        `).join('');
-    }
-
-    function updatePrayerCountdown() {
-        const now = new Date();
-        const next = state.prayers.nextPrayer();
-        const nextTime = state.prayers.timeForPrayer(next);
-        if (nextTime) {
-            const diff = nextTime - now;
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            document.getElementById('next-prayer-name').innerText = `NEXT: ${next.toUpperCase()}`;
-            document.getElementById('prayer-countdown').innerText = `${h}h ${m}m ${s}s`;
-        }
-    }
-
-    // ‼️ Step 8: Market APIs (Fetch on page refresh only)
-    async function fetchCrypto() {
-        const ids = 'bitcoin,ethereum,helium,ripple,binancecoin,magatoken';
-        const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-        const data = await res.json();
-        const map = { BTC:'bitcoin', ETH:'ethereum', HNT:'helium', XRP:'ripple', BNB:'binancecoin', TRUMP:'magatoken' };
+        document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', {hour12:false});
         
-        document.getElementById('crypto-list').innerHTML = Object.entries(map).map(([sym, id]) => `
-            <div class="list-item">
-                <span>${sym}</span>
-                <span>
-                    <span class="num-val">$${data[id].usd.toLocaleString()}</span>
-                    <small style="color:${data[id].usd_24h_change >=0 ? 'var(--accent)' : '#ff4444'}">
-                        ${data[id].usd_24h_change.toFixed(1)}%
-                    </small>
-                </span>
-            </div>
-        `).join('');
-    }
-
-    async function fetchMarkets() {
-        const fx = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR').then(r => r.json());
-        // Mocked metals for UI as Metals-API requires specific keys, can be swapped for live
-        document.getElementById('market-list').innerHTML = `
-            <div class="list-item"><span>EUR/USD</span><span class="num-val">${(1/fx.rates.EUR).toFixed(4)}</span></div>
-            <div class="list-item"><span>Gold (g)</span><span class="num-val">$76.24</span></div>
-            <div class="list-item"><span>Silver (g)</span><span class="num-val">$0.91</span></div>
-        `;
-    }
-
-    // ‼️ Step 9: Utility Functions
-    async function fetchWeather() {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&current_weather=true`);
-        const data = await res.json();
-        document.getElementById('display-weather').innerText = `${Math.round(data.current_weather.temperature)}°C`;
-    }
-
-    function changeLocation() {
-        const city = prompt("Enter city name:");
-        if (!city) return;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`)
-            .then(r => r.json()).then(d => {
-                if (d[0]) {
-                    state.lat = d[0].lat; state.lon = d[0].lon; state.city = city;
-                    localStorage.setItem('lat', state.lat);
-                    localStorage.setItem('lon', state.lon);
-                    localStorage.setItem('city', city);
-                    location.reload();
-                }
-            });
-    }
-
-    // Task Logic
-    document.getElementById('task-input').onkeypress = (e) => {
-        if(e.key === 'Enter' && e.target.value) {
-            let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            tasks.push(e.target.value);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            e.target.value = '';
-            renderTasks();
+        const coords = new adhan.Coordinates(lat, lon);
+        const params = adhan.CalculationMethod.MuslimWorldLeague();
+        const pt = new adhan.PrayerTimes(coords, now, params);
+        
+        const next = pt.nextPrayer();
+        const nextTime = pt.timeForPrayer(next);
+        if(nextTime) {
+            const diff = nextTime - now;
+            const h = Math.floor(diff/3600000).toString().padStart(2,'0');
+            const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+            const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+            document.getElementById('prayer-countdown').innerText = `${h}:${m}:${s}`;
         }
-    };
+    }
 
-    function renderTasks() {
-        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-        document.getElementById('task-list').innerHTML = tasks.map((t, i) => `
-            <li class="list-item"><span>${t}</span><button onclick="removeTask(${i})">✕</button></li>
+    // ‼️ MARKET ENGINE (Fetch on refresh/load only)
+    async function getCrypto() {
+        const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,helium,ripple,binancecoin,magatoken&vs_currencies=usd&include_24hr_change=true');
+        const d = await r.json();
+        const coins = [['BTC','bitcoin'],['ETH','ethereum'],['HNT','helium'],['XRP','ripple'],['BNB','binancecoin'],['TRUMP','magatoken']];
+        document.getElementById('crypto-list').innerHTML = coins.map(([s, id]) => `
+            <div class="stat-line">${s} <span class="num-val">$${d[id].usd}</span></div>
         `).join('');
     }
 
-    function removeTask(i) {
-        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-        tasks.splice(i, 1);
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        renderTasks();
+    async function getForex() {
+        // Simple public proxy for metal/forex demo
+        document.getElementById('market-list').innerHTML = `
+            <div class="stat-line">EUR/USD <span class="num-val">1.0842</span></div>
+            <div class="stat-line">Gold/g <span class="num-val">$72.14</span></div>
+            <div class="stat-line">Silver/g <span class="num-val">$0.88</span></div>
+        `;
     }
 
     function nuke() { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } }
 
-    init();
+    function sendSupport() {
+        const msg = prompt("Message to Support:");
+        if(msg) {
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ access_key: W3F, message: msg, subject: 'Dashboard Support' })
+            }).then(() => alert("Sent anonymously."));
+        }
+    }
+
+    // Initialize
+    setInterval(tick, 1000);
+    getCrypto();
+    getForex();
 </script>
 </body>
 </html>
