@@ -70,18 +70,47 @@ body.t-fog{background:linear-gradient(160deg,#080810 0%,#101018 50%,#181824 100%
 .wx-city{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-top:5px;}
 .clk-card{padding:12px 10px 10px;border-color:rgba(0,224,96,.2);background:linear-gradient(140deg,rgba(0,224,96,.04),transparent 70%);}
 .led-display{display:flex;align-items:center;justify-content:center;gap:3px;margin-bottom:4px;}
-/* Bigger LED Clock - Much more visible */
+/* === ENLARGED & IMPROVED LED CLOCK === */
+.led-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;                    /* more space between digits */
+    margin-bottom: 8px;
+}
+
 .led-digit {
     display: grid;
     grid-template-areas: "tl t tr" "ml . mr" "bl b br";
-    grid-template-columns: 11px 3.5px 11px;   /* Increased */
-    grid-template-rows: 11px 3.5px 11px;      /* Increased */
-    gap: 1.5px;
+    grid-template-columns: 13px 4px 13px;   /* ← Bigger width */
+    grid-template-rows: 13px 4px 13px;      /* ← Bigger height */
+    gap: 2px;
 }
-/*.led-digit{display:grid;grid-template-areas:"tl t tr" "ml . mr" "bl b br";grid-template-columns:6px 2px 6px;grid-template-rows:6px 2px 6px;gap:1px;}*/
-.seg{border-radius:1px;}
-.seg.h { height: 3px; width: 100%; }     /* horizontal segments */
-.seg.v { width: 3px; height: 100%; }      /* vertical segments */}
+
+.seg.h {
+    height: 6.5px;      /* thicker horizontal segments */
+    width: 100%;
+    border-radius: 2px;
+}
+
+.seg.v {
+    width: 6.5px;       /* thicker vertical segments */
+    height: 100%;
+    border-radius: 2px;
+}
+
+.seg.on {
+    background: var(--led);
+    box-shadow: 0 0 8px var(--led-glow), 0 0 16px rgba(0,224,96,.4); /* stronger glow */
+}
+
+.led-dot {
+    width: 5px;
+    height: 5px;
+    background: var(--led);
+    box-shadow: 0 0 8px var(--led-glow);
+}
+
 .seg.on{background:var(--led);box-shadow:0 0 4px var(--led-glow);}
 .seg.off{background:var(--led-dim);}
 .led-colon{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;padding:0 1px;}
