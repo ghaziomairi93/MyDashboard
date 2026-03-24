@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dashboard v1.3 PRO</title>
+<title>Dashboard v1.4</title>
 
 <style>
 :root{
@@ -24,39 +24,30 @@ color:#e8e8e8;
 .dashboard{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:16px;
-padding:16px;
+gap:14px;
+padding:14px;
 }
 
 .card{
 background:var(--card);
 border:1px solid var(--border);
-border-radius:18px;
-padding:18px;
-backdrop-filter:blur(14px);
+border-radius:16px;
+padding:16px;
+backdrop-filter:blur(12px);
 }
 
-.title{
-margin-bottom:10px;
-opacity:0.8;
-font-weight:600;
-}
-
-.value{
-color:var(--accent);
-font-size:1.4em;
-font-weight:600;
-}
+.title{margin-bottom:10px;opacity:0.8;font-weight:600;}
+.value{color:var(--accent);font-weight:600;}
 
 ul{list-style:none;padding:0;margin:0;}
 li{display:flex;justify-content:space-between;padding:6px 0;}
 
 button{
 width:100%;
-margin-top:12px;
-padding:12px;
+margin-top:10px;
+padding:10px;
 border:none;
-border-radius:12px;
+border-radius:10px;
 background:rgba(255,255,255,0.1);
 color:white;
 }
@@ -87,19 +78,45 @@ color:white;
 <div class="card">
 <div class="title">Crypto</div>
 <ul id="crypto"></ul>
-<button onclick="refreshData()">Refresh</button>
 </div>
 
 <div class="card">
 <div class="title">Forex & Metals</div>
 <ul id="forex"></ul>
-<button onclick="refreshData()">Refresh</button>
+</div>
+
+<div class="card">
+<div class="title">Tasks</div>
+<ul id="tasks"></ul>
+<button onclick="addTask()">Add Task</button>
 </div>
 
 <div class="card">
 <div class="title">Event Countdown</div>
 <div id="eventCountdown">No event</div>
-<button id="eventBtn" onclick="setEvent()">＋ Create Event</button>
+<button onclick="setEvent()" id="eventBtn">＋ Create Event</button>
+</div>
+
+<div class="card" onclick="newQuote()">
+<div class="title">Quote</div>
+<div id="quote">Tap to change quote</div>
+</div>
+
+<div class="card">
+<div class="title">News</div>
+<ul id="news"></ul>
+</div>
+
+<div class="card">
+<div class="title">Support</div>
+<input id="email" placeholder="Email (optional)">
+<textarea id="msg" placeholder="Message"></textarea>
+<button onclick="sendSupport()">Send</button>
+</div>
+
+<div class="card">
+<div class="title">System</div>
+<button onclick="nuke()">NUKE</button>
 </div>
 
 </div>
@@ -110,166 +127,150 @@ color:white;
 
 // STATE
 let state = JSON.parse(localStorage.getItem("state")) || {
-lat:48.78,
-lon:11.43,
-timezone:"UTC"
+lat:48.78, lon:11.43, timezone:"UTC"
 };
 
-// SAVE STATE
-function saveState(){
-localStorage.setItem("state",JSON.stringify(state));
-}
-
-// TIMEZONE
-async function loadTimezone(){
-const res=await fetch(`https://api.bigdatacloud.net/data/timezone-by-location?latitude=${state.lat}&longitude=${state.lon}`);
-const data=await res.json();
-state.timezone=data.timeZoneId;
-saveState();
-}
+// SAVE
+function save(){ localStorage.setItem("state",JSON.stringify(state)); }
 
 // CLOCK
-function updateClock(){
-const now=new Date().toLocaleTimeString("en-US",{timeZone:state.timezone});
-document.getElementById("clock").innerText=now;
+setInterval(()=>{
+document.getElementById("clock").innerText =
+new Date().toLocaleTimeString("en-US",{timeZone:state.timezone});
+},1000);
+
+// LOCATION
+async function changeLocation(){
+const city=prompt("City");
+const d=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`).then(r=>r.json());
+state.lat=d[0].lat; state.lon=d[0].lon;
+
+const tz=await fetch(`https://api.bigdatacloud.net/data/timezone-by-location?latitude=${state.lat}&longitude=${state.lon}`).then(r=>r.json());
+state.timezone=tz.timeZoneId;
+
+save(); init();
 }
-setInterval(updateClock,1000);
 
 // WEATHER
-async function loadWeather(){
+async function weather(){
 const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&current_weather=true`).then(r=>r.json());
-document.getElementById("weather").innerText=`${d.current_weather.temperature}°C`;
+document.getElementById("weather").innerText=d.current_weather.temperature+"°C";
 }
 
 // PRAYER
-let prayerTimes;
-function loadPrayers(){
+let pt;
+function prayers(){
 const params=adhan.CalculationMethod.MuslimWorldLeague();
-prayerTimes=new adhan.PrayerTimes({latitude:state.lat,longitude:state.lon},new Date(),params);
+pt=new adhan.PrayerTimes({latitude:state.lat,longitude:state.lon},new Date(),params);
 
-const list=["fajr","dhuhr","asr","maghrib","isha"];
-document.getElementById("prayers").innerHTML=list.map(p=>{
-const t=prayerTimes[p];
-return `<li>${p.toUpperCase()} <span class="value">${t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></li>`;
+document.getElementById("prayers").innerHTML=["fajr","dhuhr","asr","maghrib","isha"]
+.map(p=>{
+const t=pt[p];
+return `<li>${p.toUpperCase()} <span class="value">${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}</span></li>`;
 }).join("");
 }
 
 // NEXT PRAYER
-function updateNextPrayer(){
-if(!prayerTimes) return;
+setInterval(()=>{
+if(!pt) return;
 const now=new Date();
-
 for(let p of ["fajr","dhuhr","asr","maghrib","isha"]){
-if(prayerTimes[p]>now){
-const diff=prayerTimes[p]-now;
+if(pt[p]>now){
+const diff=pt[p]-now;
 const h=Math.floor(diff/3600000);
 const m=Math.floor((diff%3600000)/60000);
-document.getElementById("nextPrayer").innerText=`Next: ${p.toUpperCase()} · in ${h}h ${m}m`;
-return;
+document.getElementById("nextPrayer").innerText=`Next: ${p.toUpperCase()} · ${h}h ${m}m`;
+break;
 }
 }
-}
-setInterval(updateNextPrayer,1000);
+},1000);
 
 // CRYPTO
-async function loadCrypto(){
-const d=await fetch('/api/crypto').then(r=>r.json());
-
-const coins={
-BTC:d.bitcoin,
-ETH:d.ethereum,
-SOL:d.solana,
-HNT:d.helium,
-XRP:d.ripple
-};
-
-document.getElementById("crypto").innerHTML =
-Object.entries(coins).map(([k,v])=>{
-const c=v.usd_24h_change||0;
-const color=c>=0?'#00ff9c':'#ff4d4d';
-return `<li>${k} <span class="value">$${v.usd} <span style="color:${color}">(${c.toFixed(2)}%)</span></span></li>`;
-}).join("");
+async function crypto(){
+const d=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,helium,ripple&vs_currencies=usd').then(r=>r.json());
+document.getElementById("crypto").innerHTML=Object.entries(d)
+.map(([k,v])=>`<li>${k.toUpperCase()} <span class="value">$${v.usd}</span></li>`).join("");
 }
 
 // FOREX
-async function loadForex(){
-const fx=await fetch('/api/forex').then(r=>r.json());
-const metals=await fetch('https://api.metals.dev/v1/latest?api_key=demo&currency=USD&unit=g').then(r=>r.json());
+async function forex(){
+const fx=await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR').then(r=>r.json());
+document.getElementById("forex").innerHTML=`<li>EUR/USD <span class="value">${fx.rates.EUR}</span></li>`;
+}
 
-document.getElementById("forex").innerHTML=`
-<li>EUR/USD <span class="value">${fx.rates.EUR}</span></li>
-<li>Gold/g <span class="value">${metals.metals.gold}</span></li>
-<li>Silver/g <span class="value">${metals.metals.silver}</span></li>
-`;
+// TASKS
+function addTask(){
+const t=prompt("Task");
+if(!t) return;
+let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
+tasks.push(t);
+localStorage.setItem("tasks",JSON.stringify(tasks));
+loadTasks();
+}
+function loadTasks(){
+let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
+document.getElementById("tasks").innerHTML=tasks.map(t=>`<li>${t}</li>`).join("");
 }
 
 // EVENT
 function setEvent(){
 const val=prompt("YYYY-MM-DD HH:MM");
-if(val){
-localStorage.setItem("event",val);
+if(val) localStorage.setItem("event",val);
 }
-updateEvent();
-}
-
-function updateEvent(){
+setInterval(()=>{
 const e=localStorage.getItem("event");
-const btn=document.getElementById("eventBtn");
-
-if(!e){
-btn.innerText="＋ Create Event";
-document.getElementById("eventCountdown").innerText="No event";
-return;
-}
-
+if(!e){ document.getElementById("eventCountdown").innerText="No event"; return;}
 const diff=new Date(e)-new Date();
-
-if(diff<=0){
-document.getElementById("eventCountdown").innerText="Event passed";
-btn.innerText="Change Event";
-return;
-}
-
-btn.innerText="Change Event";
-
 const h=Math.floor(diff/3600000);
 const m=Math.floor((diff%3600000)/60000);
-
 document.getElementById("eventCountdown").innerText=`in ${h}h ${m}m`;
-}
-setInterval(updateEvent,1000);
+},1000);
 
-// LOCATION
-async function changeLocation(){
-const city=prompt("Enter city");
-if(!city) return;
-
-const d=await fetch(`/api/geocode?city=${city}`).then(r=>r.json());
-
-state.lat=d.lat;
-state.lon=d.lon;
-
-await init();
+// QUOTE
+function newQuote(){
+fetch('https://api.quotable.io/random').then(r=>r.json())
+.then(d=>document.getElementById("quote").innerText=d.content);
 }
 
-// REFRESH LOOP
-async function refreshData(){
-await loadWeather();
-await loadCrypto();
-await loadForex();
+// NEWS
+async function news(){
+const d=await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/rss.xml').then(r=>r.json());
+document.getElementById("news").innerHTML=d.items.slice(0,5)
+.map(n=>`<li>${n.title}</li>`).join("");
+}
+
+// SUPPORT
+function sendSupport(){
+fetch('https://api.web3forms.com/submit',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+access_key:'53bad208-02b2-40b6-974b-98f8b68d0439',
+email:document.getElementById("email").value,
+message:document.getElementById("msg").value
+})
+});
+alert("Sent");
+}
+
+// NUKE
+function nuke(){
+localStorage.clear();
+location.reload();
 }
 
 // INIT
-async function init(){
-await loadTimezone();
-loadPrayers();
-refreshData();
-updateEvent();
-saveState();
+function init(){
+weather();
+prayers();
+crypto();
+forex();
+news();
+loadTasks();
 }
 
 init();
-setInterval(refreshData,30000);
+setInterval(()=>{crypto(); forex();},30000);
 
 </script>
 
