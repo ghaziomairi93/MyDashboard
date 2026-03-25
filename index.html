@@ -622,10 +622,10 @@ input[type=date]:focus,input[type=time]:focus{border-color:rgba(24,216,240,.4);}
   <div class="gb"><h3>&#9728;&#65039; Prayer Times</h3><ul><li>Fajr, Dhuhr, Asr, Maghrib, Isha via Aladhan API — requires location</li><li>Next prayer highlighted in teal</li></ul></div>
   <div class="gb"><h3>&#128204; Next Prayer</h3><ul><li>Shows name and live countdown to next prayer time</li><li>Updates every minute automatically</li></ul></div>
   <!-- <div class="gb"><h3>&#128240; Headlines</h3><ul><li>Top 5 NYT headlines — tap to open full article</li></ul></div> -->
-  <div class="gb">
-    <h3>&#128240; Headlines</h3>
-    <ul>
-      <li>Top 5 automotive headlines and top 5 Arabic Middle East headlines — tap to open the source article</li>
+<div class="gb">
+  <h3>&#128240; Headlines</h3>
+  <ul>
+    <li>Top 5 automotive headlines and top 5 Arabic Middle East headlines — tap to open the source article</li>
   </ul>
 </div>
   <div class="gb"><h3>&#9203; Countdown</h3><ul><li>Tap Create Event — name, date and optional time</li><li>Under 24h: live HH:MM:SS. Over 24h: Days and Hours</li><li>Button changes to Change Event once a countdown is active</li></ul></div>
@@ -669,9 +669,22 @@ var MS_SCOPE='openid profile User.Read Mail.Read offline_access';
 var MS_AUTH='https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize';
 var MS_TOK='https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
 var W3F='53bad208-02b2-40b6-974b-98f8b68d0439';
-var AUTO_FEED='https://www.reutersagency.com/feed/?best-topics=automotive';
-var LEB_FEED='https://nna-leb.gov.lb/en/rss';
+
+var NEWS_REFRESH=60*1000; /* 1 minute for headlines */
+
+var AUTO_FEEDS=[
+  {label:'Motor1 Industry',url:'https://www.motor1.com/rss/category/industry/'},
+  {label:'InsideEVs Industry',url:'https://insideevs.com/rss/category/industry/'},
+  {label:'HT Auto News',url:'https://auto.hindustantimes.com/rss/auto/news'}
+];
+
+var ME_FEEDS=[
+  {label:'Al Jadeed',url:'https://www.aljadeed.tv/rss'},
+  {label:'NNA Lebanon',url:'PUT_REAL_NNA_RSS_URL_HERE'}
+];
+
 var REFRESH=15*1000; /* 15 seconds */
+
 var PRAYER_NAMES=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
 var WX_LABEL={0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Overcast',45:'Foggy',48:'Icy Fog',51:'Drizzle',53:'Drizzle',55:'Heavy Drizzle',61:'Light Rain',63:'Rain',65:'Heavy Rain',71:'Light Snow',73:'Snow',75:'Heavy Snow',80:'Showers',81:'Showers',82:'Heavy Showers',95:'Thunderstorm',96:'Thunderstorm',99:'Thunderstorm'};
 var WX_THEME={0:'clear',1:'clear',2:'cloudy',3:'cloudy',45:'fog',48:'fog',51:'rain',53:'rain',55:'rain',61:'rain',63:'rain',65:'rain',71:'snow',73:'snow',75:'snow',80:'rain',81:'rain',82:'rain',95:'storm',96:'storm',99:'storm'};
@@ -811,9 +824,11 @@ document.addEventListener('DOMContentLoaded',function(){
   wire('vstamp','click',function(){buildCL();showOv('cl-ov');});
 
   initLocUI();renderDayBars();renderTasks();setPickersToday();initCDTimer();initQuote();buildCL();
-  loadCrypto();  setInterval(loadCrypto,  REFRESH);
+loadCrypto();  setInterval(loadCrypto,  REFRESH);
 loadForex();   setInterval(loadForex,   REFRESH);
 loadNews();    setInterval(loadNews,    NEWS_REFRESH);
+
+requestAnimationFrame(clockTick);
 
   requestAnimationFrame(clockTick);
 
