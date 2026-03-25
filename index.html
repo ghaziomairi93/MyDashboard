@@ -622,7 +622,12 @@ input[type=date]:focus,input[type=time]:focus{border-color:rgba(24,216,240,.4);}
   <div class="gb"><h3>&#9728;&#65039; Prayer Times</h3><ul><li>Fajr, Dhuhr, Asr, Maghrib, Isha via Aladhan API — requires location</li><li>Next prayer highlighted in teal</li></ul></div>
   <div class="gb"><h3>&#128204; Next Prayer</h3><ul><li>Shows name and live countdown to next prayer time</li><li>Updates every minute automatically</li></ul></div>
   <!-- <div class="gb"><h3>&#128240; Headlines</h3><ul><li>Top 5 NYT headlines — tap to open full article</li></ul></div> -->
-  <li>Top 3 automotive and top 2 Middle East political headlines — tap to open the source article</li>
+  <div class="gb">
+    <h3>&#128240; Headlines</h3>
+    <ul>
+      <li>Top 5 automotive headlines and top 5 Arabic Middle East headlines — tap to open the source article</li>
+  </ul>
+</div>
   <div class="gb"><h3>&#9203; Countdown</h3><ul><li>Tap Create Event — name, date and optional time</li><li>Under 24h: live HH:MM:SS. Over 24h: Days and Hours</li><li>Button changes to Change Event once a countdown is active</li></ul></div>
   <div class="gb"><h3>&#128276; Reminders</h3><ul><li>Date and time picker sets due time — tap + to add task</li><li>Checkbox marks done — trash icon deletes permanently</li><li>Clear Done removes all completed tasks</li></ul></div>
   <div class="gb"><h3>&#128197; Google Calendar</h3><ul><li>Sign In with Google — Add creates real events in your calendar</li><li>Tap any event to open it in the Google Calendar app</li><li>Trash icon deletes from Google Calendar server</li></ul></div>
@@ -807,8 +812,8 @@ document.addEventListener('DOMContentLoaded',function(){
 
   initLocUI();renderDayBars();renderTasks();setPickersToday();initCDTimer();initQuote();buildCL();
   loadCrypto();  setInterval(loadCrypto,  REFRESH);
-  loadForex();   setInterval(loadForex,   REFRESH);
-  loadNews();
+loadForex();   setInterval(loadForex,   REFRESH);
+loadNews();    setInterval(loadNews,    NEWS_REFRESH);
 
   requestAnimationFrame(clockTick);
 
@@ -1016,7 +1021,7 @@ var e=el('news-list');if(!e)return;
 e.innerHTML='<div class="empty">Loading\u2026</div>';
 
 function rss2jsonUrl(url){
-  return 'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url);
+  return 'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url)+'&count=8&_='+(Date.now());
 }
 
 function esc(s){
@@ -1035,37 +1040,69 @@ function fmtDate(v){
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
-function renderGroup(title,items,sourceLabel){
+function cleanTitle(t){
+  return String(t||'').replace(/\s+/g,' ').trim();
+}
+
+function fetchFeed(feed,count){
+  return fetch(rss2jsonUrl(feed.url),{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      return ((d&&d.items)||[]).slice(0,count).map(function(item){
+        return {
+          title:cleanTitle(item.title||'Untitled'),
+          link:item.link||'#',
+          source:feed.label,
+          pubDate:item.pubDate||''
+        };
+      });
+    })
+    .catch(function(){return [];});
+}
+
+function dedupe(items,limit){
+  var seen={};
+  return items.filter(function(item){
+    var k=(item.title||'').toLowerCase();
+    if(!k)return false;
+    if(seen[k])return false;
+    seen[k]=1;
+    return true;
+  }).slice(0,limit);
+}
+
+function renderGroup(title,items){
   if(!items.length){
     return '<div class="news-group"><div class="news-group-title">'+esc(title)+'</div><div class="empty">No headlines available</div></div>';
   }
 
-  return '<div class="news-group"><div class="news-group-title">'+esc(title)+'</div>' +
+  return '<div class="news-group">' +
+    '<div class="news-group-title">'+esc(title)+'</div>' +
     items.map(function(item){
       var dt=fmtDate(item.pubDate);
-      return '<a class="ni" href="'+esc(item.link||'#')+'" target="_blank" rel="noopener noreferrer">' +
-        '<div class="nt">'+esc(item.title||'Untitled')+'</div>' +
-        '<div class="nm">'+esc(sourceLabel)+(dt?' \u00b7 '+dt:'')+'</div>' +
+      return '<a class="ni" href="'+esc(item.link)+'" target="_blank" rel="noopener noreferrer">' +
+        '<div class="nt">'+esc(item.title)+'</div>' +
+        '<div class="nm">'+esc(item.source)+(dt?' \u00b7 '+dt:'')+'</div>' +
       '</a>';
     }).join('') +
   '</div>';
 }
 
 Promise.all([
-  fetch(rss2jsonUrl(AUTO_FEED)).then(function(r){return r.json();}),
-  fetch(rss2jsonUrl(LEB_FEED)).then(function(r){return r.json();})
+  Promise.all(AUTO_FEEDS.map(function(feed){return fetchFeed(feed,5);})),
+  Promise.all(ME_FEEDS.map(function(feed){return fetchFeed(feed,5);}))
 ]).then(function(results){
-  var autoItems=((results[0]&&results[0].items)||[]).slice(0,3);
-  var lebItems=((results[1]&&results[1].items)||[]).slice(0,2);
+  var autoItems=dedupe([].concat.apply([],results[0]||[]),5);
+  var meItems=dedupe([].concat.apply([],results[1]||[]),5);
 
-  if(!autoItems.length&&!lebItems.length){
+  if(!autoItems.length&&!meItems.length){
     e.innerHTML='<div class="empty">No headlines available</div>';
     return;
   }
 
   e.innerHTML=
-    renderGroup('Top Automotive News',autoItems,'Reuters Automotive')+
-    renderGroup('Top Middle East Political News',lebItems,'NNA Lebanon');
+    renderGroup('Top Automotive News',autoItems)+
+    renderGroup('\u0623\u0647\u0645 \u0623\u062e\u0628\u0627\u0631 \u0627\u0644\u0634\u0631\u0642 \u0627\u0644\u0623\u0648\u0633\u0637',meItems);
 }).catch(function(){
   e.innerHTML='<div class="empty">Could not load news</div>';
 });
