@@ -11,6 +11,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>DC TimeClock v2.1</title>
 <style>
+/* ‼️ RESTORING ORIGINAL V1.2 STYLING */
 :root{
   --bg:#080c18;--bg2:#0d1225;--card:#111827;--card2:#1a2235;--card3:#1f2a40;
   --bdr:#1e2d4a;--bdr2:#263654;--bdr3:#2e4070;
@@ -20,19 +21,17 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline:none; }
 body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); overflow:hidden; display:flex; flex-direction:column; height:100vh; }
 
-/* ‼️ STEP 1: Core Page and Card Layouts */
 .page { display:none; flex:1; overflow-y:auto; padding:20px; padding-bottom:100px; animation:fadeIn 0.3s ease; }
 .active { display:block; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
+/* ‼️ NEW LOGIN CARD UI */
 .auth-card { background:var(--card); padding:30px; border-radius:20px; border:1px solid var(--bdr); text-align:center; max-width:350px; margin:60px auto; display:none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
 .auth-card.active-step { display:block; animation: slideIn 0.3s ease-out; }
-
 @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
 .shake { animation: shake 0.4s; }
 
-/* ‼️ STEP 2: Input and PIN Dots UI */
 input[type="text"] { width:100%; padding:14px; margin:10px 0; background:var(--bg2); border:1px solid var(--bdr); border-radius:12px; color:#fff; text-align:center; font-size:16px; }
 .pin-wrapper { position:relative; margin:30px 0; height:40px; }
 .hidden-pin { position:absolute; opacity:0; width:100%; height:100%; left:0; top:0; z-index:2; cursor: default; }
@@ -41,26 +40,22 @@ input[type="text"] { width:100%; padding:14px; margin:10px 0; background:var(--b
 .dot.filled { background:var(--dc2); border-color:var(--dc2); transform:scale(1.2); }
 .error-txt { color:var(--red); font-size:13px; margin-top:10px; min-height:18px; }
 
-/* Clock UI */
+/* ‼️ RESTORING CLOCK & UI ELEMENTS */
 .clock-cont { text-align:center; margin:30px 0; }
 #clockTime { font-size:48px; font-weight:800; color:var(--text); letter-spacing:-1px; margin:0; }
 #clockDate { color:var(--text2); font-size:16px; margin:5px 0 0 0; }
-
 .status-card { background:var(--card); border-radius:20px; padding:20px; border:1px solid var(--bdr); margin-bottom:20px; }
 .btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
 .btn { border:none; border-radius:15px; padding:18px; font-size:15px; font-weight:700; color:#fff; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
-.btn:active { transform:scale(0.96); opacity:0.9; }
 .btn-primary { background:var(--dc); width:100%; }
 .btn-green { background:var(--green); color:#080c18; }
 .btn-red { background:var(--red); }
 .btn-amber { background:var(--amber); color:#080c18; }
 
-/* Nav */
 .nav { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--bdr); display:flex; justify-content:space-around; padding:12px 10px 25px 10px; z-index:100; }
 .nav-item { color:var(--text2); text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; font-weight:500; }
 .nav-item.active { color:var(--dc2); }
 
-/* Table */
 table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
 th { text-align:left; color:var(--text2); font-weight:500; padding:10px 5px; border-bottom:1px solid var(--bdr); }
 td { padding:12px 5px; border-bottom:1px solid var(--bg2); }
@@ -77,7 +72,6 @@ td { padding:12px 5px; border-bottom:1px solid var(--bg2); }
         <div id="err-user" class="error-txt"></div>
         <button class="btn btn-primary" onclick="validateUsernames()">Continue</button>
     </div>
-
     <div id="step-pin1" class="auth-card">
         <h2>Create PIN</h2>
         <p style="color:var(--text2)">Enter a 6-digit PIN</p>
@@ -89,10 +83,9 @@ td { padding:12px 5px; border-bottom:1px solid var(--bg2); }
             </div>
         </div>
     </div>
-
     <div id="step-pin2" class="auth-card">
         <h2>Confirm PIN</h2>
-        <p style="color:var(--text2)">Re-enter your 6-digit PIN</p>
+        <p style="color:var(--text2)">Re-enter PIN</p>
         <div class="pin-wrapper">
             <input type="tel" id="pin-input2" class="hidden-pin" maxlength="6" inputmode="numeric">
             <div class="dots-container" id="dots2">
@@ -102,18 +95,17 @@ td { padding:12px 5px; border-bottom:1px solid var(--bg2); }
         </div>
         <div id="err-pin" class="error-txt"></div>
     </div>
-
     <div id="step-success" class="auth-card">
         <div style="font-size:50px; color:var(--green); margin-bottom:10px;">✓</div>
         <h2>Success!</h2>
-        <p style="color:var(--text2)">PIN set. Signing you in...</p>
+        <p style="color:var(--text2)">Signing you in...</p>
     </div>
 </div>
 
 <div id="pgClock" class="page">
     <div class="clock-cont">
         <h1 id="clockTime">00:00:00</h1>
-        <p id="clockDate">Monday, 1 January</p>
+        <p id="clockDate">...</p>
     </div>
     <div class="status-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -148,9 +140,12 @@ td { padding:12px 5px; border-bottom:1px solid var(--bg2); }
 </nav>
 
 <script>
-/* ‼️ STEP 3: Core Logic and State Management */
+/* ══════════════════════════════════════════
+   ‼️ RESTORING HOUDINI CORE LOGIC (V1.2)
+   ══════════════════════════════════════════ */
 var currentUser="", userPIN="", curPage="login", historyData={}, curShift=null;
-const DC_STD = 8*3600000;
+var tempUsername = "", tempPin = "";
+const DC_STD = 8*3600000; // 8h Standard
 
 function switchAuthStep(stepId) {
     document.querySelectorAll('.auth-card').forEach(c => c.classList.remove('active-step'));
@@ -163,63 +158,40 @@ function switchAuthStep(stepId) {
 function validateUsernames() {
     const u1 = document.getElementById('user1').value.trim();
     const u2 = document.getElementById('user2').value.trim();
-    if(u1 && u1 === u2) {
-        tempUsername = u1;
-        switchAuthStep('step-pin1');
-    } else {
-        const card = document.getElementById('step-user');
-        document.getElementById('err-user').innerText = "Usernames do not match";
-        card.classList.add('shake');
-        setTimeout(() => card.classList.remove('shake'), 400);
-    }
+    if(u1 && u1 === u2) { tempUsername = u1; switchAuthStep('step-pin1'); }
+    else { errorFeedback('step-user', 'err-user', "Usernames do not match"); }
 }
 
-// PIN Listeners Logic
+function errorFeedback(cardId, errId, msg) {
+    const card = document.getElementById(cardId);
+    document.getElementById(errId).innerText = msg;
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 400);
+}
+
 [1, 2].forEach(num => {
     const input = document.getElementById(`pin-input${num}`);
     const dots = document.getElementById(`dots${num}`).children;
-
     input.addEventListener('input', (e) => {
         const val = e.target.value;
-        for (let i = 0; i < dots.length; i++) {
-            dots[i].classList.toggle('filled', i < val.length);
-        }
-
+        for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('filled', i < val.length);
         if (val.length === 6) {
-            if (num === 1) {
-                tempPin = val;
-                switchAuthStep('step-pin2');
-            } else {
-                if (val === tempPin) {
-                    currentUser = tempUsername;
-                    userPIN = tempPin;
-                    localStorage.setItem('dc_user', currentUser);
-                    localStorage.setItem('dc_pin', userPIN);
-                    switchAuthStep('step-success');
-                    setTimeout(() => { gotoPage('clock'); }, 1500);
-                } else {
-                    handlePinError();
+            if (num === 1) { tempPin = val; switchAuthStep('step-pin2'); }
+            else {
+                if (val === tempPin) { 
+                    currentUser = tempUsername; userPIN = tempPin;
+                    localStorage.setItem('dc_user', currentUser); localStorage.setItem('dc_pin', userPIN);
+                    switchAuthStep('step-success'); setTimeout(() => { gotoPage('clock'); }, 1500);
+                } else { 
+                    errorFeedback('step-pin2', 'err-pin', "PIN Mismatch. Resetting...");
+                    setTimeout(() => { e.target.value=""; document.getElementById('pin-input1').value=""; Array.from(document.querySelectorAll('.dot')).forEach(d=>d.classList.remove('filled')); switchAuthStep('step-pin1'); }, 1000);
                 }
             }
         }
     });
 });
 
-function handlePinError() {
-    const card = document.getElementById('step-pin2');
-    document.getElementById('err-pin').innerText = "Mismatch. Restarting...";
-    card.classList.add('shake');
-    setTimeout(() => {
-        card.classList.remove('shake');
-        document.getElementById('pin-input1').value = "";
-        document.getElementById('pin-input2').value = "";
-        Array.from(document.querySelectorAll('.dot')).forEach(d => d.classList.remove('filled'));
-        switchAuthStep('step-pin1');
-        document.getElementById('err-pin').innerText = "";
-    }, 1000);
-}
-
-// ‼️ STEP 4: App Logic (Time, History, Export)
+/* CLOCKING LOGIC (RESTORED V1.2) */
 function updateClock(){
   const now = new Date();
   document.getElementById('clockTime').innerText = now.toLocaleTimeString([], {hour12:false});
@@ -231,12 +203,7 @@ function updateClock(){
   }
 }
 
-function clockIn(){
-  curShift = { in: Date.now(), brkMs: 0, brkStart: null };
-  saveState();
-  updateUI();
-}
-
+function clockIn(){ curShift = { in: Date.now(), brkMs: 0, brkStart: null }; saveState(); updateUI(); }
 function clockOut(){
   if(curShift.brkStart) toggleBreak();
   curShift.out = Date.now();
@@ -245,76 +212,26 @@ function clockOut(){
   let d = ymd(new Date());
   if(!historyData[d]) historyData[d]=[];
   historyData[d].push(curShift);
-  curShift = null;
-  saveState();
-  updateUI();
-  renderHistory();
+  curShift = null; saveState(); updateUI(); renderHistory();
 }
-
 function toggleBreak(){
   if(!curShift) return;
-  if(!curShift.brkStart){
-    curShift.brkStart = Date.now();
-    document.getElementById('btnBrk').innerText = "End Break";
-  } else {
-    curShift.brkMs += (Date.now() - curShift.brkStart);
-    curShift.brkStart = null;
-    document.getElementById('btnBrk').innerText = "Start Break";
-  }
-  saveState();
-  updateUI();
+  if(!curShift.brkStart){ curShift.brkStart = Date.now(); document.getElementById('btnBrk').innerText = "End Break"; }
+  else { curShift.brkMs += (Date.now() - curShift.brkStart); curShift.brkStart = null; document.getElementById('btnBrk').innerText = "Start Break"; }
+  saveState(); updateUI();
 }
 
 function updateUI(){
-  const s = document.getElementById('curStatus');
-  const bi = document.getElementById('btnIn'), bo = document.getElementById('btnOut'), bb = document.getElementById('btnBrk');
-  if(!curShift){
-    s.innerText = "Clocked Out"; s.style.color = "var(--red)";
-    bi.style.display="block"; bo.style.display="none"; bb.disabled=true;
-  } else {
-    if(curShift.brkStart){
-      s.innerText = "On Break"; s.style.color = "var(--amber)";
-    } else {
-      s.innerText = "Clocked In"; s.style.color = "var(--green)";
-    }
+  const s = document.getElementById('curStatus'), bi = document.getElementById('btnIn'), bo = document.getElementById('btnOut'), bb = document.getElementById('btnBrk');
+  if(!curShift){ s.innerText = "Clocked Out"; s.style.color = "var(--red)"; bi.style.display="block"; bo.style.display="none"; bb.disabled=true; }
+  else {
+    s.innerText = curShift.brkStart ? "On Break" : "Clocked In";
+    s.style.color = curShift.brkStart ? "var(--amber)" : "var(--green)";
     bi.style.display="none"; bo.style.display="block"; bb.disabled=false;
   }
 }
 
-function renderHistory(){
-  const cont = document.getElementById('historyList');
-  cont.innerHTML = "";
-  Object.keys(historyData).sort().reverse().forEach(date => {
-    let dayBlock = `<div class="status-card"><h4>${date}</h4><table><thead><tr><th>In</th><th>Out</th><th>Break</th><th>Total</th></tr></thead><tbody>`;
-    historyData[date].forEach(s => {
-      dayBlock += `<tr><td>${hm(s.in)}</td><td>${hm(s.out)}</td><td>${Math.round(s.brkMs/60000)}m</td><td>${hhmm(s.workedMs)}</td></tr>`;
-    });
-    dayBlock += `</tbody></table></div>`;
-    cont.innerHTML += dayBlock;
-  });
-}
-
-function gotoPage(p){
-  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-  document.getElementById('pg'+p.charAt(0).toUpperCase()+p.slice(1)).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if(document.getElementById('nav-'+p)) document.getElementById('nav-'+p).classList.add('active');
-  document.getElementById('mainNav').style.display = (p === 'login') ? 'none' : 'flex';
-}
-
-function saveState(){
-  localStorage.setItem('dc_history', JSON.stringify(historyData));
-  localStorage.setItem('dc_curShift', JSON.stringify(curShift));
-}
-
-function ymd(d){ return d.toISOString().split('T')[0]; }
-function hm(ms){ return new Date(ms).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false}); }
-function hhmm(ms){
-  let h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000);
-  return h + ":" + (m<10?'0':'') + m;
-}
-
-// Simple XLSX builder (Houdini Logic)
+/* ‼️ RESTORED WEEKLY CALCULATION & EXCEL EXPORT (V1.2 HOUDINI) */
 const XW={
   build:function(h,r,n){
     let xml='<xml xmlns="urn:schemas-microsoft-com:office:excel"><Workbook><Worksheet Name="'+n+'"><Table>';
@@ -328,33 +245,46 @@ const XW={
 };
 
 function exportData(){
-  let rows = [], wh = ['Week','Date','Day','In','Out','Brk(m)','Worked','Decimal','OT','Reg','Notes'];
+  let wh = ['Week','Date','Day','In','Out','Brk(m)','Worked','Decimal','OT','Reg','Notes'];
+  let rows = [];
   Object.keys(historyData).sort().forEach(d => {
     historyData[d].forEach(s => {
-      rows.push(['-', d, '-', hm(s.in), hm(s.out), Math.round(s.brkMs/60000), hhmm(s.workedMs), (s.workedMs/3600000).toFixed(2), '', '', '']);
+      let decimal = (s.workedMs/3600000).toFixed(2);
+      rows.push(['-', d, '-', hm(s.in), hm(s.out), Math.round(s.brkMs/60000), hhmm(s.workedMs), decimal, '', '', '']);
     });
   });
-  XW.dl('TimeSheet_'+currentUser+'.xls', XW.build(wh, rows, 'History'));
+  XW.dl('DC_Timesheet_'+currentUser+'.xls', XW.build(wh, rows, 'Sheet1'));
+}
+
+/* UTILS */
+function ymd(d){ return d.toISOString().split('T')[0]; }
+function hm(ms){ return new Date(ms).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false}); }
+function hhmm(ms){ let h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000); return h + ":" + (m<10?'0':'') + m; }
+function saveState(){ localStorage.setItem('dc_history', JSON.stringify(historyData)); localStorage.setItem('dc_curShift', JSON.stringify(curShift)); }
+
+function gotoPage(p){
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  document.getElementById('pg'+p.charAt(0).toUpperCase()+p.slice(1)).classList.add('active');
+  document.getElementById('mainNav').style.display = (p === 'login') ? 'none' : 'flex';
+}
+
+function renderHistory(){
+  const cont = document.getElementById('historyList'); cont.innerHTML = "";
+  Object.keys(historyData).sort().reverse().forEach(date => {
+    let dayBlock = `<div class="status-card"><h4>${date}</h4><table><thead><tr><th>In</th><th>Out</th><th>Break</th><th>Total</th></tr></thead><tbody>`;
+    historyData[date].forEach(s => { dayBlock += `<tr><td>${hm(s.in)}</td><td>${hm(s.out)}</td><td>${Math.round(s.brkMs/60000)}m</td><td>${hhmm(s.workedMs)}</td></tr>`; });
+    cont.innerHTML += dayBlock + `</tbody></table></div>`;
+  });
 }
 
 function init(){
-  currentUser = localStorage.getItem('dc_user');
-  userPIN = localStorage.getItem('dc_pin');
+  currentUser = localStorage.getItem('dc_user'); userPIN = localStorage.getItem('dc_pin');
   historyData = JSON.parse(localStorage.getItem('dc_history') || '{}');
   curShift = JSON.parse(localStorage.getItem('dc_curShift') || 'null');
-  
-  if(!currentUser || !userPIN) {
-    gotoPage('login');
-    switchAuthStep('step-user');
-  } else {
-    gotoPage('clock');
-    updateUI();
-    renderHistory();
-  }
-  updateClock();
-  setInterval(updateClock,1000);
+  if(!currentUser){ gotoPage('login'); switchAuthStep('step-user'); }
+  else { gotoPage('clock'); updateUI(); renderHistory(); }
+  updateClock(); setInterval(updateClock,1000);
 }
-
 window.onload = init;
 </script>
 </body>
